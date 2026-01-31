@@ -68,7 +68,7 @@
             <div class="sale-invoice-wrap">
                 <h5>Invoice No</h5>
                 <div class="sale_invoice_input_wrap">
-                    <input type="number" oninput="this.value = Math.abs(this.value)" tabindex="-1" name="sale_invoice" id="sale_invoice" value="<?php echo getNextSaleInvoiceNo(); ?>" readonly />
+                    <input type="number" tabindex="-1" name="sale_invoice" id="sale_invoice" value="<?php echo getNextSaleInvoiceNo(); ?>" readonly />
                 </div>
             </div>
             <div class="date-section">
@@ -199,8 +199,7 @@
                                 </tr>
                                 <tr>
                                     <td class="gross-total"></td>
-                                    <!-- <td class="flat-discount"><input type="number" oninput="this.value = Math.abs(this.value)" name="" id="flat_discount" value="0"></td> -->
-                                    <td class="discount"><input type="number" oninput="this.value = Math.abs(this.value)" name="" id="discount" value="0"></td>
+                                    <td class="discount"><input type="number" name="" id="discount" value="0"></td>
                                     <td class="net-total"></td>
                                     <td class="sales-type">
                                         <select id="salesType" name="salesType">
@@ -225,7 +224,7 @@
                                 </tr>
                                 <tr class="partial_payment_row" style="display: none;">
                                     <td class="paid-amount" colspan="3">
-                                        <input type="number" name="" id="paidAmount" value="0" min="0" oninput="this.value = Math.abs(this.value)">
+                                        <input type="number" name="" id="paidAmount" value="0" min="0">
                                     </td>
                                     <td id="due-amount" colspan="2">0</td>
                                 </tr>

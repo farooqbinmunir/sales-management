@@ -5,7 +5,7 @@
         <label for="add_invoice_no">Add Invoice No: </label>
 
         <div>
-            <input type="number" oninput="this.value = Math.abs(this.value)" name="add_invoice_no" id="add_invoice_no" placeholder="Invoice Number" required />
+            <input type="number" name="add_invoice_no" id="add_invoice_no" placeholder="Invoice Number" required />
             <p id="invoice_no_error" style="color: red; display: none;">Invoice not exists.</p>
         </div>
 
@@ -27,13 +27,13 @@
 
             <label for="return_quantity">Quantity returned: </label>
 
-            <input type="number" oninput="this.value = Math.abs(this.value)" name="quantity" id="return_quantity" placeholder="Enter quantity to return" min="1" step="1" required />
+            <input type="number" name="quantity" id="return_quantity" placeholder="Enter quantity to return" min="1" required />
 
         </div>
 
         <div class="return_form_field_group">
             <label for="return_quantity">Amount</label>
-            <input type="text" oninput="this.value = Math.abs(this.value)" name="amount" id="return_amount" placeholder="Amount to return" readonly />
+            <input type="number" name="amount" id="return_amount" placeholder="Amount to return" readonly />
         </div>
 
         <div class="return_form_field_group">

@@ -160,9 +160,9 @@
                     <th class="sale">Sale Price</th>
 
                     <th class="min_quantity">Min Quantity</th>
-                    <th class="products_sold">Sold</th>
+                    <!-- <th class="products_sold">Sold</th> -->
 
-                    <th class="vendor">Vendor</th>
+                    <!-- <th class="vendor">Vendor</th> -->
                     <th class="manufacturer">Manufacturer</th>
 
                     <th class="stock">In-Stock</th>
@@ -245,9 +245,9 @@
                                 <td><span>Rs. </span><span><?php echo $product_sale_price; ?></span></td>
 
                                 <td><?php echo $product_min_quantity; ?></td>
-                                <td><?php echo $sold; ?></td>
+                                <!-- <td><?php echo $sold; ?></td> -->
 
-                                <td><?php echo $product_vendor; ?></td>
+                                <!-- <td><?php echo $product_vendor; ?></td> -->
                                 <td><?php echo $product_manufacturer_name; ?></td>
 
                                 <td>

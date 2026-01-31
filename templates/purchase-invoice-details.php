@@ -27,15 +27,15 @@
                             $purchase_invoice_id = $invoice->purchase_invoice_id;
                             $invoice_data = maybe_unserialize($invoice->invoice_data);
                             $date = $invoice->date;
-                            $saleman = get_saleman_by_invoice_no($invoice_no)->name;
+                            // $saleman = get_saleman_by_invoice_no($invoice_no)->name;
                             ?>
 
                             <table>
                                 <tbody>
-                                    <tr>
+                                    <!-- <tr>
                                         <th style="padding: 0 20px 0 0;">Sale Man</th>
                                         <td id="inv_saleman" style="padding: 0 20px 0 0;"><?php echo $saleman; ?><td>
-                                    </tr>
+                                    </tr> -->
                                     <tr>
                                         <th style="padding: 0 20px 0 0;">Invoice No</th>
                                         <td id="inv_invoice_no" style="padding: 0 20px 0 0;"><?php echo $invoice_no; ?><td>
@@ -102,6 +102,10 @@
                                 $due = fbm_get_due_by_referer_id($purchase_id);
                                 $due_id = $due ? $due->id : null;
                                 $due_payments = fbm_dues_get_payments($due_id);
+                                $due_amount = 0;
+                                if($due):
+                                    $due_amount = floatval($due->remaining_amount);
+                                endif;
 								?>
                                 <tbody>
                                     <tr>
@@ -113,7 +117,6 @@
                                         <td id="inv_total_payment" style="padding: 0 20px 0 0;"><?php echo number_format($total_payment); ?><td>
                                     </tr>
                                     <?php if($due):
-                                        $due_amount = floatval($due->remaining_amount);
                                         ?>
                                         <tr>
                                             <th style="padding: 0 20px 0 0;">Paid Amounts</th>

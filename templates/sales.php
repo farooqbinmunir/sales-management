@@ -29,7 +29,7 @@
 		</label>
 		<button id="salesCalculatorToggler" type="button">Show All Calculations</button>
 		<div class="search-section">
-	        <input type="number" oninput="this.value = Math.abs(this.value)" name="" id="invoice_number" placeholder="Invoice Number">
+	        <input type="number" name="" id="invoice_number" placeholder="Invoice Number">
 	    </div>
 		<div class="sales_total_profit_display">
 			<h2 class="sales_total_profit_text"><strong>Today's Profit:</strong> <span><?php echo $profit; ?></span></h2>
@@ -149,19 +149,19 @@
 				<input type="date" name="" id="to_date">
 			</label>
 			<label for="">Total Sale 
-				<input type="number" oninput="this.value = Math.abs(this.value)" name="" id="total_amount" value="<?php echo $total_sale_amount; ?>" readonly>
+				<input type="number" name="" id="total_amount" value="<?php echo $total_sale_amount; ?>" readonly>
 				<small style="color: green;"><i>Profile Rs. <span id="sc_profit">0</span></i></small>
 			</label>
 			<label for="">Cash Sale 
-				<input type="number" oninput="this.value = Math.abs(this.value)" name="" placeholder="0" id="sale_amount" readonly>
+				<input type="number" name="" placeholder="0" id="sale_amount" readonly>
 			</label>
 			<label for="">Credit Sale
-				<input type="number" oninput="this.value = Math.abs(this.value)" name="" placeholder="0" id="credit_amount" readonly>
+				<input type="number" name="" placeholder="0" id="credit_amount" readonly>
 			</label>
 			<div class="partial_paid_sales">
 				<h5 style="margin-top: 10px; font-weight: 600;">Partially Paid Sale</h5>
-				<label for="">Received <input type="number" oninput="this.value = Math.abs(this.value)" name="" placeholder="0" id="partially_recieved_amount" readonly></label>
-				<label for="">Remaining <input type="number" oninput="this.value = Math.abs(this.value)" name="" placeholder="0" id="partially_remaining_amount" readonly></label>
+				<label for="">Received <input type="number" name="" placeholder="0" id="partially_recieved_amount" readonly></label>
+				<label for="">Remaining <input type="number" name="" placeholder="0" id="partially_remaining_amount" readonly></label>
 			</div>
 			<h6 class="totalEntries" style="padding-top:10px;">Total Sales Entries (<span class="totalEntriesCount"><?php echo $total_sales; ?></span>)
 			</h6>

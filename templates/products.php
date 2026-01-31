@@ -33,7 +33,7 @@
 
                     <label for="product_purchase_price">Unit Purchase Price</label>
 
-                    <input type="number" oninput="this.value = Math.abs(this.value)" name="product_purchase_price" id="product_purchase_price" required>
+                    <input type="number" name="product_purchase_price" id="product_purchase_price" required>
 
                 </div>
 
@@ -43,7 +43,7 @@
 
                     <label for="product_sale_price">Unit Sale Price</label>
 
-                    <input type="number" oninput="this.value = Math.abs(this.value)" name="product_sale_price" id="product_sale_price" required>
+                    <input type="number" name="product_sale_price" id="product_sale_price" required>
 
                 </div>
 
@@ -53,7 +53,7 @@
 
                     <label for="product_sale_price">Add Min Quantity</label>
 
-                    <input type="number" oninput="this.value = Math.abs(this.value)" name="add_min_quantity" id="add_min_quantity" required>
+                    <input type="number" name="add_min_quantity" id="add_min_quantity" required>
 
                 </div>
 

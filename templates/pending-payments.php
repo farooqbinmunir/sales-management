@@ -49,7 +49,8 @@ $nonce_action = 'fbm_receive_due_payment';
     <thead>
       <tr>
         <th>#</th>
-        <th>Customer/Sales Man</th>
+        <!-- <th>Customer/Sales Man</th> -->
+        <th>Customer</th>
         <th>Phone</th>
         <th>Total</th>
         <th>Paid</th>
@@ -78,7 +79,9 @@ $nonce_action = 'fbm_receive_due_payment';
         $updated_date = $d->updated_at;
         $due_type = $d->due_type;
         
-        $customer_saler_name = $due_type === 'sale' ? get_customer($customer_saler_id)->name : get_saleman($customer_saler_id)->name;
+        // $customer_saler_name = $due_type === 'sale' ? get_customer($customer_saler_id)->name : get_saleman($customer_saler_id)->name;
+        // $customer_saler_name = get_customer($customer_saler_id)->name;
+        $customer_saler_name = '--WALKING-CUSTOMER';
       ?>
       <tr>
         <td><?php echo $i++; ?></td>
@@ -120,7 +123,7 @@ $nonce_action = 'fbm_receive_due_payment';
       <?php wp_nonce_field($nonce_action, '_wpnonce'); ?>
       <p>
         <label>Amount to receive now</label><br/>
-        <input type="number" min="0" name="amount" id="fbm_amount" class="regular-text" oninput="this.value = Math.abs(this.value)" required />
+        <input type="number" min="0" name="amount" id="fbm_amount" class="regular-text" required />
       </p>
       <p>
         <label>Note (optional)</label><br/>

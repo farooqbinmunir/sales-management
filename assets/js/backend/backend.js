@@ -286,7 +286,6 @@ jQuery(document).ready($ => {
 			numberField.min = 0;
 			numberField.max = inStock;
 			numberField.oninput = function () {
-				this.value = Math.abs(this.value);
 				if (this.value > inStock) this.value = inStock; // enforce max
 			}
 			newRow.querySelector('.quantity').append(numberField);
@@ -303,21 +302,6 @@ jQuery(document).ready($ => {
 				itemTypeField.appendChild(opt);
 			});
 			newRow.querySelector('.item-type').append(itemTypeField);
-
-			// Add input fields for discount
-			// let numberField1 = document.createElement('input');
-			// numberField1.type = 'number';
-			// newRow.querySelector('.item-discount').append(numberField1);
-
-			// Hide the selected product item table and empty product search feild
-			// let allSpInput = document.querySelectorAll('.selected-total-table-inner tbody input');
-			// allSpInput[allSpInput.length - 1].addEventListener('keydown', function (e) {
-			// 	if (e.key == 'Tab') {
-			// 		e.preventDefault();
-			// 		sTtable.style.display = 'none';
-			// 		productInput.focus();
-			// 	}
-			// });
 
 			// Add 'Delete' text to the last column
 			let delBtn = document.createElement('button');

@@ -1,0 +1,1086 @@
+/* FBM - Backend styles */
+
+/* Akram css start */
+
+body:has(#fbm_ui) {
+    overflow: hidden;
+}
+#fbm_ui {
+    overflow-y: scroll;
+    max-height: 90vh;
+}
+#adminmenuwrap {
+    max-height: 100vh !important;
+    overflow-y: auto !important;
+}
+ /* Generic CSS */
+.sms_btn_info {
+	background: #2271b1 !important; /* Blue like */
+	color: white !important;
+}
+.sms_btn_danger {
+	background: #d63638 !important; /* Red like */
+	color: white !important;
+}
+.sms_btn_success {
+	background: greenyellow !important;
+}
+/* Generic CSS */
+.customer-date-section,
+.selected-total-table {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.date-section,
+.sale-invoice-section {
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    padding: 5px 12px;
+    width: 200px;
+    text-align: center;
+}
+.sms_hidden{
+    display: none !important;
+}
+.date,
+.sale-invoice {
+    font-size: 15px;
+    margin: 0;
+}
+
+.sale-invoice-wrap,
+.check-item-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.sale-invoice-wrap h5 {
+    margin: 6px 0 0;
+    line-height: 100%;
+}
+
+.heading-search {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-table-heading {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0;
+}
+
+.table-wrap table {
+    table-layout: fixed;
+}
+
+.table-wrap table,
+.table-wrap th,
+.table-wrap td {
+    border: 1px solid #8c8f94 !important;
+    border-collapse: collapse;
+    padding: 4px 15px;
+    font-size: 14px;
+    /*width: 140px;*/
+}
+#wpbody-content:has(#fbm_ui) {
+  padding-bottom: 150px !important;
+}
+td.user_email,
+td.user_address {
+    overflow-x: scroll;
+}
+
+.heading-search .product-table-heading {
+    color: #000;
+    padding-top: 0;
+    margin: 0;
+}
+.selected-product-table-wrap .product-table-heading {
+    margin-top: 20px;
+}
+.heading-search {
+    padding-bottom: 22px;
+}
+
+.heading-search #addNewProduct {
+    margin: 0;
+}
+
+.table-wrap th,
+.table-wrap td {
+    padding: 4px 8px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+.table-wrap table{
+    width: 100% !important;
+}
+
+.purchase-page th.purchase_product_name,
+th.user_name{
+    width: 210px;
+}
+
+button#purchases_reset_btn {
+    width: 100%;
+}
+#fbm_notice{
+    padding: 10px !important;
+}
+#grossTotalTable th,
+#grossTotalTable td{
+    width: 150px !important;
+}
+
+#grossTotalTable input{
+    width: 149px !important;
+}
+
+.table-wrap thead tr:nth-child(odd) {
+    background-color: #f7f7f7;
+}
+
+.table-wrap tr:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+.table-wrap .item-name {
+    width: 210px;
+    text-align: left !important;
+}
+
+.sr-Number {
+    width: 26px !important;
+}
+
+.scrollelement{
+    height: 422px;
+    overflow-y: scroll;
+}
+
+.selected-product-table-wrap .table-wrap {
+    height: 270px;
+    overflow-y: scroll;
+}
+td.edit {
+    padding: 0;
+}
+
+td.edit button{
+    width: 100%;
+    text-align: left;
+    line-height: 28px;
+    border-width: 0px;
+}
+
+td.edit button sapn {
+    font-size: 25px !important;
+    line-height: 40%;
+    position: relative;
+    top: 4px;
+    left: 53px;
+}
+
+.edit span {
+    position: relative;
+    left: 65px;
+}
+
+.item-type,
+.selected-product-table-wrap .quantity,
+.discount,
+.salesman-name,
+.payment-method,
+.sales-type {
+    padding: 0 !important;
+}
+
+th.item-type,
+.selected-product-table-wrap th.quantity {
+    padding: 4px 15px !important;
+}
+
+.selected-product-table-wrap .quantity input,
+.discount input,
+.item-type input,
+.salesman-name input {
+    border: 0;
+    border-radius: 0;
+}
+
+.edit {
+    cursor: pointer;
+}
+
+.quantity input{
+    width: 129px;
+}
+.item-type input,
+.discount input,
+.salesman-name input {
+    width: 149px;
+}
+
+.product-wrapper {
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.selected-total-table {
+    background-color: #f7f7f7;
+    display: none;
+    position: absolute;
+    inset: 0;
+}
+
+.selected-total-table-inner {
+    padding: 0 15px 0;
+    width: 100%;
+}
+
+.close-sp-tbl {
+    border: 2px solid;
+    border-radius: 6px;
+    line-height: 100%;
+    padding: 1px 10px 7px 9px;
+    cursor: pointer;
+}
+
+/*.focused {
+    background-color: black !important;
+}
+.focused,
+.focused *{
+    color: white !important;
+}
+tbody:not(.purchase-tbody) .focused:hover,
+tbody:not(.purchase-tbody) .focused:hover *{
+    color: black !important;
+}*/
+
+.focused {
+    background-color: black !important;
+}
+.focused,
+.focused *{
+    color: white !important;
+}
+tbody:not(.purchase-tbody) .focused:hover,
+tbody:not(.purchase-tbody) .focused:hover *{
+    color: black !important;
+}
+
+.table-wrap table tbody tr:hover{
+    background-color: black !important;
+}
+.table-wrap table tbody tr:hover *:not(input, select, option){
+    color: white !important;
+}
+
+.edit_product_btn,
+.edit_purchase_btn,
+.view-detail-btn {
+    color: #000 !important;
+    text-decoration: none;
+}
+
+/*.focused:not(:hover) .edit_product_btn,
+.focused .edit_purchase_btn,
+.focused .view-detail-btn {
+    color: #fff !important;
+}*/
+
+/* .total-table .table-wrap {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+} */
+
+.btn-wrap {
+    padding: 9px 0 0;
+}
+
+.save-btn,
+.print-btn,
+.sms_btn {
+    border: 0;
+    background-color: #000;
+    color: #fff;
+    padding: 5px 40px;
+}
+.sms_btn_light {
+	background: black;
+	color: white;
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 5px 10px;
+	margin: 0 5px 5px 0;
+	cursor: pointer;
+}
+.sms_btn_light:hover{
+    background-color: white;
+    color: black;
+}
+
+button.save-btn {
+    margin-right: 7px;
+}
+
+#credit {
+    margin-left: 15px;
+}
+
+.sales-type-wrap input {
+    margin-top: 5px;
+}
+
+.product-form-wrap label,
+.product-form-wrap input {
+    display: block;
+    width: 100%;
+}
+
+/* .product-form-wrap form .form-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+} */
+
+.submit-wrap {
+    margin-top: 20px;
+}
+
+.submit-wrap .save-btn {
+    width: auto;
+    border-radius: 5px;
+}
+
+.item-type {
+    display: revert;
+    color: #000;
+}
+
+.item-type select,
+.payment-method select,
+.sales-type select,
+.all_product_name select {
+    border: 0;
+    width: 100%;
+    border-radius: 0;
+}
+
+#product_id {
+    border: 1px solid #8C8F94;
+    border-radius: 4px;
+    padding: 3px;
+}
+
+.btn-sales-type-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+}
+.delete-btn,
+.reset-btn{
+    border-radius: 4px;
+    width: 48%;
+}
+#fbm_ui [readonly]:focus,
+#fbm_ui [readonly]:active,
+#fbm_ui [readonly]{
+    outline: none;
+    box-shadow: none !important;
+}
+#fbm_ui [readonly],
+#fbm_ui [inert]{
+    user-select: none;
+    border: none;
+    background: lightgray !important;
+    opacity: 0.5;
+    padding: 0 10px;
+    border-radius: 5px;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+/* #grossTotalTable {
+    display: block !important;
+} */
+.empty_field{
+    border: 1px solid red !important;
+}
+#grossTotalTable .btn-wrap {
+    display: flex;
+    gap: 10px;
+}
+ .product-form-wrap {
+	background: #000000e6;
+	padding: 0 50px 30px;
+	margin-bottom: 50px;
+}
+#add_user,
+#add_stock,
+#add_new_product,
+#addNewPurchaseFormRow,
+#removeLastPurchaseFormRow {
+    background: #fff;
+    color: #000;
+    border-radius: 5px !important;
+}
+.closeUserForm,
+.close_quick_edit_popup {
+    border: 2px solid;
+    border-radius: 4px;
+    line-height: 100%;
+    padding: 0px 5px 3px;
+    cursor: pointer;
+}
+.add-product-page .product-table-heading,
+.purchase-page .product-table-heading,
+.user-page .product-table-heading {
+    color: #fff;
+    padding-top: 25px;
+}
+.add-product-page label,
+.purchase-page label,
+.user-page label {
+    color: #fff;
+}
+.add-new {
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+#sale_invoice {
+    text-align: center;
+}
+.show{
+    display: table-row;
+}
+.hide{
+    display: none;
+}
+
+.not_found_in_search {
+    display: none;
+}
+
+.found_in_search {
+    display: table-row;
+}
+#showTable {
+    border-radius: 4px;
+    font-size: 14px;
+    display: none;
+    line-height: 100%;
+    padding: 5px 10px 7px;
+    background: #000;
+    color: #fff;
+}
+.sales-page{
+    position: relative;
+}
+.amount-cell label {
+    display: flex;
+    flex-direction: column;
+}
+.sales-page td.user_action {
+    padding: 0;
+}
+a.view-detail-btn{
+    display: block;
+    text-align: center;
+}
+button.view-detail-btn {
+    width: 100%;
+    border: none;
+    line-height: 27px;
+}
+#add_stock_form .form-inner{
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+.purchase_product_select,
+.purchase_product_description{
+    grid-column: 1 / -1;
+}
+#add_stock_form input:not([type="submit"]), 
+#add_stock_form select, 
+#add_stock_form textarea {
+    width: 100%;
+    max-width: 100%;
+}
+/* Manage Stock Availability Classes */
+.zero_stock_alert{
+    color: red !important;
+}
+.low_stock_warning{
+    color: orange !important;
+}
+.zero_stock_alert td,
+.low_stock_warning td{
+    color: inherit !important;
+}
+/* Buttons CSS */
+.sms_btn {
+	background: none;
+	border: none;
+    border-radius: 5px !important;
+}
+.edit_btn {
+	color: blue !important;
+}
+.delete_btn {
+	color: red !important;
+}
+#fbm_ui tr.edit_form {
+	background: white !important;
+}
+#fbm_ui tr.edit_form *{
+    color: #000 !important;
+}
+.quick_edit_form {
+	padding: 20px;
+}
+.quick_edit_form_wrap > .form-inner {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-gap: 20px;
+}
+.quick_edit_form_wrap > .form-inner > div {
+	display: flex;
+	justify-content: space-between;
+	flex-direction: column;
+    gap: 10px;
+}
+
+/* For Printing */
+@media print {
+    /* Set the width of the receipt to match the thermal printer paper size */
+    body, .print-area {
+        width: 80mm; /* Adjust based on the paper width of your thermal printer */
+        height: auto; /* Set to auto to match the height of the content */
+        overflow: visible;
+		margin-top: 0;
+		padding-top: 0;
+    }
+
+    /* Remove any page margins */
+    @page {
+        size: auto; /* Ensures page size adapts to content */
+        margin: 0; /* Remove default margins */
+    }
+}
+
+/* Search */
+.not_found_in_search{
+    display: none;
+}
+.found_in_search{
+    display: table-row;
+}
+/* Returns page */
+#returnForm .return_form_field_group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 20px;
+}
+#returnForm .return_form_field_group * {
+    width: 100% !important;
+    display: block;
+    max-width: 100% !important;
+}
+.close-selected-table{
+    display: none !important;
+}
+/* Dev. FBM - 11-05-2025 */
+.sms_back_btn {
+	border: none;
+	display: block;
+	padding: 8px 10px 10px;
+	line-height: 20px;
+	background-color: black;
+	color: white;
+	border-top-left-radius: 100%;
+	border-bottom-left-radius: 100%;
+	box-shadow: -7px 0px 1px 7px blue;
+}
+#inv_products, #inv_products th, #inv_products td {
+    border: 1px solid black;
+    padding: 10px !important;
+    border-collapse: collapse;
+}
+
+/* Products analysis */
+/* Analytics Grid Layout */
+.fbm-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.fbm-analytics-card {
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.fbm-analytics-card h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px !important;
+    font-weight: bold !important;
+}
+
+/* Alert Styles */
+.fbm-alert-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.fbm-alert-list li {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.fbm-warning {
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+}
+
+.fbm-critical {
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+}
+
+/* Recent Sales */
+.fbm-recent-sales {
+    margin-top: 15px;
+}
+
+.fbm-sale-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.fbm-sale-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.fbm-sale-id {
+    font-weight: bold;
+    color: #2c3338;
+}
+
+.fbm-sale-date {
+    color: #72777c;
+}
+
+.fbm-sale-customer {
+    margin-bottom: 3px;
+}
+
+.fbm-sale-amount {
+    font-weight: bold;
+    color: #00a32a;
+}
+
+/* Charts */
+.fbm-chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    grid-column: span 2;
+}
+
+.fbm-chart-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.fbm-chart-container h3 {
+    margin-top: 0;
+}
+/* Widget Header Styles */
+.fbm-widget-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.fbm-widget-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0f5ff;
+    color: #4a6cf7;
+    font-size: 16px;
+}
+
+/* Top Selling Products */
+.fbm-analytics-card:nth-child(1) .fbm-widget-icon {
+    background: #fff0f0;
+    color: #ff6b6b;
+    content: "🏆"; /* Trophy icon */
+}
+
+/* Most Profitable Products */
+.fbm-analytics-card:nth-child(2) .fbm-widget-icon {
+    background: #f0fff4;
+    color: #51cf66;
+    content: "💰"; /* Money bag icon */
+}
+
+/* Beautiful List Styles */
+.fbm-analytics-card ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: fancy-list;
+}
+
+.fbm-analytics-card ol li {
+    counter-increment: fancy-list;
+    padding: 12px 15px 12px 20px;
+    margin-bottom: 8px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.fbm-analytics-card ol li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.fbm-analytics-card ol li::before {
+    content: counter(fancy-list);
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: #4a6cf7;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Different colors for different widgets */
+.fbm-analytics-card:nth-child(1) ol li::before {
+    background: #ff6b6b; /* Red for top selling */
+}
+
+.fbm-analytics-card:nth-child(2) ol li::before {
+    background: #51cf66; /* Green for profitable */
+}
+
+.fbm-analytics-card ol li strong {
+    float: right;
+    color: #4a6cf7;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+    .fbm-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .fbm-analytics-card ol li {
+        padding: 10px 12px;
+    }
+}
+
+.fbm-analytics-card ol li {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.fbm-analytics-card ol li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+.edit_form td {
+    padding: 0;
+}
+#products_table_listing_rows tr:not(.edit_form) td,
+.purchase-tbody tr:not(.edit_form) td{
+    line-height: 12px;
+}
+#products_table_listing_rows tr:not(.edit_form):nth-child(even),
+.purchase-tbody tr:not(.edit_form):nth-child(even){
+    background-color: #f7f7f7 !important;
+}
+.edit_btn {
+    color: #212529 !important;
+}
+.add-new {
+    background: transparent;
+    border: 1px solid #8c8f94 !important;
+}
+/* %%%%%%%%%%%%%%%%%%%% */
+/* Styling Update Rate btn present on ADD NEW PURCHASE form on PURCHASES page */
+/* %%%%%%%%%%%%%%%%%%%% */
+.btnUpdateRate {
+    background: blue;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+/* %%%%%%%%%%%%%%%%%%%% */
+
+/* %%%%%%%%%%%%%%%%%%%% */
+/* Styling ADD NEW PURCHASE form on PURCHASES page */
+/* %%%%%%%%%%%%%%%%%%%% */
+.purchase_form_fields_group {
+	background: cadetblue;
+	padding: 10px;
+	margin-block: 10px;
+	border-radius: 5px;
+}
+.purchase_form_footer_btns {
+	display: flex;
+	gap: 10px;
+}
+.btnUpdateRateToggler {
+	color: greenyellow !important;
+}
+#add_stock{
+    border: 12px ridge chartreuse;
+}
+.purchase_product_rate{
+    transition: all .3s linear !important;
+}
+.purchase_product_rate.rate_modifying {
+	background: black;
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 5px;
+}
+.purchase_form_body {
+	display: grid;
+	grid-template-columns: 1fr 30%;
+	gap: 30px;
+}
+.purchase-sidebar-list {
+	padding: 15px;
+	background: lightgreen;
+	border-radius: 5px;
+	margin: 10px 0 0;
+	list-style-position: inside;
+}
+.purchase-sidebar-list li {
+    border-bottom: 1px solid currentColor;
+    padding-block-end: 10px;
+    color: black !important;
+}
+.needValidation {
+	transition: all .5s linear 0s;
+}
+#removeLastPurchaseFormRow {
+	display: none !important;
+}
+
+/* %%%%%%%%%%%%%%%%%%%% */
+.sales_profit_text {
+	white-space: nowrap;
+}
+.ouer-salesType {
+	margin-bottom: 17px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.amount-cell {
+	background: #f7f7f7;
+	padding: 15px;
+	margin-top: 30px;
+}
+.manufacturers_listing,
+.formAddNewManufacturer {
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 10px;
+    margin-bottom: 20px;
+}
+#addNewManufacturer {
+	display: block;
+	margin-left: auto;
+}
+.sale_table {
+	table-layout: auto !important;
+}
+table.pending_payments_table tr{
+    cursor: pointer;
+}
+/* Add new purchase form tabular style */
+table.addNewPurchaseFormTable {
+    width: 100%;
+}
+table.addNewPurchaseFormTable > thead  th, 
+table.addNewPurchaseFormTable > tbody td {
+    color: white;
+    border: 1px solid white;
+    padding: 10px;
+    width: calc(100% / 3);
+    border-collapse: collapse !important;
+    vertical-align: top;
+}
+table.addNewPurchaseFormTable table, 
+table.addNewPurchaseFormTable table th, 
+table.addNewPurchaseFormTable table td {
+    border: none;
+}
+.purchase_product_rate  p.notice {
+    color: black;
+}
+li.purchase-sidebar-list-item .cartItemName{
+    line-height: 1 !important;
+    cursor: pointer;
+}
+input#add_stock:disabled {
+    opacity: .2 !important;
+}
+ol.purchase-sidebar-list {
+    max-height: 350px !important;
+    overflow-y: auto !important;
+}
+table.addNewPurchaseFormTable select,
+table.addNewPurchaseFormTable textarea,
+.purchase-page .table-wrap > table {
+    width: 100% !important;
+}
+table.purchases_listing th, table.purchases_listing td {
+    padding: 15px !important;
+}
+
+a.purchae_view_detail_btn {
+    text-decoration: none;
+    color: blue !important;
+    font-weight: 400 !important;
+}
+/*.focused a.purchae_view_detail_btn{
+     color: white !important;
+}*/
+.inventryPageProductsTable tr:not(.zero_stock_alert){
+    cursor: pointer !important;
+}
+.inventryPageProductsTable tr.zero_stock_alert{
+    cursor: not-allowed !important;
+}
+
+/* Popup sales calculator  */
+div#salesCalculator {
+    position: fixed;
+    inset: 0;
+    z-index: 9999999;
+    background: rgba(0, 0, 0, .5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0 !important;
+}
+.salesCalculatorWrapper {
+    width: 500px;
+    background: burlywood;
+    padding: 30px;
+    overflow-y: auto;
+    position: relative;
+    max-height: 90%;
+}
+#salesCalculatorCloser {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    border-radius: 100%;
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+    padding: 0 !important;
+    color: red;
+    cursor: pointer;
+}
+.btnKbdCloser {
+    font-size: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+/* end Popup css */
+
+/* Due payments history table on invoice details page */
+table.due_payment_history_table,
+table.due_payment_history_table tbody td{
+    border: 1px solid currentColor;
+}
+table.due_payment_history_table tbody td {
+    padding: 10px;
+}
+.invoice_details_body_wrap table th {
+    white-space: nowrap;
+}
+
+/* Credit customer form */
+form#creditCustomerForm {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-block: 20px;
+    box-shadow: 0 0 9px -5px;
+    border-radius: 5px;
+    width: 100%;
+}
+form#creditCustomerForm hgroup h2 {
+    font-size: 18px;
+}
+form#creditCustomerForm .cform_field {
+    margin-block: 10px;
+}
+form#creditCustomerForm input, 
+form#creditCustomerForm textarea {
+    width: 100%;
+}
+.table-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+
+
+
+
+
+
+
+
+
+

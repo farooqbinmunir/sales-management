@@ -1,0 +1,35 @@
+/* Dev - Farooq Bin Munir only will write css in this file, other one should work in backend.css */
+li.purchase-sidebar-list-item .cartItemName {
+	flex: 1;
+}
+.purchase-sidebar-list-item_wrapper {
+	display: inline-flex;
+	width: 90%;
+	justify-content: space-between;
+    align-items: center;
+}
+.btnRemovePurchaseCartItem {
+	line-height: 1;
+	border: none;
+	background: red;
+	font-size: 16px !important;
+	font-weight: 900;
+	color: white;
+	padding: 0;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	justify-content: center;
+	border-radius: 100%;
+	cursor: pointer !important;
+}
+.salesCalculatorBanner {
+	background: green;
+	color: white;
+	padding: 10px;
+	text-align: center;
+	font-weight: 600;
+	margin-bottom: 10px;
+	transition: opacity 1s linear;
+  	opacity: 1;
+}

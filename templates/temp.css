@@ -1,0 +1,187 @@
+/* custom.css */
+.site-logo img {
+    max-width: 100% !important;
+    width: 200px !important;
+}
+.header--row-inner.header-top-inner {
+    padding-block: 20px !important;
+}
+.headerTopBanner .htb_wrapper,
+.htb_right_wrapper,
+.htb_taxSeparator{
+    display: flex;
+    align-items: center;
+}
+.headerTopBanner .htb_wrapper{
+    justify-content: space-between;
+}
+.htb_right_wrapper {
+    gap: 10px;
+}
+button.htb_loginRegisterRefererBtn {
+    padding: 0 !important;
+    background: none !important;
+    text-transform: capitalize;
+}
+.headerTopBanner * {
+    color: black !important;
+    font-weight: normal !important;
+}
+.htb_taxSeparator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Switch wrapper */
+.htb_switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+/* Hide default checkbox */
+.htb_switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider background */
+.htb_slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.3s;
+    border-radius: 34px;
+    border: 1px solid currentcolor;
+}
+
+/* Circle */
+.htb_slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.htb_switch input:checked + .htb_slider:before {
+    transform: translateX(22px) !important;
+}
+.htb_switch {
+    cursor: pointer !important;
+}
+
+.htb_switch * {
+    pointer-events: auto !important;
+}
+.hfg-slot.right {
+    width: 100% !important;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center !important;
+    gap: 10px;
+}
+.hfg-slot.right .builder-item.desktop-left.hfg-is-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin: 0 !important;
+}
+.hfg-slot.right * {
+    color: black;
+}
+div[data-section="hfg_header_layout_top"]{
+    grid-template-columns: auto 1fr !important;
+}
+.hfg-slot.right .builder-item.desktop-left:first-child {
+    width: 100% !important;
+}
+.hfg-slot.right .builder-item.desktop-left:first-child .nv-html-content {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: end !important;
+}
+.hfg-slot.right *:has(.htb_2){
+    position: initial !important;
+}
+.hfg-slot.right{
+    position: relative !important;
+}
+.hfg-slot.right .builder-item.desktop-left:first-child .nv-html-content .htb_2 {
+    position: absolute;
+    bottom: 0;
+    left: 31%;
+    z-index: 9 !important;
+}
+.component-wrap.search-field,
+.builder-item.desktop-left:first-child {
+    margin: 0 !important;
+}
+.builder-item .item--inner.builder-item--logo {
+    padding: 0 !important;;
+}
+.htb_2 .htb_center_wrapper {
+    display: flex;
+    gap: 20px;
+}
+.header--row-inner.header-top-inner *:not(.htb_phone_field, .htb_phone_field *, .cart-icon-wrapper, .cart-icon-wrapper *) {
+    color: rgba(0, 0, 0, 0.5) !important;
+    font-weight: 400 !important;
+}
+.htb_phone_field,
+.htb_phone_field *{
+    font-weight: 600 !important;
+}
+/* Cart Icon design */
+a.cart-icon-wrapper {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+    padding: 3px 10px;
+}
+a.cart-icon-wrapper::after {
+    content: 'items in basket';
+    font-weight: 300 !important;
+    color: rgba(0, 0, 0, 0.5);
+}
+.cart-icon-wrapper .cart-count {
+    position: initial !important;
+    font-size: initial !important;
+    padding: 0 5px 0 10px !important;
+    font-weight: 300 !important;
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+/* end cart icon design */
+.search-form .search-field,
+.search-form .search-submit{
+    border: 1px solid rgba(0, 0, 0, 0.5) !important;
+}
+.search-form .search-field{
+    border-radius: 3px 0 0 3px !important;
+}
+.search-form .search-submit{
+    border-radius: 0 3px 3px 0 !important;  
+    border-left: 0 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+

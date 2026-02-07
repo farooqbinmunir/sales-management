@@ -47,7 +47,7 @@
 											<td>
 												<div class="anpFieldWrap">
 													<label>Total Cart Amount</label>
-													<input type="number" id="anpTotalCartAmount" name="purchase_total_payment" value="0" readonly />
+													<input type="text" id="anpTotalCartAmount" name="purchase_total_payment" value="0" readonly />
 												</div>
 											</td>
 										</tr>
@@ -56,8 +56,8 @@
 												<div class="anpFieldWrap">
 													<label for="payment_status">Payment Status</label>
 													<select class="payment_status" name="payment_status" id="payment_status">
-														<option value="Paid">Paid</option>
-														<option value="Unpaid">Unpaid</option>
+														<option value="paid">Paid</option>
+														<option value="unpaid">Unpaid</option>
 														<option value="Partially Paid">Partially Paid</option>
 													</select>
 												</div>
@@ -178,7 +178,7 @@
 													<td>
 														<div class="anpFieldWrap purchase_product_quantity">
 															<label>Quantity</label>
-															<input type="number" name="quantity" class="quantity needValidation" value="1" min="1" required>
+															<input type="number" name="quantity" class="quantity needValidation" value="1" min="1" step="1" required>
 														</div>
 													</td>
 												</tr>
@@ -269,7 +269,7 @@
 													<td>
 														<div class="anpFieldWrap purchase_product_quantity">
 															<label>Quantity</label>
-															<input type="number" name="quantity" class="quantity needValidation" value="1" min="1" required>
+															<input type="number" name="quantity" class="quantity needValidation" value="1" min="1" step="1" required>
 														</div>
 													</td>
 												</tr>
@@ -331,13 +331,10 @@
 				<tr>
 
 					<th class="sr-Number">#</th>
-					<!-- <th class="sale_man">Sale Man</th> -->
 
 					<th class="purchase_product_invoice">Purchase Invoice</th>
 
 					<th class="purchase_product_payment">Payment</th>
-					<!-- <th class="purchase_product_payment_paid">Paid</th> -->
-					<!-- <th class="purchase_product_payment_remaining">Remaining</th> -->
 
 					<th class="purchase_product_payment_status">Payment Status</th>
 					<th class="purchase_product_description">Description</th>
@@ -369,20 +366,16 @@
 					foreach($purchases as $purchase){
 
 						$purchase_id = $purchase->purchase_id;
-						// echo '<pre>';
-						// print_r($purchase);
-						// echo '</pre>';
-						// $saleman_id = $purchase->saleman_id;
-						// $saleman_name = get_saleman($saleman_id)->name;
-						// $vendor = $purchase->vendor;
 
-						// $quantity = $purchase->quantity;
+						$product_id = $purchase->product_id;
 
-						// $rate = $purchase->rate;
+						$vendor = $purchase->vendor;
+
+						$quantity = $purchase->quantity;
+
+						$rate = $purchase->rate;
 
 						$total_payment = $purchase->total_payment;
-						// $paid = $purchase->paid;
-						// $due = $purchase->due;
 
 						$payment_status = $purchase->payment_status;  
 
@@ -399,12 +392,9 @@
 
 							<td><?php echo $j++; ?></td>
 
-							<!-- <td><?php echo $saleman_name; ?></td> -->
 							<td><?php echo $purchase_invoice; ?></td>
 
 							<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
-							<!-- <td><span>Rs. </span><span data-paid-payment="<?php echo $paid; ?>"><?php echo number_format($paid); ?></span></td> -->
-							<!-- <td><span>Rs. </span><span data-remaining-payment="<?php echo $due; ?>"><?php echo number_format($due); ?></span></td> -->
 
 							<td><?php echo $payment_status; ?></td>
 

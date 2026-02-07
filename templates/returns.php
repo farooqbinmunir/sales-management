@@ -27,13 +27,13 @@
 
             <label for="return_quantity">Quantity returned: </label>
 
-            <input type="number" name="quantity" id="return_quantity" placeholder="Enter quantity to return" min="1" required />
+            <input type="number" name="quantity" id="return_quantity" placeholder="Enter quantity to return" min="1" step="1" required />
 
         </div>
 
         <div class="return_form_field_group">
             <label for="return_quantity">Amount</label>
-            <input type="number" name="amount" id="return_amount" placeholder="Amount to return" readonly />
+            <input type="text" name="amount" id="return_amount" placeholder="Amount to return" readonly />
         </div>
 
         <div class="return_form_field_group">

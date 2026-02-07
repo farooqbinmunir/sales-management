@@ -2,17 +2,9 @@
 
 /* Akram css start */
 
-body:has(#fbm_ui) {
+/* .fbm_ui {
     overflow: hidden;
-}
-#fbm_ui {
-    overflow-y: scroll;
-    max-height: 90vh;
-}
-#adminmenuwrap {
-    max-height: 100vh !important;
-    overflow-y: auto !important;
-}
+} */
  /* Generic CSS */
 .sms_btn_info {
 	background: #2271b1 !important; /* Blue like */
@@ -54,7 +46,6 @@ body:has(#fbm_ui) {
 .check-item-wrap {
     display: flex;
     gap: 10px;
-    align-items: center;
 }
 
 .sale-invoice-wrap h5 {
@@ -87,9 +78,6 @@ body:has(#fbm_ui) {
     padding: 4px 15px;
     font-size: 14px;
     /*width: 140px;*/
-}
-#wpbody-content:has(#fbm_ui) {
-  padding-bottom: 150px !important;
 }
 td.user_email,
 td.user_address {
@@ -252,17 +240,6 @@ th.item-type,
     cursor: pointer;
 }
 
-/*.focused {
-    background-color: black !important;
-}
-.focused,
-.focused *{
-    color: white !important;
-}
-tbody:not(.purchase-tbody) .focused:hover,
-tbody:not(.purchase-tbody) .focused:hover *{
-    color: black !important;
-}*/
 
 .focused {
     background-color: black !important;
@@ -290,17 +267,6 @@ tbody:not(.purchase-tbody) .focused:hover *{
     text-decoration: none;
 }
 
-/*.focused:not(:hover) .edit_product_btn,
-.focused .edit_purchase_btn,
-.focused .view-detail-btn {
-    color: #fff !important;
-}*/
-
-/* .total-table .table-wrap {
-    display: flex;
-    gap: 15px;
-    align-items: end;
-} */
 
 .btn-wrap {
     padding: 9px 0 0;
@@ -403,7 +369,7 @@ button.save-btn {
     border: none;
     background: lightgray !important;
     opacity: 0.5;
-    padding: 0 10px;
+    padding: 10px;
     border-radius: 5px;
     cursor: not-allowed !important;
     pointer-events: none;
@@ -628,8 +594,6 @@ button.view-detail-btn {
     border-radius: 4px;
     padding: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    max-height: 400px;
 }
 
 .fbm-analytics-card h3 {
@@ -704,7 +668,6 @@ button.view-detail-btn {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    grid-column: span 2;
 }
 
 .fbm-chart-container {
@@ -1056,7 +1019,7 @@ form#creditCustomerForm {
     margin-block: 20px;
     box-shadow: 0 0 9px -5px;
     border-radius: 5px;
-    width: 100%;
+    min-width: 500px;
 }
 form#creditCustomerForm hgroup h2 {
     font-size: 18px;
@@ -1068,11 +1031,7 @@ form#creditCustomerForm input,
 form#creditCustomerForm textarea {
     width: 100%;
 }
-.table-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
+
 
 
 

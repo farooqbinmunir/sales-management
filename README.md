@@ -1,5 +1,5 @@
 # Sales Management (wordpress plugin)
-by Farooq Bin Munir
+by Farooq Bin Munir & Akram Bin Waris
 
 new columns added 
 1. invoice_no text table prefix+sms_sales_returns

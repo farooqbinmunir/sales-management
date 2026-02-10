@@ -836,11 +836,20 @@ jQuery(document).ready(function ($) {
 
 
 	// Close sales panel on pressing enter after adding quantity
-	$(document).on('keyup', '.selected-product-table-wrap .quantity input', function(e){
-		if(e.key === 'Enter'){
-			$('span.close-sp-tbl').trigger('click');
+	$(document).on('keydown', '.selected-product-table-wrap .quantity input', function (e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+
+				$('span.close-sp-tbl').trigger('click');
+
+				// Move focus away from product list
+				$(this).blur();
+			}
 		}
-	});
+	);
+
 
 	
 

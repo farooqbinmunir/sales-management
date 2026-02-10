@@ -93,6 +93,9 @@
 	    // Enqueueing LIB SELECT2
 	    wp_enqueue_style('fbm-select2-css', FBM_PLUGIN_URL . '/assets/css/backend/select2.css', '', '4.1.0');
 	    wp_enqueue_script('fbm-select2-js', FBM_PLUGIN_URL . '/assets/js/backend/select2.js', ['chart-js'], '4.1.0');
+
+		// Including Fixes js
+		wp_enqueue_script('fbm-fixes-js', FBM_PLUGIN_URL . '/assets/js/backend/fixes.js', ['jquery'], time(), true);
 	}
 
 
@@ -1300,7 +1303,14 @@ function get_filtered_pending_payments(){
 	$results  = fbm_dues_get_all('', '', $due_type);
 
 	// Next: redirect with results or render output
+}
 
-
-
+// Function to include the php template file and pass data to it
+function include_template($template_name, $data = []) {
+	$template_path = FBM_PLUGIN_DIR . "templates/{$template_name}.php";
+	if (file_exists($template_path)) {
+		require $template_path;
+	} else {
+		echo "<p>Template not found: <strong>{$template_name}</strong></p>";
+	}
 }

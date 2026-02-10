@@ -431,13 +431,6 @@ button.save-btn {
     display: none;
 }
 
-.not_found_in_search {
-    display: none;
-}
-
-.found_in_search {
-    display: table-row;
-}
 #showTable {
     border-radius: 4px;
     font-size: 14px;

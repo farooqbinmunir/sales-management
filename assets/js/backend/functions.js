@@ -322,4 +322,249 @@ jQuery(document).ready($ => {
         requiredEditForm.slideToggle();
     }
 
+    // Reset table focus when searching products by their name
+    window.resetTableFocus = function ($table) {
+        const $visibleRows = $table.find('tbody tr:visible');
+
+        $table.find('tr').removeClass('focused');
+
+        if ($visibleRows.length) {
+            $visibleRows.first().addClass('focused')[0].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    };
+
+    // Function to check if the selected product table is empty and close it if true
+    window.checkSelectedTableState = function () {
+        if ($('.selected-total-table table#invoiceTable tbody tr').length === 0) {
+            $('span.close-sp-tbl').trigger('click');
+            $('#showTable').fadeOut();
+        }
+    }
+
+
+    // Function to reset and reassign serial numbers after product add/delete
+	window.resetSerialNumbers = function () {
+		let allSr = $('.selected-product-table-wrap tbody .sr-Number');
+		allSr.each((index, sr) => {
+			$(sr).html(index + 1);  // Reassign serial number starting from 1
+		});
+	}
+
+    // Function to add product to the selected product table
+    window.addProduct = function($tr) {
+        let no = 0;
+		let productInput = document.querySelector('#search-product');
+		let showTable = document.querySelector('#showTable');		
+		let selectedTable = document.querySelector('.selected-product-table-wrap tbody');
+        let sTtable = $('.selected-total-table');
+        let allProductRows = document.querySelectorAll('.product-table-wrap tbody tr:not(.zero_stock_alert)');
+
+
+        var $row = $tr;
+        no++;
+        let product_id = Number($row.getAttribute('data-id'));
+
+        // make sure here product not dublicate  
+        let allSelectedTr = selectedTable.childNodes;
+        for (let i = 0; i < allSelectedTr.length; i++) {
+            let existItem = Number(allSelectedTr[i].dataset.id);
+            if (product_id == existItem) {
+                return alert('This item already has been added to cart!');
+            }
+        }
+        let purcahseRate = +$row.querySelector('.ppurchase_rate').innerHTML,
+            saleRate = +$row.querySelector('.psale_rate').innerHTML;
+
+        let newRow = document.createElement('tr');
+        newRow.setAttribute('data-id', product_id);
+        newRow.setAttribute('data-purchase_rate', purcahseRate);
+        newRow.setAttribute('data-sale_rate', saleRate);
+
+        selectedTable.append(newRow);
+
+        // here we give className to each td and after that we append all td in tr 
+        let tdClassName = ['sr-Number', 'item-name', 'sale-price', 'quantity', 'items-price', 'item-type', 'edit'];
+        tdClassName.forEach((className, index) => {
+            let td = document.createElement('td');
+            td.classList.add(className);
+            newRow.append(td);
+        });
+
+        // Set Serial Number
+        let srNo = newRow.querySelector('.sr-Number');
+        srNo.innerHTML = no;
+
+        // Set item name
+        let selectedItem = newRow.querySelector('.item-name');
+        selectedItem.innerText = $row.querySelector('.pname').innerText;
+
+        // unit price
+        let salePrice = newRow.querySelector('.sale-price');
+        salePrice.innerText = +$row.querySelector('.psale_rate').innerText;
+
+        let inStock = +$row.querySelector('.pin_stock').innerText;
+
+        // Add input fields for quantity
+        let numberField = document.createElement('input');
+        numberField.type = 'number';
+        numberField.min = 0;
+        numberField.max = inStock;
+        numberField.oninput = function () {
+            if (this.value > inStock) this.value = inStock; // enforce max
+        }
+        newRow.querySelector('.quantity').append(numberField);
+        setTimeout(e => numberField.focus(), 1/2 * 1000)
+
+        // type of selected item field
+        let itemTypeField = document.createElement('select');
+        let options = ['simple', 'solid', 'liquid'];
+        options.forEach((option, index) => {
+            let opt = document.createElement('option');
+            opt.value = option;
+            opt.text = option.charAt(0).toUpperCase() + option.slice(1); // Capitalize the first letter
+            if (index === 0) opt.selected = true; // Set 'simple' as default
+            itemTypeField.appendChild(opt);
+        });
+        newRow.querySelector('.item-type').append(itemTypeField);
+
+        // Add 'Delete' text to the last column
+        let delBtn = document.createElement('button');
+        delBtn.innerHTML = "Delete <sapn>&times;</sapn>";
+        let editCell = newRow.querySelector('.edit');
+        editCell.append(delBtn);
+
+        sTtable.show();
+
+        // Get the Items price for the clicked product
+        let sp = Number($row.querySelector('.psale_rate').innerText);
+
+        // Set serial numbers to be updated correctly after adding a product
+        resetSerialNumbers();
+
+        // Items price calculation logic
+        const allItemsPrice = document.querySelectorAll('.selected-product-table-wrap tbody .items-price');
+        const InStock = Number($row.querySelector('.pin_stock').innerText.trim());
+        const allPriceInput = document.querySelectorAll('.selected-product-table-wrap tbody .quantity input');
+        
+        const discountField = document.querySelector('tbody .discount input');
+
+
+        allPriceInput.forEach((input, index) => {
+            
+
+            input.addEventListener('input', e => {
+                // Prevent negative sign input
+                if (e.key === '-') {
+                    return 0;
+                }
+
+                let quantity = Number(input.value),
+                    tr = input.closest('tr'),
+                    unitPrice = +tr.querySelector('.sale-price').innerText,
+                    amount = +(quantity * unitPrice),
+                    purcahseRate = +tr.dataset.purchase_rate;
+                    profit = +(amount - (purcahseRate * quantity));
+                tr.setAttribute('data-profit', profit);
+                
+                // Ensure quantity is positive and at least 1
+                if (quantity < 0) {
+                    alert("Please enter a positive value.");
+                    input.value = 0;
+                    allItemsPrice[index].innerText = 0;
+                    calculateTotals();
+                }
+
+                // Validate stock availability
+                if (quantity > InStock) {
+                    alert(`Your available stock is ${InStock}. Please reduce your quantity.`);
+                    input.value = "";
+                    allItemsPrice[index].innerText = "";
+                    calculateTotals();
+                }
+
+                allItemsPrice[index].innerText = amount;
+                calculateTotals();
+            });
+        });
+
+
+        // Update totals when discount changes
+        discountField.addEventListener('keyup', calculateTotals);
+
+        allProductRows.forEach((v, i) => {
+            productInput.value = '';
+            allProductRows[i].style.display = '';
+        });
+
+
+        // show listing listing Button
+        let spTbody = document.querySelector('.selected_items_container');
+        if (spTbody.childNodes.length) {
+            showTable.style.display = "block";
+        }
+
+        let salesType = document.querySelector("#grossTotalTable #salesType");
+        let paymentMethod = document.querySelector("#paymentMethod");
+        salesType.addEventListener("change", function () {
+            if (salesType.value == "Credit Sale") {
+                paymentMethod.value = "---";
+                paymentMethod.disabled = true;
+            } else {
+                paymentMethod.value = "Cash in Hand";
+                paymentMethod.disabled = false;
+            }
+        });
+    };
+
+    // Function to calculate totals
+    window.calculateTotals = () => {
+        const grossTotal = document.querySelector('tbody .gross-total');
+        const netTotalElement = document.querySelector('.net-total');
+        const allItemsPrice = document.querySelectorAll('.selected-product-table-wrap tbody .items-price');
+
+        let total = Array.from(allItemsPrice).reduce((sum, unit) => sum + Number(unit.innerText), 0);
+        grossTotal.innerText = total;
+        let discountField = $('tbody .discount input');
+        let discountValue = Number(discountField.val()) || 0,
+            netTotal = (total - discountValue),
+            paidAmount = +$(`input#paidAmount`).val(),
+            dueAmount = netTotal - paidAmount;
+        netTotalElement.innerText = netTotal;
+        $(`#due-amount`).text(dueAmount);
+
+    };
+    // Function to recalculate the total after deleting an item
+    window.recalculateTotals = function() {
+
+        // Select all remaining item prices after deletion
+        let allItemsPrice = document.querySelectorAll('.selected-product-table-wrap tbody .items-price');
+
+        // Recalculate the gross total
+        let newGrossTotal = Array.from(allItemsPrice).reduce((sum, unit) => sum + Number(unit.innerHTML), 0);
+        $('tbody .gross-total').html(newGrossTotal);
+
+        // Fetch the discount value and calculate net total
+        let discountField = $('tbody .discount input');
+        let discountValue = Number(discountField.val()); // Ensure it's a number
+        // let discount = (discountValue / 100) * newGrossTotal; // Convert discount to percentage
+
+        // Calculate the new net total
+        let netTotal = newGrossTotal - discountValue;
+        $('.net-total').html(netTotal); // Update net total
+
+        // Update totals whenever the discount field is modified
+        discountField.on('keyup', function () {
+            let discountValue1 = Number(discountField.val()); // Ensure it's a number
+            // let discount1 = (discountValue1 / 100) * newGrossTotal; // Convert discount to percentage
+            let netTotal1 = newGrossTotal - discountValue1;
+            $('.net-total').html(netTotal1);
+        });
+
+    }
+
+
+
+
 });

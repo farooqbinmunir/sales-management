@@ -103,13 +103,6 @@ jQuery(document).ready($ => {
 	if (isInventoryPage) {
 		document.querySelector('.date').innerHTML = "Date : " + formattedDate;
 		$('.selected-total-table').hide();
-		// let allProductRows = document.querySelectorAll('.product-table-wrap tbody tr:not(.zero_stock_alert)');
-
-
-		// // addProduct function call here by click
-		// allProductRows.forEach((row) => {
-		// 	row.addEventListener('click', () => addProduct(row));
-		// });
 
 	}
 
@@ -127,9 +120,9 @@ jQuery(document).ready($ => {
 	});
 
 	// addProduct function call here by click on product row
-	$(document).on('click', '.focused:not(.zero_stock_alert)', function(){
+	$(document).on('click', 'tbody.inventryPageProductsTable tr:not(.zero_stock_alert)', function(){
 		$('.selected-total-table').fadeIn();
-		let focusedTr = document.querySelector('.focused:not(.zero_stock_alert)');
+		let focusedTr = this;
 		addProduct(focusedTr);
 	});
 

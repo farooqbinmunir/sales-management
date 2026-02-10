@@ -82,10 +82,14 @@
         <div class="product-table-wrap">
             <div class="heading-search">
                 <h4 class="product-table-heading">Products</h4>
-                
+                <!-- Stock filter -->
+                <?php include_template('sections/stock-filter'); ?>
+                <!-- End Stock filter -->
+
                 <button id="showTable">Selected Products</button>
+                
                 <!-- Search filter -->
-                <?php include_once FBM_PLUGIN_TEMPLATES_DIR . 'sections/search-filter.php'; ?>
+                <?php include_template('sections/search-filter'); ?>
                 <!-- End search filter -->
             </div>
 
@@ -97,7 +101,7 @@
                             <th>Items</th>
                             <th>Manufacturer</th>
                             <th class="sms_hidden">Purchase Rate</th>
-                            <th class="sms_hidden">Vendor</th>
+                            <th>Vendor</th>
                             <th>Sale Rate</th>
                             <th>In-Stock</th>
                             <th>Location</th>
@@ -139,8 +143,8 @@
                                         <td class="pname"><?php echo $product_name; ?></td>
                                         <td class="pmanufacturer" data-manufacturer_id="<?php echo $product_manufacturer_id; ?>"><?php echo $product_manufacturer_name; ?></td>
                                         <td class="ppurchase_rate sms_hidden"><?php echo $product_purchase_price; ?></td>
+                                        <td class="pvendor"><?php echo $product_vendor; ?></td>
                                         <td class="psale_rate"><?php echo $product_sale_price; ?></td>
-                                        <td class="pvendor sms_hidden"><?php echo $product_vendor; ?></td>
                                         <td class="pin_stock"><?php echo $stock_quantity; ?></td>
                                         <td class="plocation"><?php echo $product_location; ?></td>
                                     </tr>

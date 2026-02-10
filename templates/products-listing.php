@@ -238,7 +238,7 @@
 
                                 <td><?php echo $i++; ?></td>
 
-                                <td><?php echo $product_name; ?></td>
+                                <td class="pname"><?php echo $product_name; ?></td>
 
                                 <td><span>Rs. </span><span><?php echo $product_purchase_price; ?></span></td>
 
@@ -312,7 +312,7 @@
 
                                                         <label for="product_purchase_price">Unit Purchase Price</label>
 
-                                                        <input type="number" oninput="this.value = Math.abs(this.value)" name="product_purchase_price" id="product_purchase_price" value="<?= $product_purchase_price; ?>" required>
+                                                        <input type="number" name="product_purchase_price" id="product_purchase_price" value="<?= $product_purchase_price; ?>" required>
 
                                                     </div>
 
@@ -322,7 +322,7 @@
 
                                                         <label for="product_sale_price">Unit Sale Price</label>
 
-                                                        <input type="number" oninput="this.value = Math.abs(this.value)" name="product_sale_price" id="product_sale_price" value="<?= $product_sale_price; ?>" required>
+                                                        <input type="number" name="product_sale_price" id="product_sale_price" value="<?= $product_sale_price; ?>" required>
 
                                                     </div>
 
@@ -332,7 +332,7 @@
 
                                                         <label for="product_sale_price">Add Min Quantity</label>
 
-                                                        <input type="number" oninput="this.value = Math.abs(this.value)" name="add_min_quantity" id="add_min_quantity" value="<?php echo $product_min_quantity; ?>" required>
+                                                        <input type="number" name="add_min_quantity" id="add_min_quantity" value="<?php echo $product_min_quantity; ?>" required>
 
                                                     </div>
 

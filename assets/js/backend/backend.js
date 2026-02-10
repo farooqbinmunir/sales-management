@@ -82,8 +82,6 @@ jQuery(document).ready($ => {
 			});
 		}
 
-		// By presponsesing key up and down, focus moves in product table rows
-		/*
 		document.addEventListener('keydown', (e) => {
 			if (e.key === 'ArrowUp') {
 				productIRowIndex = (productIRowIndex > 0) ? productIRowIndex - 1 : 0;
@@ -92,71 +90,6 @@ jQuery(document).ready($ => {
 				productIRowIndex = (productIRowIndex < visibleRows.length - 1) ? productIRowIndex + 1 : visibleRows.length - 1;
 				updateFocus();
 			}
-
-			// old code
-
-			// Scroll product table code
-			// let focusItem = document.querySelector('.focused');
-			// if (focusItem) {
-			// 	let scrollElementHeight = scrollElement.clientHeight;
-			// 	if (focusItem.offsetTop > (scrollElementHeight - focusItem.clientHeight)) {
-			// 		scrollElement.scrollTop += focusItem.clientHeight;
-			// 	}
-			// 	if (focusItem.offsetTop < (scrollElementHeight - (focusItem.clientHeight * 4))) {
-			// 		scrollElement.scrollTop -= focusItem.clientHeight;
-			// 	}
-			// }
-
-			// new code code
-
-			// Scroll product table code
-			let focusItem = document.querySelector('.focused');
-			if (focusItem) {
-				focusItem.scrollIntoView({
-					// behavior: 'smooth',
-					behavior: 'auto',
-					block: 'nearest',
-					inline: 'nearest'
-				});
-			}
-		});
-		*/
-
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'ArrowUp') {
-				productIRowIndex = (productIRowIndex > 0) ? productIRowIndex - 1 : 0;
-				updateFocus();
-			} else if (e.key === 'ArrowDown') {
-				productIRowIndex = (productIRowIndex < visibleRows.length - 1) ? productIRowIndex + 1 : visibleRows.length - 1;
-				updateFocus();
-			}
-
-			// old code
-
-			// Scroll product table code
-			// let focusItem = document.querySelector('.focused');
-			// if (focusItem) {
-			// 	let scrollElementHeight = scrollElement.clientHeight;
-			// 	if (focusItem.offsetTop > (scrollElementHeight - focusItem.clientHeight)) {
-			// 		scrollElement.scrollTop += focusItem.clientHeight;
-			// 	}
-			// 	if (focusItem.offsetTop < (scrollElementHeight - (focusItem.clientHeight * 4))) {
-			// 		scrollElement.scrollTop -= focusItem.clientHeight;
-			// 	}
-			// }
-
-			// new code code
-
-			// Scroll product table code
-			// let focusItem = document.querySelector('.focused');
-			// if (focusItem) {
-			// 	focusItem.scrollIntoView({
-			// 		// behavior: 'smooth',
-			// 		behavior: 'auto',
-			// 		block: 'nearest',
-			// 		inline: 'nearest'
-			// 	});
-			// }
 		});
 
 		// here focus first row of prodcut table on page load
@@ -169,339 +102,57 @@ jQuery(document).ready($ => {
 	let isInventoryPage = document.querySelector('.sales-management-wrap');
 	if (isInventoryPage) {
 		document.querySelector('.date').innerHTML = "Date : " + formattedDate;
-		let no = 0;
-		let customerInput = document.querySelector('#customer-name');
-		let productInput = document.querySelector('#search-product');
-		let showTable = document.querySelector('#showTable');
-		let sTtable = document.querySelector('.selected-total-table');
-		sTtable.style.display = "none";
-		let allItems = document.querySelectorAll('.product-table-wrap tbody .item-name');
-		let allInput = document.querySelectorAll('input');
-		let selectedTable = document.querySelector('.selected-product-table-wrap tbody');
-		let allProductRows = document.querySelectorAll('.product-table-wrap tbody tr:not(.zero_stock_alert)');
-		let allRows = document.querySelectorAll('.product-table-wrap tr');
+		$('.selected-total-table').hide();
+		// let allProductRows = document.querySelectorAll('.product-table-wrap tbody tr:not(.zero_stock_alert)');
 
-		// let productTableTdName = ['sr-Number', 'item-name', 'stock', 'sale', 'vendor', 'in-stock', 'location'];
-		// allRows.forEach((row) => {
-		// 	let allRowChildren = row.children;
-		// 	Array.from(allRowChildren).forEach((child, index) => {
-		// 		if (productTableTdName[index]) {
-		// 			child.classList.add(productTableTdName[index]);
-		// 		}
-		// 	});
+
+		// // addProduct function call here by click
+		// allProductRows.forEach((row) => {
+		// 	row.addEventListener('click', () => addProduct(row));
 		// });
 
-
-		// addProduct function call here by click
-		allProductRows.forEach((row) => {
-			row.addEventListener('click', () => addProduct(row));
-		});
-
-		// Add product function call here by pressing Enter Button
-		// document.addEventListener('keydown', (e) => {
-		// 	let focusItem = document.querySelector('.focused:not(.zero_stock_alert)');
-		// 	if (focusItem) {
-		// 		if (e.key === 'Enter') {
-		// 			// addProduct.call(focusItem);
-		// 			$('.focused:not(.zero_stock_alert)').click();
-		// 		}else{
-		// 			return true;
-		// 		}
-		// 	}
-		// });
-		$(document).on('keydown', function(e){
-			if(e.key === 'Enter'){
-				// $('.focused:not(.zero_stock_alert)').trigger('click');
-				$('.focused:not(.zero_stock_alert)').click();
-			}
-		});
-		// $(document).on('click', '.focused:not(.zero_stock_alert)', function(){
-		// 	// $('.selected-total-table').fadeIn();
-		// 	// console.log('Clicked');
-		// 	let focusedTr = document.querySelector('.focused:not(.zero_stock_alert)');
-		// 	addProduct(focusedTr);
-		// });
-
-		// Function to reset and reassign serial numbers after product add/delete
-		function resetSerialNumbers() {
-			let allSr = document.querySelectorAll('.selected-product-table-wrap tbody .sr-Number');
-			allSr.forEach((sr, index) => {
-				sr.innerHTML = index + 1;  // Reassign serial number starting from 1
-			});
-		}
-
-		// addProduct function start and define here
-
-		function addProduct($tr) {
-			var $row = $tr;
-			console.log('Row', $row);
-
-
-			no++;
-			let product_id = Number($row.getAttribute('data-id'));
-
-			// make sure here product not dublicate  
-			let allSelectedTr = selectedTable.childNodes;
-			for (let i = 0; i < allSelectedTr.length; i++) {
-				let existItem = Number(allSelectedTr[i].dataset.id);
-				if (product_id == existItem) {
-					return alert('This item already has been added to cart!');
-				}
-			}
-			let purcahseRate = +$row.querySelector('.ppurchase_rate').innerHTML,
-				saleRate = +$row.querySelector('.psale_rate').innerHTML;
-
-			let newRow = document.createElement('tr');
-			newRow.setAttribute('data-id', product_id);
-			newRow.setAttribute('data-purchase_rate', purcahseRate);
-			newRow.setAttribute('data-sale_rate', saleRate);
-
-			selectedTable.append(newRow);
-
-			// here we give className to each td and after that we append all td in tr 
-			let tdClassName = ['sr-Number', 'item-name', 'sale-price', 'quantity', 'items-price', 'item-type', 'edit'];
-			tdClassName.forEach((className, index) => {
-				let td = document.createElement('td');
-				td.classList.add(className);
-				newRow.append(td);
-			});
-
-			// Set Serial Number
-			let srNo = newRow.querySelector('.sr-Number');
-			srNo.innerHTML = no;
-
-			// Set item name
-			let selectedItem = newRow.querySelector('.item-name');
-			selectedItem.innerText = $row.querySelector('.pname').innerText;
-
-			// unit price
-			let salePrice = newRow.querySelector('.sale-price');
-			salePrice.innerText = +$row.querySelector('.psale_rate').innerText;
-
-			let inStock = +$row.querySelector('.pin_stock').innerText;
-
-			// Add input fields for quantity
-			let numberField = document.createElement('input');
-			numberField.type = 'number';
-			numberField.min = 0;
-			numberField.max = inStock;
-			numberField.oninput = function () {
-				if (this.value > inStock) this.value = inStock; // enforce max
-			}
-			newRow.querySelector('.quantity').append(numberField);
-			setTimeout(e => numberField.focus(), 1/2 * 1000)
-
-			// type of selected item field
-			let itemTypeField = document.createElement('select');
-			let options = ['simple', 'solid', 'liquid'];
-			options.forEach((option, index) => {
-				let opt = document.createElement('option');
-				opt.value = option;
-				opt.text = option.charAt(0).toUpperCase() + option.slice(1); // Capitalize the first letter
-				if (index === 0) opt.selected = true; // Set 'simple' as default
-				itemTypeField.appendChild(opt);
-			});
-			newRow.querySelector('.item-type').append(itemTypeField);
-
-			// Add 'Delete' text to the last column
-			let delBtn = document.createElement('button');
-			delBtn.innerHTML = "Delete <sapn>&times;</sapn>";
-			let editCell = newRow.querySelector('.edit');
-			editCell.append(delBtn);
-
-			sTtable.style.display = 'block';
-
-			// Get the Items price for the clicked product
-			let sp = Number($row.querySelector('.psale_rate').innerText);
-
-			// Set serial numbers to be updated correctly after adding a product
-			resetSerialNumbers();
-
-			// Items price calculation logic
-			const allItemsPrice = document.querySelectorAll('.selected-product-table-wrap tbody .items-price');
-			const InStock = Number($row.querySelector('.pin_stock').innerText.trim());
-			const allPriceInput = document.querySelectorAll('.selected-product-table-wrap tbody .quantity input');
-			const grossTotal = document.querySelector('tbody .gross-total');
-			const netTotalElement = document.querySelector('.net-total');
-			const discountField = document.querySelector('tbody .discount input');
-
-			const calculateTotals = () => {
-				let total = Array.from(allItemsPrice).reduce((sum, unit) => sum + Number(unit.innerText), 0);
-				grossTotal.innerText = total;
-
-				let discountValue = Number(discountField.value) || 0,
-					netTotal = (total - discountValue),
-					paidAmount = +$(`input#paidAmount`).val(),
-					dueAmount = netTotal - paidAmount;
-				netTotalElement.innerText = netTotal;
-				$(`#due-amount`).text(dueAmount);
-
-			};
-			allPriceInput.forEach((input, index) => {
-				
-
-				input.addEventListener('input', e => {
-					// Prevent negative sign input
-					if (e.key === '-') {
-						return 0;
-					}
-
-					let quantity = Number(input.value),
-						tr = input.closest('tr'),
-						unitPrice = +tr.querySelector('.sale-price').innerText,
-						amount = +(quantity * unitPrice),
-						purcahseRate = +tr.dataset.purchase_rate;
-						profit = +(amount - (purcahseRate * quantity));
-					tr.setAttribute('data-profit', profit);
-					
-					// Ensure quantity is positive and at least 1
-					if (quantity < 0) {
-						alert("Please enter a positive value.");
-						input.value = 0;
-						allItemsPrice[index].innerText = 0;
-						calculateTotals();
-					}
-
-					// Validate stock availability
-					if (quantity > InStock) {
-						alert(`Your available stock is ${InStock}. Please reduce your quantity.`);
-						input.value = "";
-						allItemsPrice[index].innerText = "";
-						calculateTotals();
-					}
-
-					allItemsPrice[index].innerText = amount;
-					calculateTotals();
-				});
-			});
-
-			// Bug fix - when quantity added is out of stock then quantity visually becomes empty but it's total gets calculated, it should be 0 when quantity is empty or 0
-			// allPriceInput.forEach((input, index) => {
-				
-
-			// 	input.addEventListener('keydown', e => {
-			// 		// Prevent negative sign input
-			// 		if (e.key === '-' || input.value < 0) {
-			// 			return;
-			// 		}
-
-			// 		let quantity = Number(input.value);
-			// 		if(quantity > InStock){
-			// 			alert(`Your available stock is ${InStock}. Please reduce your quantity.`);
-			// 			// return;
-			// 		}
-			// 	});
-			// });
-
-
-			// Update totals when discount changes
-			discountField.addEventListener('keyup', calculateTotals);
-
-
-
-
-			// Edit functionality for each row (Placeholder for future logic)
-			let allSr = document.querySelectorAll('.selected-product-table-wrap tbody .sr-Number');
-
-			let editBtn = document.querySelectorAll('.selected-product-table-wrap tbody .edit');
-			editBtn.forEach((v, i) => {
-				v.addEventListener('click', function () {
-					let startLoop = Number(this.closest('tr').querySelector('.sr-Number').innerHTML);
-					// Remove the selected row
-					// this.closest('tr').remove();
-					(confirm("Do you want to proceed?")) ? this.closest('tr').remove() : '';
-					resetSerialNumbers();  // Reset serial numbers after deletion
-					recalculateTotals();   // Recalculate totals after deletion
-				});
-			});
-
-			// Function to recalculate the total after deleting an item
-			function recalculateTotals() {
-
-				// Select all remaining item prices after deletion
-				let allItemsPrice = document.querySelectorAll('.selected-product-table-wrap tbody .items-price');
-
-				// Recalculate the gross total
-				let newGrossTotal = Array.from(allItemsPrice).reduce((sum, unit) => sum + Number(unit.innerHTML), 0);
-				document.querySelector('tbody .gross-total').innerHTML = newGrossTotal;
-
-				// Fetch the discount value and calculate net total
-				let discountField = document.querySelector('tbody .discount input');
-				let discountValue = Number(discountField.value); // Ensure it's a number
-				// let discount = (discountValue / 100) * newGrossTotal; // Convert discount to percentage
-
-				// Calculate the new net total
-				let netTotal = newGrossTotal - discountValue;
-				document.querySelector('.net-total').innerHTML = netTotal; // Update net total
-
-				// Update totals whenever the discount field is modified
-				discountField.addEventListener('keyup', function () {
-					let discountValue1 = Number(discountField.value); // Ensure it's a number
-					// let discount1 = (discountValue1 / 100) * newGrossTotal; // Convert discount to percentage
-					let netTotal1 = newGrossTotal - discountValue1;
-					document.querySelector('.net-total').innerHTML = netTotal1;
-				});
-
-			}
-			allProductRows.forEach((v, i) => {
-				productInput.value = '';
-				allProductRows[i].style.display = '';
-			});
-
-
-			// show listing listing Button
-			let spTbody = document.querySelector('.selected_items_container');
-			if (spTbody.childNodes.length) {
-				showTable.style.display = "block";
-			}
-
-			let salesType = document.querySelector("#grossTotalTable #salesType");
-			let paymentMethod = document.querySelector("#paymentMethod");
-			salesType.addEventListener("change", function () {
-				if (salesType.value == "Credit Sale") {
-					paymentMethod.value = "---";
-					paymentMethod.disabled = true;
-				} else {
-					paymentMethod.value = "Cash in Hand";
-					paymentMethod.disabled = false;
-				}
-			});
-
-		}
-
-
-		// addProduct function end
-
-
-
-		// show listing producted table 
-
-		showTable.addEventListener('click', function () {
-			sTtable.style.display = "block";
-		});
-
-
-
-
-
-		// close selected product table 
-
-		let closeSpBtn = document.querySelector('.close-sp-tbl');
-
-		closeSpBtn.addEventListener('click', function () {
-
-			sTtable.style.display = 'none';
-
-		});
-
-		// document.addEventListener('keydown', function (e) {
-		// 	if (e.ctrlKey && e.key === 'a') {
-		// 		e.preventDefault();
-		// 		let listingItem = document.querySelector('.selected-total-table');
-		// 		listingItem.classList.toggle('close-selected-table');
-		// 	}
-		// });
 	}
+
+	// Trigger click on focused product row by pressing Enter Button
+	$(document).on('keydown', (e) => {
+		let focusItem = $('.focused:not(.zero_stock_alert)');
+		if (focusItem.length) {
+			if (e.key === 'Enter') {
+				// addProduct.call(focusItem);
+				$('.focused:not(.zero_stock_alert)').click();
+			}else{
+				return true;
+			}
+		}
+	});
+
+	// addProduct function call here by click on product row
+	$(document).on('click', '.focused:not(.zero_stock_alert)', function(){
+		$('.selected-total-table').fadeIn();
+		let focusedTr = document.querySelector('.focused:not(.zero_stock_alert)');
+		addProduct(focusedTr);
+	});
+
+	// close selected product table popup
+	$(document).on('click', '.close-sp-tbl', function () {
+		$('.selected-total-table').fadeOut();
+	});
+
+	// show listing producted table 
+	$(document).on('click', '#showTable', function () {
+		$('.selected-total-table').fadeIn();
+	});
+
+	// Delete row from selected product table
+	$(document).on('click', '.selected-product-table-wrap tbody .edit', function () {
+		// let startLoop = Number($(this).closest('tr').find('.sr-Number').html());
+		// Remove the selected row
+		(confirm("Do you want to proceed?")) ? $(this).closest('tr').remove() : '';
+		resetSerialNumbers();  // Reset serial numbers after deletion
+		recalculateTotals();   // Recalculate totals after deletion
+		checkSelectedTableState();
+	});
+
 
 	$('#product-form').on('submit', function (e) {
 		e.preventDefault();
@@ -719,9 +370,6 @@ jQuery(document).ready($ => {
 
 				// Add/remove helper class
 				if (isInRange) {
-					row.classList.add('found_in_search');
-					row.classList.remove('not_found_in_search');
-
 					total += amount;
 					totalProfit += profit;
 

@@ -565,6 +565,84 @@ jQuery(document).ready($ => {
     }
 
 
+    window.handleSalesTypeChange = function(type) {
+
+        const $popup = $('#customer_register_area #salesCalculator');
+        const $partialRow = $('.partial_payment_row');
+        const $printActions = $('#print-actions');
+        const $popupPrintContainer = $('.salesCalculatorWrapper');
+
+        if(type === 'Cash Sale') {
+
+            $popup.fadeOut();
+            $partialRow.fadeOut();
+
+            // Move buttons back
+            $printActions.appendTo('.sales-main-actions');
+
+        } 
+        else if(type === 'Credit Sale') {
+
+            // No partial row
+            $partialRow.fadeOut();
+
+            // Open popup immediately
+            $popup.fadeIn();
+
+            // Move buttons inside popup
+            $printActions.appendTo($popupPrintContainer);
+
+        } 
+        else if(type === 'Partially Paid') {
+
+            // Show payment row FIRST
+            $partialRow.fadeIn();
+
+            // Do NOT open popup yet
+            $popup.hide();
+
+            // Keep buttons in main area for now
+            $printActions.appendTo('.sales-main-actions');
+
+            // Focus paid input
+            $('.partial_payment_row input').first().focus();
+        }
+    };
+
+    window.handlePaidInput = function() {
+
+        const $input = $(this);
+        const netTotal = parseFloat($('.net-total').text()) || 0;
+        let paid = parseFloat($input.val());
+
+        // If empty or invalid
+        if(isNaN(paid)){
+            $('#due-amount').text(netTotal.toFixed(2));
+            return;
+        }
+
+        // Negative protection
+        if(paid < 0){
+            $input.val('');
+            alert("Negative numbers are not allowed.");
+            $('#due-amount').text(netTotal.toFixed(2));
+            return;
+        }
+
+        // Prevent overpayment
+        if(paid > netTotal){
+            paid = netTotal;
+            $input.val(netTotal.toFixed(2));
+        }
+
+        // Calculate due
+        const due = netTotal - paid;
+
+        $('#due-amount').text(due.toFixed(2));
+    }
+
+
+
 
 
 });

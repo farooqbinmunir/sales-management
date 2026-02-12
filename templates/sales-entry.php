@@ -222,7 +222,7 @@
                                         </select>
                                     </td>
                                 </tr>
-                                <tr class="partial_payment_row" style="display: none;">
+                                <tr class="partial_payment_header_row" style="display: none;">
                                     <th colspan="3">Paid Amount</th>
                                     <th colspan="2">Due Amount</th>
                                 </tr>
@@ -235,10 +235,12 @@
 
                             </tbody>
                         </table>
-                        <div class="btn-wrap">
-                            <button id="printIvoiceBtn" class="print-btn" data-user_id="<?php echo $sales_man_id; ?>" data-user_name="<?php echo $sales_man_name; ?>">Print and Save</button>
-                            <button id="printBillBtn" class="print-btn">Print Bill</button>
-                            <!-- <button id="saveSaleBtn" class="save-sale-btn print-btn">Save</button> -->
+                        <div class="sales-main-actions">
+                            <div id="print-actions" class="btn-wrap">
+                                <button id="printIvoiceBtn" class="print-btn" data-user_id="<?php echo $sales_man_id; ?>" data-user_name="<?php echo $sales_man_name; ?>">Print and Save</button>
+                                <button id="printBillBtn" class="print-btn">Print Bill</button>
+                                <!-- <button id="saveSaleBtn" class="save-sale-btn print-btn">Save</button> -->
+                            </div>
                         </div>
                     </div>
                 </div>

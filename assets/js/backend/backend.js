@@ -495,58 +495,58 @@ jQuery(document).ready($ => {
 	}
 
 
-	// Calculating due amount when paid amount is entered
-	$(document).on(`input`, `input#paidAmount`, function(){
-		let input = $(this),
-			dueAmountContainer = $(`#due-amount`),
-			netAmount = +$(`td.net-total`).text().trim(),
-			paidAmount = +input.val(),
-			dueAmount = netAmount - paidAmount;
-		// Now set the due amount
-		dueAmountContainer.text(dueAmount);
-	});
+	// // Calculating due amount when paid amount is entered
+	// $(document).on(`input`, `input#paidAmount`, function(){
+	// 	let input = $(this),
+	// 		dueAmountContainer = $(`#due-amount`),
+	// 		netAmount = +$(`td.net-total`).text().trim(),
+	// 		paidAmount = +input.val(),
+	// 		dueAmount = netAmount - paidAmount;
+	// 	// Now set the due amount
+	// 	dueAmountContainer.text(dueAmount);
+	// });
 
-	$(document).on('change', '#grossTotalTable select#salesType', function(){
-		let $this = $(this),
-			selectedSaleType = $this.val().trim(),
-			salesTable = $this.closest('table'),
-			partialPaymentRows = salesTable.find('tr.partial_payment_row'),
-			paidAmountInput = salesTable.find('input#paidAmount'),
-			dueAmountElement = salesTable.find('#due-amount'),
-			netTotalAmount = + salesTable.find('.net-total').text(),
-			tempCustomer = $('#customer_register_area > .cform_field'),
-			customerRegisterForm = $('#creditCustomerForm');
+	// $(document).on('change', '#grossTotalTable select#salesType', function(){
+	// 	let $this = $(this),
+	// 		selectedSaleType = $this.val().trim(),
+	// 		salesTable = $this.closest('table'),
+	// 		partialPaymentRows = salesTable.find('tr.partial_payment_row'),
+	// 		paidAmountInput = salesTable.find('input#paidAmount'),
+	// 		dueAmountElement = salesTable.find('#due-amount'),
+	// 		netTotalAmount = + salesTable.find('.net-total').text(),
+	// 		tempCustomer = $('#customer_register_area > .cform_field'),
+	// 		customerRegisterForm = $('#creditCustomerForm');
 
 
-		if(selectedSaleType === 'Partially Paid'){
-			paidAmountInput.val(0).attr('max', netTotalAmount).trigger('input');
-			dueAmountElement.text(netTotalAmount);
-			partialPaymentRows.slideDown();
-			customerRegisterForm.slideDown();
-			tempCustomer.prop('inert', true).attr('inert', 'inert');
+	// 	if(selectedSaleType === 'Partially Paid'){
+	// 		paidAmountInput.val(0).attr('max', netTotalAmount).trigger('input');
+	// 		dueAmountElement.text(netTotalAmount);
+	// 		partialPaymentRows.slideDown();
+	// 		customerRegisterForm.slideDown();
+	// 		tempCustomer.prop('inert', true).attr('inert', 'inert');
 
-			// Open the popup
-			$('#salesCalculator').fadeIn();
-		}else if(selectedSaleType === 'Cash Sale'){
-			partialPaymentRows.slideUp();
-			paidAmountInput.val(netTotalAmount);
-			dueAmountElement.text(0);
-			customerRegisterForm.slideUp();
-			tempCustomer.prop('inert', false);
+	// 		// Open the popup
+	// 		$('#salesCalculator').fadeIn();
+	// 	}else if(selectedSaleType === 'Cash Sale'){
+	// 		partialPaymentRows.slideUp();
+	// 		paidAmountInput.val(netTotalAmount);
+	// 		dueAmountElement.text(0);
+	// 		customerRegisterForm.slideUp();
+	// 		tempCustomer.prop('inert', false);
 
-			// Close the popup
-			$('#salesCalculator').fadeOut();
-		}else{
-			partialPaymentRows.slideUp();
-			paidAmountInput.val(0);
-			dueAmountElement.text(netTotalAmount);
-			customerRegisterForm.slideDown();
-			tempCustomer.prop('inert', true).attr('inert', 'inert');
+	// 		// Close the popup
+	// 		$('#salesCalculator').fadeOut();
+	// 	}else{
+	// 		partialPaymentRows.slideUp();
+	// 		paidAmountInput.val(0);
+	// 		dueAmountElement.text(netTotalAmount);
+	// 		customerRegisterForm.slideDown();
+	// 		tempCustomer.prop('inert', true).attr('inert', 'inert');
 
-			// Open the popup
-			$('#salesCalculator').fadeIn();
-		}
-	});
+	// 		// Open the popup
+	// 		$('#salesCalculator').fadeIn();
+	// 	}
+	// });
 
 	// Filter sales by sale type or due amount
 	$(document).on('change', '.sales-page select#salesType', function(){
@@ -610,7 +610,5 @@ jQuery(document).ready($ => {
 
 
 
-
-});
-
+}); /* .ready() closed */
 

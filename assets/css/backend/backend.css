@@ -1012,7 +1012,7 @@ form#creditCustomerForm {
     margin-block: 20px;
     box-shadow: 0 0 9px -5px;
     border-radius: 5px;
-    min-width: 500px;
+    width: 100%;
 }
 form#creditCustomerForm hgroup h2 {
     font-size: 18px;

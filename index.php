@@ -32,6 +32,7 @@ if(!defined('ABSPATH')){
 
 // Defining CONSTANT to store important information to be available throught the plugin
 global $wpdb;
+define('FBM_PLUGIN_VERSION', '1.1.0');
 define('FBM_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('FBM_PLUGIN_DIR_NAME', plugin_basename(dirname(__FILE__)));
 define('FBM_PLUGIN_TITLE', 'DDA Inventory');

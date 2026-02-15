@@ -1,0 +1,1 @@
+<input type="search" name="" id="search-product" placeholder="Search here..." data-search-column="pname" />

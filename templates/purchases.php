@@ -4,7 +4,7 @@
 
         <button id="addNewPurchase" class="add-new">Add New Purchase</button>
 
-        <input type="search" name="" id="search-product" placeholder="Search Product Name">
+		<?php include_component('search-field'); ?>
 
     </div>
 

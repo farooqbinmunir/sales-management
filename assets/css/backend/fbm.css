@@ -33,3 +33,8 @@ li.purchase-sidebar-list-item .cartItemName {
 	transition: opacity 1s linear;
   	opacity: 1;
 }
+#salesCalculator input:not([type="submit"]),
+#salesCalculator select,
+#salesCalculator textarea {
+	border-width: 2px;
+}

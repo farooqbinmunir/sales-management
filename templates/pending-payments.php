@@ -9,11 +9,15 @@ $nonce_action = 'fbm_receive_due_payment';
 ?>
 <div class="wrap">
   <p>Manage customers who have remaining balances from previous sales.</p>
-  <form method="get" action="">
-      <input type="hidden" name="page" value="pending-payments">
-      <input type="text" name="s" value="<?php echo isset($_GET['s']) ? esc_attr($_GET['s']) : ''; ?>" placeholder="Search by Customer or Invoice..." style="width:300px;">
-      <button type="submit" class="button">Search</button>
-  </form>
+  <?php
+    include_component('search-filter', [
+      'options' => [
+        'customer_name' => 'Customer Name',
+        'phone' => 'Phone',
+      ],
+      'row_to_skip' => 'payments-row' // Add a class to identify rows to skip during search
+    ]);
+   ?>
   <br>
   <div class="table-top">
     <ul class="subsubsub">
@@ -45,72 +49,74 @@ $nonce_action = 'fbm_receive_due_payment';
     </div>
     <!-- End search filter -->
   </div>
-  <table class="pending_payments_table widefat striped" style="margin-top:12px;">
-    <thead>
-      <tr>
-        <th>#</th>
-        <!-- <th>Customer/Sales Man</th> -->
-        <th>Customer</th>
-        <th>Phone</th>
-        <th>Total</th>
-        <th>Paid</th>
-        <th>Remaining</th>
-        <th>Status</th>
-        <th>Updated</th>
-        <th>Due Type</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-    <?php if (!$dues): ?>
-      <tr><td colspan="9">No records found.</td></tr>
-    <?php else: $i = 1; foreach ($dues as $d): 
-        $id = $d->id;
-        // $phone = $d->phone == 0 ? "N/A" : $d->phone;
-        $phone = $due_type === 'Sale'
-                ? ($d->customer_phone ?: "N/A")
-                : ($d->salesman_phone ?: "N/A");
+  <div class="table-wrap">
+    <table class="pending_payments_table widefat striped" style="margin-top:12px;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <!-- <th>Customer/Sales Man</th> -->
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Total</th>
+          <th>Paid</th>
+          <th>Remaining</th>
+          <th>Status</th>
+          <th>Updated</th>
+          <th>Due Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php if (!$dues): ?>
+        <tr><td colspan="9">No records found.</td></tr>
+      <?php else: $i = 1; foreach ($dues as $d): 
+          $id = $d->id;
+          // $phone = $d->phone == 0 ? "N/A" : $d->phone;
+          $phone = $due_type === 'Sale'
+                  ? ($d->customer_phone ?: "N/A")
+                  : ($d->salesman_phone ?: "N/A");
 
-        $customer_saler_id = $d->customer_saler_id;
-        $total = number_format((float)$d->total_amount, 2);
-        $paid_amount = number_format((float)$d->paid_amount, 2);
-        $remaining_amount = number_format((float)$d->remaining_amount, 2);
-        $status = ucfirst($d->status);
-        $updated_date = $d->updated_at;
-        $due_type = $d->due_type;
-        
-        // $customer_saler_name = $due_type === 'sale' ? get_customer($customer_saler_id)->name : get_saleman($customer_saler_id)->name;
-        // $customer_saler_name = get_customer($customer_saler_id)->name;
-        $customer_saler_name = '--WALKING-CUSTOMER';
-      ?>
-      <tr>
-        <td><?php echo $i++; ?></td>
-        <td><?php echo $customer_saler_name; ?></td>
-        <td><?php echo $phone; ?></td>
-        <td><?php echo $total; ?></td>
-        <td><?php echo $paid_amount; ?></td>
-        <td><strong><?php echo $remaining_amount; ?></strong></td>
-        <td><?php echo esc_html($status); ?></td>
-        <td><?php echo esc_html($updated_date); ?></td>
-        <td><?php echo ucwords(esc_html($due_type)); ?></td>
+          $customer_saler_id = $d->customer_saler_id;
+          $total = number_format((float)$d->total_amount, 2);
+          $paid_amount = number_format((float)$d->paid_amount, 2);
+          $remaining_amount = number_format((float)$d->remaining_amount, 2);
+          $status = ucfirst($d->status);
+          $updated_date = $d->updated_at;
+          $due_type = $d->due_type;
+          
+          // $customer_saler_name = $due_type === 'sale' ? get_customer($customer_saler_id)->name : get_saleman($customer_saler_id)->name;
+          // $customer_saler_name = get_customer($customer_saler_id)->name;
+          $customer_saler_name = '--WALKING-CUSTOMER';
+        ?>
+        <tr>
+          <td><?php echo $i++; ?></td>
+          <td class="customer_name"><?php echo $customer_saler_name; ?></td>
+          <td class="phone"><?php echo $phone; ?></td>
+          <td><?php echo $total; ?></td>
+          <td><?php echo $paid_amount; ?></td>
+          <td><strong><?php echo $remaining_amount; ?></strong></td>
+          <td><?php echo esc_html($status); ?></td>
+          <td><?php echo esc_html($updated_date); ?></td>
+          <td><?php echo ucwords(esc_html($due_type)); ?></td>
 
-        <td>
-          <?php if ($status === 'Open'): ?>
-          <button class="button button-primary" type="button" onclick="fbmOpenReceiveModal(<?php echo $id; ?>, <?php echo esc_js((float)$d->remaining_amount); ?>, '<?php echo $due_type; ?>')">Receive Payment</button>
-          <?php else: ?>
-          <em>Closed</em>
-          <?php endif; ?>
-        </td>
-      </tr>
-      <tr class="payments-row" id="payments-row-<?php echo $id; ?>" style="display:none;">
-        <td colspan="9">
-          <h6><strong>Payment History</strong></h6>
-          <div class="payments" data-due="<?php echo $id; ?>"></div>
-        </td>
-      </tr>
-    <?php endforeach; endif; ?>
-    </tbody>
-  </table>
+          <td>
+            <?php if ($status === 'Open'): ?>
+            <button class="button button-primary" type="button" onclick="fbmOpenReceiveModal(<?php echo $id; ?>, <?php echo esc_js((float)$d->remaining_amount); ?>, '<?php echo $due_type; ?>')">Receive Payment</button>
+            <?php else: ?>
+            <em>Closed</em>
+            <?php endif; ?>
+          </td>
+        </tr>
+        <tr id="payments-row-<?php echo $id; ?>" class="payments-row" style="display:none;">
+          <td colspan="9">
+            <h6><strong>Payment History</strong></h6>
+            <div class="payments" data-due="<?php echo $id; ?>"></div>
+          </td>
+        </tr>
+      <?php endforeach; endif; ?>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <div id="receive-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999;">

@@ -6,10 +6,50 @@
     <div class="heading-search">
 
         <button id="addNewProduct" class="add-new">Add New Product</button>
-
-        <input type="search" name="" id="search-product" placeholder="Search Product Name">
+        
+        <?php include_component('search-field'); ?>
 
     </div>
+    <!-- UPDATE MANUFACTURER - PROCESSING & NOTICE -->
+    <?php 
+        global $wpdb;
+        $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
+        $manufacturers = $wpdb->get_results("SELECT * FROM {$table_manufacturers}");
+        $manufacturers_array = [];
+        if(!empty(($manufacturers))){
+            foreach($manufacturers as $manufacturer){
+                $manufacturer_id = $manufacturer->manufacturer_id;
+                $manufacturer_name = $manufacturer->manufacturer_name;
+                $formSelector_delete = "btnDeleteManufacturer_{$manufacturer_id}";
+                $formSelector_update = "btnUpdateManufacturer_{$manufacturer_id}";
+                $manufacturers_array[] = [
+                    'id' => $manufacturer_id,
+                    'name' => $manufacturer_name,
+                    'delete' => $formSelector_delete,
+                    'update' => $formSelector_update
+                ];
+
+                // Form processing for update manufacturer
+                if (isset($_POST[$formSelector_update])) {
+                    $manufacturer_id = intval($_POST[$formSelector_update]);
+                    $manufacturer_name = sanitize_text_field($_POST["product_manufacturer_{$manufacturer_id}"]);
+                    global $wpdb;
+                    $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
+
+                    $updated = $wpdb->query(
+                        $wpdb->prepare("UPDATE {$table_manufacturers} SET manufacturer_name = %s WHERE manufacturer_id = %d", $manufacturer_name, $manufacturer_id)
+                    );
+
+                    if ($updated) {
+                        echo '<p class="notice notice-success" style="padding: 10px;">Success! Manufacturer updated.</p>';
+                    } else {
+                        echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not updated.</p>';
+                    }
+                }
+            }
+        }
+        
+    ?>
     <div id="product_extras">
         <div class="product_manufacturers">
             <!-- ADD NEW MANUFACTURER - PROCESSING -->
@@ -36,10 +76,9 @@
             ?>
 
             
-            <button id="toggleManufacturers" type="button" class="sms_btn_light toggleNextElement">Manufacturers</button>
+            <button id="toggleManufacturers" type="button" class="sms_btn_light toggleNextSibling">Manufacturers</button>
             <div class="manufacturers_listing" style="display: none;">
-                <button id="addNewManufacturer" type="button" class="sms_btn_light toggleNextElement">Add New Manufacturer</button>
-                <form class="formAddNewManufacturer" method="POST" style="display: none;">
+                <form class="formAddNewManufacturer" method="POST">
                     <div class="formWrapper">
                         <input type="text" name="product_new_manufacturer" placeholder="Enter Manufacturer Name" required />
                         <input type="submit" name="add_new_manufacturer" value="Add" class="sms_btn_light" />
@@ -55,83 +94,56 @@
                     </thead>
                     <tbody>
                         <?php 
-                            global $wpdb;
-                            $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-                            $manufacturers = $wpdb->get_results("SELECT * FROM {$table_manufacturers}");
-                            if(!empty(($manufacturers))){
-                                $i = 1;
-                                foreach($manufacturers as $manufacturer){
-                                    $manufacturer_id = $manufacturer->manufacturer_id;
-                                    $manufacturer_name = $manufacturer->manufacturer_name;
-                                    $formSelector_delete = "btnDeleteManufacturer_{$manufacturer_id}";
-                                    $formSelector_update = "btnUpdateManufacturer_{$manufacturer_id}";
-                                    ?>
-                                    <tr data-manufacturer_id="<?php echo $manufacturer_id; ?>" data-manufacturer_name="<?php echo $manufacturer_name; ?>" title="<?php echo $manufacturer_name; ?>">
-                                        <td><?php echo $i++; ?></td>
-                                        <td><?php echo $manufacturer_name; ?></td>
-                                        <td>
-                                            <button class="btnUpdateManufacturer sms_btn_light" type="button">Update</button>
-                                            <form method="POST" style="display: inline-block;">
+                            foreach($manufacturers_array as $index => $manufacturer){
+                                $manufacturer_id = $manufacturer['id'];
+                                $manufacturer_name = $manufacturer['name'];
+                                $formSelector_delete = $manufacturer['delete'];
+                                $formSelector_update = $manufacturer['update'];
+                                ?>
+                                <tr data-manufacturer_id="<?php echo $manufacturer_id; ?>" data-manufacturer_name="<?php echo $manufacturer_name; ?>" title="<?php echo $manufacturer_name; ?>">
+                                    <td><?php echo $index + 1; ?></td>
+                                    <td><?php echo $manufacturer_name; ?></td>
+                                    <td>
+                                        <button class="btnUpdateManufacturer sms_btn_light" type="button">Update</button>
+                                        <form method="POST" style="display: inline-block;">
+                                            <input type="hidden" name="manufacturer_id" value="<?php echo $manufacturer_id; ?>" />
+                                            <button type="submit" name="<?php echo $formSelector_delete; ?>" value="<?php echo $manufacturer_id; ?>" class="sms_btn_light sms_btn_danger">Delete</button>
+                                        </form>
+
+                                        <!-- DELETE MANUFACTURER - PROCESSING -->
+                                        <?php 
+                                            if (isset($_POST[$formSelector_delete])) {
+                                                $manufacturer_id = intval($_POST[$formSelector_delete]);
+                                                global $wpdb;
+                                                $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
+
+                                                $deleted = $wpdb->query(
+                                                    $wpdb->prepare("DELETE FROM {$table_manufacturers} WHERE manufacturer_id = %d", $manufacturer_id)
+                                                );
+
+                                                if ($deleted) {
+                                                    wp_safe_redirect($_SERVER['REQUEST_URI']);
+                                                    exit;
+                                                } else {
+                                                    echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not deleted.</p>';
+                                                }
+                                            }
+                                        ?>
+
+                                    </td>
+                                </tr>
+                                <tr style="display: none;">
+                                    <td colspan="4">
+                                        <form class="formUpdateManufacturer" method="POST">
+                                            <div class="formWrapper">
                                                 <input type="hidden" name="manufacturer_id" value="<?php echo $manufacturer_id; ?>" />
-                                                <button type="submit" name="<?php echo $formSelector_delete; ?>" value="<?php echo $manufacturer_id; ?>" class="sms_btn_light sms_btn_danger">Delete</button>
-                                            </form>
-
-                                            <!-- DELETE MANUFACTURER - PROCESSING -->
-                                            <?php 
-                                                if (isset($_POST[$formSelector_delete])) {
-                                                    $manufacturer_id = intval($_POST[$formSelector_delete]);
-                                                    global $wpdb;
-                                                    $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-
-                                                    $deleted = $wpdb->query(
-                                                        $wpdb->prepare("DELETE FROM {$table_manufacturers} WHERE manufacturer_id = %d", $manufacturer_id)
-                                                    );
-
-                                                    if ($deleted) {
-                                                        wp_safe_redirect($_SERVER['REQUEST_URI']);
-                                                        exit;
-                                                    } else {
-                                                        echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not deleted.</p>';
-                                                    }
-                                                }
-                                            ?>
-
-                                        </td>
-                                    </tr>
-                                    <tr style="display: none;">
-                                        <td colspan="4">
-                                            <form class="formUpdateManufacturer" method="POST">
-                                                <div class="formWrapper">
-                                                    <input type="hidden" name="manufacturer_id" value="<?php echo $manufacturer_id; ?>" />
-                                                    <input type="text" name="product_manufacturer_<?php echo $manufacturer_id; ?>" value="<?php echo $manufacturer_name; ?>" />
-                                                    <button type="submit" name="<?php echo $formSelector_update; ?>" value="<?php echo $manufacturer_id; ?>" class="sms_btn_light">Update</button>
-                                                </div>
-                                            </form>
-
-                                            <!-- UPDATE MANUFACTURER - PROCESSING -->
-                                            <?php 
-                                                if (isset($_POST[$formSelector_update])) {
-                                                    $manufacturer_id = intval($_POST[$formSelector_update]);
-                                                    $manufacturer_name = sanitize_text_field($_POST["product_manufacturer_{$manufacturer_id}"]);
-                                                    global $wpdb;
-                                                    $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-
-                                                    $updated = $wpdb->query(
-                                                        $wpdb->prepare("UPDATE {$table_manufacturers} SET manufacturer_name = %s WHERE manufacturer_id = %d", $manufacturer_name, $manufacturer_id)
-                                                    );
-
-                                                    if ($updated) {
-                                                        wp_safe_redirect($_SERVER['REQUEST_URI']);
-                                                        exit;
-                                                    } else {
-                                                        echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not deleted.</p>';
-                                                    }
-                                                }
-                                            ?>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                }
+                                                <input type="text" name="product_manufacturer_<?php echo $manufacturer_id; ?>" value="<?php echo $manufacturer_name; ?>" />
+                                                <button type="submit" name="<?php echo $formSelector_update; ?>" value="<?php echo $manufacturer_id; ?>" class="sms_btn_light">Update</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <?php
                             }
                         ?>
                         

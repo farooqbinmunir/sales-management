@@ -880,8 +880,7 @@ button.view-detail-btn {
 	padding: 15px;
 	margin-top: 30px;
 }
-.manufacturers_listing,
-.formAddNewManufacturer {
+.manufacturers_listing{
 	border: 1px solid black;
 	border-radius: 5px;
 	padding: 10px;

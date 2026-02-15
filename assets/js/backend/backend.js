@@ -60,40 +60,10 @@ jQuery(document).ready($ => {
 	let formattedDate = `${currentYear}-${currentMonth}-${currentDate}`;
 
 	// scroll efect with focus row code start here
-
-	let isScrollElement = document.querySelector('.scrollelement');
-	let scrollElement = document.querySelector('.scrollelement');
-	if (isScrollElement) {
-
-		// let allScrollEleRow = document.querySelectorAll('.scrollelement tbody tr:not(.zero_stock_alert)');
-		let allScrollEleRow = document.querySelectorAll('.scrollelement tbody tr');
-
-		// Add focus class when condition is true 
-		let productIRowIndex = 0;
-		let visibleRows = [];
-
-		// Function to update the focused row
-		function updateFocus() {
-			visibleRows = Array.from(allScrollEleRow).filter((row) => {
-				return row.style.display !== 'none' && !row.classList.contains('edit_form');
-			});
-			visibleRows.forEach((v, i) => {
-				v.classList.toggle('focused', i === productIRowIndex);
-			});
-		}
-
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'ArrowUp') {
-				productIRowIndex = (productIRowIndex > 0) ? productIRowIndex - 1 : 0;
-				updateFocus();
-			} else if (e.key === 'ArrowDown') {
-				productIRowIndex = (productIRowIndex < visibleRows.length - 1) ? productIRowIndex + 1 : visibleRows.length - 1;
-				updateFocus();
-			}
-		});
-
+	let isScrollElement = $('.scrollelement');
+	if (isScrollElement.length) {
 		// here focus first row of prodcut table on page load
-		updateFocus(allScrollEleRow);
+		updateFocus(0);
 	}
 
 	// scroll efect with focus row code end here
@@ -105,19 +75,6 @@ jQuery(document).ready($ => {
 		$('.selected-total-table').hide();
 
 	}
-
-	// Trigger click on focused product row by pressing Enter Button
-	$(document).on('keydown', (e) => {
-		let focusItem = $('.focused:not(.zero_stock_alert)');
-		if (focusItem.length) {
-			if (e.key === 'Enter') {
-				// addProduct.call(focusItem);
-				$('.focused:not(.zero_stock_alert)').click();
-			}else{
-				return true;
-			}
-		}
-	});
 
 	// addProduct function call here by click on product row
 	$(document).on('click', 'tbody.inventryPageProductsTable tr:not(.zero_stock_alert)', function(){
@@ -189,37 +146,7 @@ jQuery(document).ready($ => {
 			}
 		});
 	});
-
-
-	//search function call here for Search Product
-	// By default or on page load, set search to product name statically
-	setupSearch('input', '#search-product', 'tbody#product-table-body', 'tr', 'td.pname');
-
-	// On filter type change do the search filteration
-	$(document).on('change', '#searchFilterType', doSearchFilter);
-	function doSearchFilter(){
-		let searchFilterDropdown = $(this),
-			searchFilterType = searchFilterDropdown.val(),
-			searchFieldSelector = '',
-			searchInput = $('#search-product');
-		const searchFilterSelectorsMapping = {
-			product_name: 'td.pname',
-			product_vendor: 'td.pvendor',
-			product_manufacturer: 'td.pmanufacturer',
-		};
-		let searchedFilterType = searchFilterType.replaceAll('_', ' ');
-
-		let newPlaceholder = `Search ${searchedFilterType}`;
-		// Update placeholder
-		searchInput.attr('placeholder', newPlaceholder);
-
-		// Remove the old/initial event on product search
-		$('#search-product').off('input');
-
-		// Prepare and pass, dynamic search field selector based on selected filter type
-		searchFieldSelector = searchFilterSelectorsMapping[searchFilterType];
-		setupSearch('input', '#search-product', 'tbody#product-table-body', 'tr', searchFieldSelector);
-	}
+	
 
 
 
@@ -442,17 +369,17 @@ jQuery(document).ready($ => {
 		setupSearch('keyup', '#to_date', '.sale_table tbody', 'tr', 'td.sales_date');
 	}
 
-	let isAddProductPage = document.querySelector('.add-product-page');
+	// let isAddProductPage = document.querySelector('.add-product-page');
 
-	if (isAddProductPage) {
-		setupSearch('keyup', '#search-product', '#products_table_listing_rows', 'tr', 'td:nth-child(2)');
-	}
+	// if (isAddProductPage) {
+	// 	setupSearch('keyup', '#search-product', '#products_table_listing_rows', 'tr', 'td:nth-child(2)');
+	// }
 
-	let purchasePage = document.querySelector('.purchase-page');
+	// let purchasePage = document.querySelector('.purchase-page');
 
-	if (purchasePage) {
-		setupSearch('keyup', '#search-product', '.purchase-tbody', 'tr', 'td:nth-child(2)');
-	}
+	// if (purchasePage) {
+	// 	setupSearch('keyup', '#search-product', '.purchase-tbody', 'tr', 'td:nth-child(2)');
+	// }
 
 	// Stock check filter
 	let stockChecker = document.querySelector('#stockFilter');
@@ -584,17 +511,7 @@ jQuery(document).ready($ => {
 			salesCalculatorPopup = $('#salesCalculator');
 		if(targetId === 'salesCalculator'){
 			salesCalculatorPopup.fadeOut();
-		}
-	});
-
-	$(document).on('keyup', function(e){
-		let salesCalculatorPopup = $('#salesCalculator');
-		if(e.key === 'Escape'){
-			if(salesCalculatorPopup.is(":visible")){
-				salesCalculatorPopup.fadeOut();
-			}else{
-				console.log('Not Visible');
-			}
+			fbmCloseCustomerPopup();
 		}
 	});
 

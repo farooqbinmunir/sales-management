@@ -1,189 +1,6 @@
 jQuery(document).ready(function ($) {
-	
-	// Custom function for scrolling to specific element, first offset param is required, second is option with default value of 0
 
 
-	// Print Receipt on sale entry page
-	$(document).on('click', '#printIvoiceBtn', function (e) {
-		e.preventDefault();
-	
-		const allQntField = document.querySelectorAll('tbody.selected_items_container .quantity input');
-		let allFilled = true;
-		allQntField.forEach((v, i, a) => {
-			if (!v.value.trim()) {
-				allFilled = false;
-				v.classList.add('empty_field');
-			}
-		});
-
-		
-		if (allFilled) {
-			let saleType = $('#grossTotalTable #salesType').val().trim(),
-				tempCustomer = $('#customer-name'),
-				customerData = {
-					cname: '',
-					cphone: '',
-					cemail: '',
-					caddress: ''
-				};
-			if(saleType === 'Credit Sale' || saleType === 'Partially Paid'){
-				let cNameInput = $('#customer-name-credit'),
-					cPhoneInput = $('#customer-phone'),
-					cEmailInput = $('#customer-email'),
-					cAddressInput = $('#customer-address');
-
-				// Validation before printing and saving sale
-				if(cNameInput.val() && cPhoneInput.val()){
-					cNameInput.css('border-color', 'green');
-					cPhoneInput.css('border-color', 'green');
-					// Populate the credit customer data
-					customerData = {
-						cname: cNameInput.val(),
-						cphone: cPhoneInput.val(),
-						cemail: cEmailInput.val(),
-						caddress: cAddressInput.val()
-					};
-				}else{
-					// Validate Customer name field
-					if(cNameInput.val()){
-						cNameInput.css('border-color', 'green');
-					}else{
-						cNameInput.css('border-color', 'red');
-					}
-
-					// Validate Customer phone field
-					if(cPhoneInput.val()){
-						cPhoneInput.css('border-color', 'green');
-					}else{
-						cPhoneInput.css('border-color', 'red');
-					}
-					scrollTo('#fbm_notice', 100);
-					return;
-				}
-			}else{
-				if(tempCustomer.val()){
-					customerData.cname = tempCustomer.val();
-				}else{
-					customerData.cname = '--WALKING-CUSTOMER--';
-				}
-			}
-			// console.log('Customer Data:', customerData);
-			// return;
-
-			let grossTable = $('#grossTotalTable'),
-				salesPerson = currentUser;
-			
-			// Get all required values
-			let invoice_no = Number($('#sale_invoice').val()),
-				grossTotalVal = Number(grossTable.find('.gross-total').text().trim()),
-				discount = Number(grossTable.find('#discount').val()),
-				grossNetTotalVal = Number(grossTable.find('.net-total').text().trim()),
-				paymentMethod = grossTable.find('#paymentMethod').val(),
-				quantity = 0,
-				salesManId = $(this).data('user_id'),
-				salesManName = $(this).data('user_name'),
-				profit = 0,
-
-				paidAmount = 0,
-				dueAmount = 0;
-
-			if(saleType == 'Cash Sale'){
-				paidAmount = grossNetTotalVal;
-				dueAmount = 0;
-			}else if(saleType == 'Credit Sale'){
-				paidAmount = 0;
-				dueAmount = grossNetTotalVal;
-			}else if(saleType == 'Partially Paid'){
-				paidAmount = + $('input#paidAmount').val().trim() ?? 0;
-				dueAmount = +$('#due-amount').text().trim() ?? 0;
-
-				if(paidAmount && paidAmount > 0){
-					$(`#paidAmount`).css('border-color', 'green');
-				}else{
-					$(`#paidAmount`).css('border-color', 'red');
-					return;
-				}
-			}
-			const payload = {
-				customer_data: customerData,
-				invoice_data: {},
-				sale_data: {},
-			};
-
-			let invoiceTable = $('#invoiceTable'),
-				selectedItems = invoiceTable.find('.selected_items_container tr');
-			let invoice_data = {};
-			selectedItems.each((i, v) => {
-				let tr = $(v);
-				let prod_id = tr.data('id'),
-					prod_name = tr.find('.item-name').text().trim(),
-					prod_quantity = Number(tr.find('.quantity input').val()),
-					prod_total_amount = Number(tr.find('.items-price').text().trim()),
-					prod_type = tr.find('.item-type select').val().trim();
-
-				invoice_data[i] = {
-					prod_id: prod_id,
-					prod_name: prod_name,
-					prod_quantity: prod_quantity,
-					prod_total_amount: prod_total_amount,
-					prod_type: prod_type
-				};
-				quantity += prod_quantity;
-				profit += +tr.data('profit');
-			});
-			// Invoice data
-			payload.invoice_data = {
-				invoice_no: invoice_no,
-				data: JSON.stringify(invoice_data),
-			};
-
-			// Sale data
-			payload.sale_data = {
-				quantity: quantity,
-				gross_total: grossTotalVal,
-				discount: discount,
-				net_total: grossNetTotalVal,
-				sale_type: saleType,
-				payment_method: paymentMethod,
-				payment_status: saleType,
-				sales_person: salesManId,
-				profit: profit,
-				paid_amount:  paidAmount,
-				due_amount: dueAmount,
-			};
-			// Payload is ready, go ahead				
-			$.ajax({
-				url: ajaxUrl,
-				type: 'POST',
-				data: {
-					action: 'save_sale',
-					payload: payload,
-				}
-			})
-			.done(function (res) {
-				console.log('Sale added', res);
-				if (res.success) {
-					notice.removeClass('notice-error').addClass('notice-success').text('Sale has been stored successfully.').slideDown();
-
-					// Sale has been saved successfully in the database, now Print the Invoice
-					printBill();
-				} else {
-					notice.removeClass('notice-success').addClass('notice-error').text('Failed to add sale entry.').slideDown();
-				}
-			})
-			.fail(function () {
-				console.log("error");
-			});
-		}else{
-			alert("Sorry please fill the empty field.");
-		}
-
-	});
-
-	
-
-	// Print the bill only when PRINT BILL button is clicked
-	$(document).on(`click`, `#printBillBtn`, printBill);
 	
 
 	// Edit Single Item
@@ -722,10 +539,8 @@ jQuery(document).ready(function ($) {
 	// %%%%%%%%%%%%%%%%%%%%
 
 	// Toggle next element - common function
-	$(document).on('click', '.toggleNextElement', toggleNextElement);
-	function toggleNextElement(){
-		$(this).next().slideToggle();
-	}
+	$(document).on('click', '.toggleNextSibling', toggleNextSibling);
+	
 
 	// Toggle update manufacturer form
 	$(document).on('click', '.btnUpdateManufacturer', function(){
@@ -833,22 +648,6 @@ jQuery(document).ready(function ($) {
 		});
 	}
 	// %%%%%%%%%%%%%%%%%%%%
-
-
-	// Close sales panel on pressing enter after adding quantity
-	$(document).on('keydown', '.selected-product-table-wrap .quantity input', function (e) {
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-
-				$('span.close-sp-tbl').trigger('click');
-
-				// Move focus away from product list
-				$(this).blur();
-			}
-		}
-	);
 
 
 	

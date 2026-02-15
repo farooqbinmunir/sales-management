@@ -51,7 +51,15 @@
 
 <hr>
 
-<section id="returns_listing">
+<section id="returns_listing" class="table-wrap">
+    <div style="text-align: end;">
+        <?php
+            include_component('search-filter', [
+                'invoice_no' => 'Invoice No.',
+                'product_name' => 'Product Name',
+            ]);
+        ?>
+    </div>
     <table class="wp-list-table widefat fixed striped table-view-list posts">
         <caption style="caption-side: top; font-weight: bold;">All Returns Listing</caption>
         <thead>
@@ -86,8 +94,8 @@
                 ?>
                     <tr data-return-id="<?php echo $return_id; ?>">
                         <td><?php echo $i++; ?></td>
-                        <td><?php echo $invoice_no; ?></td>
-                        <td><?php echo $product_name; ?></td>
+                        <td class="invoice_no"><?php echo $invoice_no; ?></td>
+                        <td class="product_name"><?php echo $product_name; ?></td>
                         <td><?php echo $quantity; ?></td>
                         <td><?php echo $amount; ?></td>
                         <td><?php echo $reason; ?></td>

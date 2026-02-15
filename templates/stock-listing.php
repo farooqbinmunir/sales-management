@@ -3,8 +3,7 @@
     <div class="heading-search">
 
         <h2>All Stocks</h2>
-
-        <input type="search" name="" id="search-stock" placeholder="Search Product Name">
+        <?php include_component('search-field', ['search_column' => 'product_name']); ?>
 
     </div>
 
@@ -125,7 +124,7 @@
                                 <tr class="<?= $stock_alert_class; ?>" data-id="<?= $stock_id;  ?>">
                                     <td><?= $i++; ?></td>
 
-                                    <td><?= $product_name; ?></td>
+                                    <td class="product_name"><?= $product_name; ?></td>
 
                                     <td><?= $stock_quantity; ?></td>
 

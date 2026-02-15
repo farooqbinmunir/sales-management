@@ -83,13 +83,13 @@
             <div class="heading-search">
                 <h4 class="product-table-heading">Products</h4>
                 <!-- Stock filter -->
-                <?php include_template('sections/stock-filter'); ?>
+                <?php include_component('stock-filter'); ?>
                 <!-- End Stock filter -->
 
                 <button id="showTable">Selected Products</button>
                 
                 <!-- Search filter -->
-                <?php include_template('sections/search-filter'); ?>
+                <?php include_component('search-filter'); ?>
                 <!-- End search filter -->
             </div>
 
@@ -249,4 +249,6 @@
     </div>
 
 </div>
+
+<?php include_component('popup-auth'); ?>
 

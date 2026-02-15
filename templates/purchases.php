@@ -4,7 +4,7 @@
 
         <button id="addNewPurchase" class="add-new">Add New Purchase</button>
 
-		<?php include_component('search-field'); ?>
+		<?php include_component('search-field', ['search_column' => 'purchase_invoice']); ?>
 
     </div>
 
@@ -392,7 +392,7 @@
 
 							<td><?php echo $j++; ?></td>
 
-							<td><?php echo $purchase_invoice; ?></td>
+							<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
 
 							<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
 

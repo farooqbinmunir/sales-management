@@ -359,12 +359,6 @@ jQuery(document).ready($ => {
 			updateTotalsAndHighlight(fromVal || null, toVal || null);
 		});
 
-
-
-
-		// Optional: invoice search
-		setupSearch('keyup', '#invoice_number', '.sale_table tbody', 'tr', 'td.invoice_no');
-
 		// Optional: date search for table cell (not for filtering)
 		setupSearch('keyup', '#to_date', '.sale_table tbody', 'tr', 'td.sales_date');
 	}

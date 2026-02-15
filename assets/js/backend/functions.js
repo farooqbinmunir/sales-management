@@ -1,5 +1,8 @@
 jQuery(document).ready($ => {
 
+    window.isPrintAuthenticated = false;
+
+
     // Global variable
     window.ajaxUrl = fbm_ajax.url;
     window.nonce = fbm_ajax.nonce;
@@ -79,6 +82,12 @@ jQuery(document).ready($ => {
 
     // Print the bill - Function
     window.printBill = function(){
+       	if(!window.isPrintAuthenticated){
+            $('#printAuthOverlay').fadeIn();
+            return;
+        }
+
+
         let oldBody = $('body').html();
         // let customerNameValue = $(`#customer-name`).val().trim() ? $(`#customer-name`).val().trim() : '--WALKING-CUSTOMER--';
         let invoiceNo = $('#sale_invoice').val().trim();
@@ -245,13 +254,14 @@ jQuery(document).ready($ => {
             invoiceData += `<tr>
                                 <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Discount</strong></th>
                                 <td style="padding: 0 20px 0 0; font-weight: 600;">${discount}<td>
-                            </tr>`;
+                            </tr>
+                            <tr>
+                                <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Net Price:</strong></th>
+                                <td style="padding: 0 20px 0 0; font-weight: 600;">${netPrice}<td>
+                            </tr>
+                            `;
         }
         invoiceData += `<tr>
-                            <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Net Price:</strong></th>
-                            <td style="padding: 0 20px 0 0; font-weight: 600;">${netPrice}<td>
-                        </tr>
-                        <tr>
                             <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Sale Type</strong></th>
                             <td style="padding: 0 20px 0 0; font-weight: 600;">${salesType}<td>
                         </tr>`;
@@ -455,10 +465,6 @@ jQuery(document).ready($ => {
             
 
             input.addEventListener('input', e => {
-                // Prevent negative sign input
-                if (e.key === '-') {
-                    return 0;
-                }
 
                 let quantity = Number(input.value),
                     tr = input.closest('tr'),
@@ -574,37 +580,35 @@ jQuery(document).ready($ => {
 
         if(type === 'Cash Sale') {
 
-            $popup.fadeOut();
             $partialRow.fadeOut();
+            $popup.hide();
 
-            // Move buttons back
+            // Buttons outside popup
             $printActions.appendTo('.sales-main-actions');
 
         } 
         else if(type === 'Credit Sale') {
 
-            // No partial row
             $partialRow.fadeOut();
 
-            // Open popup immediately
-            $popup.fadeIn();
-
-            // Move buttons inside popup
+            // Move buttons inside popup immediately
             $printActions.appendTo($popupPrintContainer);
+
+            // Open popup immediately
+            fbmOpenCustomerPopup();
 
         } 
         else if(type === 'Partially Paid') {
 
-            // Show payment row FIRST
+            // Show payment row
             $partialRow.fadeIn();
 
-            // Do NOT open popup yet
+            // Move buttons inside popup immediately
+            $printActions.appendTo($popupPrintContainer);
+
+            // Keep popup hidden for now
             $popup.hide();
 
-            // Keep buttons in main area for now
-            $printActions.appendTo('.sales-main-actions');
-
-            // Focus paid input
             $('.partial_payment_row input').first().focus();
         }
     };
@@ -641,8 +645,255 @@ jQuery(document).ready($ => {
         $('#due-amount').text(due.toFixed(2));
     }
 
+    window.tryOpenCustomerPopup = function($input) {
+
+        const paid = parseFloat($input.val()) || 0;
+        const netTotal = parseFloat($('.net-total').text()) || 0;
+        const $popup = $('#customer_register_area #salesCalculator');
+
+        if(paid <= 0){
+            alert('Please enter paid amount.');
+            $input.focus();
+            return false;
+        }
+
+        if(paid > netTotal){
+            alert('Paid amount cannot exceed total.');
+            $input.val(netTotal.toFixed(2));
+            $('#due-amount').text('0.00');
+            $input.focus();
+            return false;
+        }
+
+        fbmOpenCustomerPopup();
+        return true;
+    }
+
+    window.resetToCashSale = function() {
+        $('#salesType').val('Cash Sale').trigger('change');
+    }
+
+    window.fbmOpenCustomerPopup = function() {
+
+        const $popup = $('#customer_register_area #salesCalculator');
+
+        $popup.fadeIn();
+
+        $(document).trigger('fbm:openCustomerPopup');
+    };
+
+    window.fbmCloseCustomerPopup = function() {
+
+        const $popup = $('#customer_register_area #salesCalculator');
+
+        $popup.fadeOut(function(){
+            $(document).trigger('fbm:customerPopupClosed');
+        });
+    };
+
+
+    window.doSaveSaleAndPrintBill = function () {	
+		const allQntField = document.querySelectorAll('tbody.selected_items_container .quantity input');
+		let allFilled = true;
+		allQntField.forEach((v, i, a) => {
+			if (!v.value.trim()) {
+				allFilled = false;
+				v.classList.add('empty_field');
+			}
+		});
+
+		
+		if (allFilled) {
+			let saleType = $('#grossTotalTable #salesType').val().trim(),
+				tempCustomer = $('#customer-name'),
+				customerData = {
+					cname: '',
+					cphone: '',
+					cemail: '',
+					caddress: ''
+				};
+			if(saleType === 'Credit Sale' || saleType === 'Partially Paid'){
+				let cNameInput = $('#customer-name-credit'),
+					cPhoneInput = $('#customer-phone'),
+					cEmailInput = $('#customer-email'),
+					cAddressInput = $('#customer-address');
+
+				// Validation before printing and saving sale
+				if(cNameInput.val() && cPhoneInput.val()){
+					cNameInput.css('border-color', 'green');
+					cPhoneInput.css('border-color', 'green');
+					// Populate the credit customer data
+					customerData = {
+						cname: cNameInput.val(),
+						cphone: cPhoneInput.val(),
+						cemail: cEmailInput.val(),
+						caddress: cAddressInput.val()
+					};
+				}else{
+					// Validate Customer name field
+					if(cNameInput.val()){
+						cNameInput.css('border-color', 'green');
+					}else{
+						cNameInput.css('border-color', 'red');
+					}
+
+					// Validate Customer phone field
+					if(cPhoneInput.val()){
+						cPhoneInput.css('border-color', 'green');
+					}else{
+						cPhoneInput.css('border-color', 'red');
+					}
+					scrollTo('#fbm_notice', 100);
+					return;
+				}
+			}else{
+				if(tempCustomer.val()){
+					customerData.cname = tempCustomer.val();
+				}else{
+					customerData.cname = '--WALKING-CUSTOMER--';
+				}
+			}
+			// console.log('Customer Data:', customerData);
+			// return;
+
+			let grossTable = $('#grossTotalTable'),
+				salesPerson = currentUser;
+			
+			// Get all required values
+			let invoice_no = Number($('#sale_invoice').val()),
+				grossTotalVal = Number(grossTable.find('.gross-total').text().trim()),
+				discount = Number(grossTable.find('#discount').val()),
+				grossNetTotalVal = Number(grossTable.find('.net-total').text().trim()),
+				paymentMethod = grossTable.find('#paymentMethod').val(),
+				quantity = 0,
+				salesManId = $(this).data('user_id'),
+				salesManName = $(this).data('user_name'),
+				profit = 0,
+
+				paidAmount = 0,
+				dueAmount = 0;
+
+			if(saleType == 'Cash Sale'){
+				paidAmount = grossNetTotalVal;
+				dueAmount = 0;
+			}else if(saleType == 'Credit Sale'){
+				paidAmount = 0;
+				dueAmount = grossNetTotalVal;
+			}else if(saleType == 'Partially Paid'){
+				paidAmount = + $('input#paidAmount').val().trim() ?? 0;
+				dueAmount = +$('#due-amount').text().trim() ?? 0;
+
+				if(paidAmount && paidAmount > 0){
+					$(`#paidAmount`).css('border-color', 'green');
+				}else{
+					$(`#paidAmount`).css('border-color', 'red');
+					return;
+				}
+			}
+			const payload = {
+				customer_data: customerData,
+				invoice_data: {},
+				sale_data: {},
+			};
+
+			let invoiceTable = $('#invoiceTable'),
+				selectedItems = invoiceTable.find('.selected_items_container tr');
+			let invoice_data = {};
+			selectedItems.each((i, v) => {
+				let tr = $(v);
+				let prod_id = tr.data('id'),
+					prod_name = tr.find('.item-name').text().trim(),
+					prod_quantity = Number(tr.find('.quantity input').val()),
+					prod_total_amount = Number(tr.find('.items-price').text().trim()),
+					prod_type = tr.find('.item-type select').val().trim();
+
+				invoice_data[i] = {
+					prod_id: prod_id,
+					prod_name: prod_name,
+					prod_quantity: prod_quantity,
+					prod_total_amount: prod_total_amount,
+					prod_type: prod_type
+				};
+				quantity += prod_quantity;
+				profit += +tr.data('profit');
+			});
+			// Invoice data
+			payload.invoice_data = {
+				invoice_no: invoice_no,
+				data: JSON.stringify(invoice_data),
+			};
+
+			// Sale data
+			payload.sale_data = {
+				quantity: quantity,
+				gross_total: grossTotalVal,
+				discount: discount,
+				net_total: grossNetTotalVal,
+				sale_type: saleType,
+				payment_method: paymentMethod,
+				payment_status: saleType,
+				sales_person: salesManId,
+				profit: profit,
+				paid_amount:  paidAmount,
+				due_amount: dueAmount,
+			};
+			// Payload is ready, go ahead				
+			$.ajax({
+				url: ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'save_sale',
+					payload: payload,
+				}
+			})
+			.done(function (res) {
+				console.log('Sale added', res);
+				if (res.success) {
+					notice.removeClass('notice-error').addClass('notice-success').text('Sale has been stored successfully.').slideDown();
+
+					// Sale has been saved successfully in the database, now Print the Invoice
+					// window.isPrintAuthenticated = true;
+
+					// $('#printAuthPopup').fadeOut(function(){
+					// 	printBill();
+					// });
+					if(!window.isPrintAuthenticated){
+						$('#printAuthPopup').fadeIn();
+						return;
+					}else{
+						printBill();
+					}
+
+				} else {
+					notice.removeClass('notice-success').addClass('notice-error').text('Failed to add sale entry.').slideDown();
+				}
+			})
+			.fail(function () {
+				console.log("error");
+			});
+		}else{
+			alert("Sorry please fill the empty field.");
+		}
+	}
+
+    // Function to update the focused row
+    window.updateFocus = productIRowIndex => {
+        let allScrollEleRow = document.querySelectorAll('.scrollelement tbody tr');
+        let visibleRows = Array.from(allScrollEleRow).filter((row) => {
+            return row.style.display !== 'none' && !row.classList.contains('edit_form');
+        });
+        visibleRows.forEach((v, i) => {
+            v.classList.toggle('focused', i === productIRowIndex);
+        });
+    }
+
+    window.toggleNextSibling = function(){
+		$(this).next().slideToggle();
+	}
 
 
 
 
-});
+
+
+}); /* End of document.ready() function */

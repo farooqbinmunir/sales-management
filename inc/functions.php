@@ -1,11 +1,5 @@
 <?php
-
-
-
 	/* Sales Management - Custom Plugin functions */
-
-
-
 	// Including utility functions to be available in this file
 	require_once(FBM_PLUGIN_DIR . 'inc/utilities.php');
 
@@ -19,6 +13,12 @@
 		wp_enqueue_style('fbm_css', 
 			FBM_PLUGIN_URL . '/assets/css/backend/fbm.css', 
 			'', time());
+
+		wp_enqueue_style('popup-auth-css', 
+		FBM_PLUGIN_URL . '/components/popup-auth/popup-auth.css', 
+		'', time());
+
+			
 		wp_enqueue_style('bootstrap-css', 
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', 
 			'', '1.0', 'all');
@@ -59,6 +59,16 @@
 			['jquery'], 
 			time(), true);
 
+		wp_enqueue_script('popup-auth-js', 
+			FBM_PLUGIN_URL . '/components/popup-auth/popup-auth.js', 
+			['jquery'], 
+			time(), true);
+
+		wp_enqueue_script('fbm_key_events_js', 
+			FBM_PLUGIN_URL . '/assets/js/backend/key-events.js', 
+			['jquery'], 
+			time(), true);
+
 		wp_enqueue_script('bootstrap-js', 
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', 
 			'jquery', 
@@ -70,6 +80,16 @@
 	    wp_enqueue_script('fbm-analytics-charts-js', 
 	    	FBM_PLUGIN_URL . '/assets/js/backend/analytics-charts.js', 
 	    	['chart-js'], 
+	    	'1.0', true);
+
+		wp_enqueue_script('search-field-js', 
+	    	FBM_PLUGIN_URL . '/components/search-field/search-field.js', 
+	    	['jquery'], 
+	    	'1.0', true);
+
+		wp_enqueue_script('search-filter-js', 
+	    	FBM_PLUGIN_URL . '/components/search-filter/search-filter.js', 
+	    	['jquery'], 
 	    	'1.0', true);
 
 		$current_user = wp_get_current_user();
@@ -96,33 +116,17 @@
 
 		// Including Fixes js
 		wp_enqueue_script('fbm-fixes-js', FBM_PLUGIN_URL . '/assets/js/backend/fixes.js', ['jquery'], time(), true);
-	}
 
-
-
-	// Enqueue scripts & styles which are used by the plugin
-
-	function fbm_frontend_enqueues(){
-
-
-
-		// Enqueue Styles
-
-		wp_enqueue_style('fbm_frontend_styles', FBM_PLUGIN_URL . '/assets/css/frontend/frontend.css', '', time(), 'all');
-
-		wp_enqueue_style('slick_css', FBM_PLUGIN_URL . '/assets/css/frontend/slick.css', '', '1.0', 'all');
-
-
-
-		// Enqueue Scripts
-
-		wp_enqueue_script('slick_js', FBM_PLUGIN_URL . '/assets/js/frontend/slick.min.js', ['jquery'], '1.0');
-
-		wp_enqueue_script('frontend_js', FBM_PLUGIN_URL . '/assets/js/frontend/frontend.js', ['jquery'], time(), true);
+		// Fontawesome
+		wp_enqueue_style(
+			'fbm-fontawesome',
+			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+			[],
+			'6.5.1'
+		);
 	}
 
 	// Perform actions on wordpress admin init - hook
-
 	function fbm_admin_menu_callback(){
 
 
@@ -290,8 +294,6 @@
 
 
 	}
-
-
 
 	// Render the html on plugin menu page
 	function sales_management_callback(){
@@ -1307,10 +1309,42 @@ function get_filtered_pending_payments(){
 
 // Function to include the php template file and pass data to it
 function include_template($template_name, $data = []) {
-	$template_path = FBM_PLUGIN_DIR . "templates/{$template_name}.php";
+	$path = "templates/{$template_name}.php";
+	$template_path = FBM_PLUGIN_DIR . $path;
 	if (file_exists($template_path)) {
 		require $template_path;
 	} else {
-		echo "<p>Template not found: <strong>{$template_name}</strong></p>";
+		echo "<p>Template not found: <strong>{$path}</strong></p>";
 	}
+}
+
+function include_component($component_name, $data = []) {
+	$path = "components/{$component_name}/{$component_name}.php";
+	$template_path = FBM_PLUGIN_DIR . $path;
+	if (file_exists($template_path)) {
+		require $template_path;
+	} else {
+		echo "<p>Template not found: <strong>{$path}</strong></p>";
+	}
+}
+
+function fbm_verify_user(){
+
+    if(!wp_verify_nonce($_POST['nonce'], FBM_PLUGIN_NONCE)){
+        wp_send_json_error('Nonce failed');
+    }
+
+    if(!is_user_logged_in()){
+        wp_send_json_error('User not logged in');
+    }
+
+    $current_user = wp_get_current_user();
+    $password = $_POST['password'];
+
+    // Verify password against current logged-in user
+    if(wp_check_password($password, $current_user->user_pass, $current_user->ID)){
+        wp_send_json_success('Password matched.');
+    }
+
+    wp_send_json_error('Incorrect password.');
 }

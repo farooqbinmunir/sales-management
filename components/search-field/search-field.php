@@ -1,1 +1,1 @@
-<input type="search" name="" id="search-product" placeholder="Search here..." data-search-column="<?php echo $search_column ?? 'pname'; ?>" data-row-to-skip="<?php echo $row_to_skip ?? ''; ?>" />
+<input type="search" name="" id="search-product" placeholder="Search here..." data-search-column="<?php echo isset($data['search_column']) ? $data['search_column'] : 'pname'; ?>" data-row-to-skip="<?php echo isset($data['row_to_skip']) ? $data['row_to_skip'] : ''; ?>" />

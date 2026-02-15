@@ -1,18 +1,12 @@
+jQuery('#printIvoiceBtn, #printBillBtn').off('click');
 jQuery(document).ready(function($) {
+    const ajaxUrl = fbm_ajax.url,
+        nonce = fbm_ajax.nonce,
+        path = fbm_ajax.path;
+
+    var notice = $('#fbm_notice');
+
     // Fixes for the backend
-
-    // Search products in the product list table
-    $('#search-product').on('keyup', function () {
-        const value = $(this).val().toLowerCase();
-        const $table = $('.table-wrap table');
-
-        $table.find('tbody tr').each(function () {
-            console.table(value, $(this).children('.pname').text().toLowerCase());
-            $(this).toggle($(this).children('.pname').text().toLowerCase().includes(value));
-        });
-
-        resetTableFocus($table);
-    });
 
     // Sales type change
     $(document).on('change', '#salesType', function(){
@@ -20,28 +14,22 @@ jQuery(document).ready(function($) {
         handleSalesTypeChange(type);
     });
 
-    // When user fills paid amount in partial sale
-    $(document).on('blur', '.partial_payment_row input', function(){
-
-        const paid = parseFloat($(this).val()) || 0;
-        const netTotal = parseFloat($('.net-total').text()) || 0;
-
-        if(paid > 0 && paid <= netTotal){
-
-            const $popup = $('#customer_register_area #salesCalculator');
-            const $printActions = $('#print-actions');
-            const $popupPrintContainer = $('.salesCalculatorWrapper');
-
-            // Move buttons inside popup
-            $printActions.appendTo($popupPrintContainer);
-
-            $popup.fadeIn();
-        }
-
-    });
-
     // Bind ONLY to partial payment input
     $(document).on('input', '.partial_payment_row input', handlePaidInput);
 
+    // If close button clicked
+    $(document).on('click', '#customer_register_area #salesCalculatorCloser', function(){
+        resetToCashSale();
+    });
 
-});
+
+    // If customer popup closed by clicking outside or pressing ESC
+    $(document).on('fbm:customerPopupClosed', function(){
+        const currentType = $('#salesType').val();
+        if(currentType === 'Credit Sale' || currentType === 'Partially Paid') {
+            // Reset to cash only if popup closed manually
+            resetToCashSale();
+        }
+    });
+
+}); // close .ready()

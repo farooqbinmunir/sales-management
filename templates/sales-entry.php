@@ -82,14 +82,20 @@
         <div class="product-table-wrap">
             <div class="heading-search">
                 <h4 class="product-table-heading">Products</h4>
-                <!-- Stock filter -->
+                <!-- Stock filter -->  
                 <?php include_component('stock-filter'); ?>
                 <!-- End Stock filter -->
 
                 <button id="showTable">Selected Products</button>
                 
                 <!-- Search filter -->
-                <?php include_component('search-filter'); ?>
+                <?php
+                include_component('search-filter', [
+                    'pname' => 'Product Name',
+                    'pvendor' => 'Product Vendor',
+                    'pmanufacturer' => 'Product Manufacturer'
+                ]);
+                ?>
                 <!-- End search filter -->
             </div>
 

@@ -114,9 +114,7 @@
 
 
     <div class="add-product-wrapper">
-
-        <?php require_once(FBM_PLUGIN_DIR . 'templates/products-listing.php'); ?>
-
+        <?php include_template('products-listing'); ?>
     </div>
 
 </div>

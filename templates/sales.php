@@ -29,7 +29,14 @@
 		</label>
 		<button id="salesCalculatorToggler" type="button">Show All Calculations</button>
 		<div class="search-section">
-	        <input type="number" name="" id="invoice_number" placeholder="Invoice Number">
+			<!-- Search filter -->
+			<?php
+				include_component('search-filter', [
+					'invoice_no' => 'Invoice No.',	
+					'customer_name' => 'Customer Name',	
+				]);
+			?>
+			<!-- End search filter -->
 	    </div>
 		<div class="sales_total_profit_display">
 			<h2 class="sales_total_profit_text"><strong>Today's Profit:</strong> <span><?php echo $profit; ?></span></h2>

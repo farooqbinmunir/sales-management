@@ -628,16 +628,12 @@ jQuery(document).ready($ => {
         // Negative protection
         if(paid < 0){
             $input.val('');
-            alert("Negative numbers are not allowed.");
             $('#due-amount').text(netTotal.toFixed(2));
             return;
         }
 
         // Prevent overpayment
-        if(paid > netTotal){
-            paid = netTotal;
-            $input.val(netTotal.toFixed(2));
-        }
+        preventOverpayment($input, paid, netTotal);
 
         // Calculate due
         const due = netTotal - paid;
@@ -649,7 +645,6 @@ jQuery(document).ready($ => {
 
         const paid = parseFloat($input.val()) || 0;
         const netTotal = parseFloat($('.net-total').text()) || 0;
-        const $popup = $('#customer_register_area #salesCalculator');
 
         if(paid <= 0){
             alert('Please enter paid amount.');
@@ -667,6 +662,13 @@ jQuery(document).ready($ => {
 
         fbmOpenCustomerPopup();
         return true;
+    }
+
+    window.preventOverpayment = function($input, entered, max) {
+        if(entered > max){
+            entered = max;
+            $input.val(max.toFixed(2));
+        }
     }
 
     window.resetToCashSale = function() {
@@ -891,7 +893,156 @@ jQuery(document).ready($ => {
 		$(this).next().slideToggle();
 	}
 
+    window.scrollTo = function(selector, offset = 0) {
+        const element = document.querySelector(selector);
+        if (element) {
+            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: elementPosition - offset,
+                behavior: 'smooth'
+            });
+        }
+    }
 
+    // Function to calculate the purchase
+	window.calculatePurchase = function(){
+		let form = $('#addPurchaseForm'),
+			totalCartAmountInput = form.find('#anpTotalCartAmount'),
+			activeFieldsGroup = form.find('.active.purchase_form_fields_group'),
+			itemsInCart = form.find('ol.purchase-sidebar-list').children(),
+			currentProductPayment = activeFieldsGroup.find('input[name="payment"]').val() || 0,
+			totalCartAmount = + currentProductPayment,
+			cartItemsTotalAmount = 0;
+		itemsInCart.each((i, li) => {
+			totalCartAmount += + $(li).find('.cartItemPayment').data('item-payment');
+		});
+		totalCartAmountInput.val(totalCartAmount).attr('value', totalCartAmount).trigger('input');
+	}
+
+    window.formatNumber = function(x) {
+	    x = x.toString();
+	    let lastThree = x.substring(x.length - 3);
+	    let otherNumbers = x.substring(0, x.length - 3);
+	    if (otherNumbers !== '') {
+	        lastThree = ',' + lastThree;
+	    }
+	    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+	}
+
+
+    window.handleAddPurchaseFormSubmit = function(e) {
+		e.preventDefault();
+		let button = $(this),
+			buttonText = button.text(),
+			wrapper = button.closest('.product-form-wrap'),
+			form = wrapper.find('form#addPurchaseForm'),
+			formFieldGroups = form.find('#purchase_form_fields_container .purchase_form_fields_group'),
+			notice = $('#fbm_notice'),
+			purchaseInfoTable = form.find('table.anpPurchaseInfoTable'),
+			purchaseInvoice = + purchaseInfoTable.find('[name="purchase_invoice"]').val(),
+			purchaseTotalPayment = Math.abs(purchaseInfoTable.find('[name="purchase_total_payment"]').val()),
+			purchasePaymentStatus = purchaseInfoTable.find('[name="payment_status"]').val(),
+			purchasePaymentMethod = purchaseInfoTable.find('[name="payment_method"]').val(),
+			description = purchaseInfoTable.find('[name="description"]').val().trim(),
+			purchaseVendor = purchaseInfoTable.find('[name="vendor"]').val().trim(),
+
+			// Paid amount
+			paymentPaidInput = purchaseInfoTable.find('#anpPaid'),
+			paymentPaid = +paymentPaidInput.val(),
+			maxAmountToPay = +paymentPaidInput.attr('max'),
+
+			// Remaining amount
+			paymentRemainingInput = purchaseInfoTable.find('#anpRemaining'),
+			paymentRemaining = +paymentRemainingInput.val();
+
+		if(paymentPaid <= maxAmountToPay){
+			paymentPaidInput.attr('title', 'Good to go').css('border-color', 'green');
+			const purchaseInfo = {
+				invoice: purchaseInvoice,
+				totalPayment: purchaseTotalPayment,
+				paymentStatus: purchasePaymentStatus,
+				paymentMethod: purchasePaymentMethod,
+				description,
+				paymentPaid,
+				paymentRemaining,
+                vendor: purchaseVendor,
+			};
+
+			// Prepare the payload
+			const payload = [];
+			if(formFieldGroups.length){
+				for (const fieldGroup of formFieldGroups) {
+					// Get FORM VALUES and prepare PAYLOAD for submission to ADD NEW PURCHASE
+					if(fieldGroup){
+						// Getting Form Elements
+						let productId = $(fieldGroup).find(`[name="product_id"]`),
+							manufacturer = $(fieldGroup).find(`[name="manufacturer"]`),
+							purchaseRate = $(fieldGroup).find(`[name="purchase_rate"]`),
+							saleRate = $(fieldGroup).find(`[name="sale_rate"]`),
+							quantity = $(fieldGroup).find(`[name="quantity"]`),
+							payment = $(fieldGroup).find(`[name="payment"]`);
+
+						// Form Values
+						let productIdVal = Number(productId.val()),
+							manufacturerId = manufacturer.data('manufacturer_id'),
+							purchaseRateVal = Number(purchaseRate.val()),
+							saleRateVal = Number(saleRate.val()),
+							quantityVal = Number(quantity.val()),
+							paymentVal = Number(payment.val());
+
+						// Preparing purcahse data object for payload
+						if(productIdVal){
+							const singlePurchaseData = {
+								product_id: productIdVal,
+								manufacturer_id: manufacturerId,
+								rate: purchaseRateVal,
+								quantity: quantityVal,
+								payment: paymentVal,
+							};
+							payload.push(singlePurchaseData);
+						}
+						
+					}else{
+						alert('Payload data missing');
+					}
+				}
+			}
+			if(payload.length){
+				button.text('Adding...');
+				$.ajax({
+					url: ajaxUrl,
+					type: 'POST',
+					data: {
+						action: 'handle_purchase',
+						payload: JSON.stringify(payload),
+						purchase_info: JSON.stringify(purchaseInfo),
+					},
+					success: res => {
+						button.text(buttonText);
+						let ajaxSuccess = res.success,
+							resMessages = res.data,
+							noticeHtml = ``;
+						if(resMessages.length){
+							$.each(resMessages, (i, message) => {
+								noticeHtml += `<div class="notice notice-${ajaxSuccess === true ? 'success' : 'error'} is-dismissible">
+													<p>${message}</p>
+													<button type="button" class="notice-dismiss"></button>
+												</div>`;
+							});
+						}
+						wrapper.slideUp();
+						$(noticeHtml).insertBefore('.fbm_ui_body');
+						scrollTo('#fbm_notice', 100);
+						setTimeout(() => location.reload(), 10 * 1000); // 10 seconds
+					}
+				});
+			}else{
+				alert('Payload is empty!');
+			}
+		}else{
+			paymentPaidInput.attr('title', 'Entered amount is either zero or bigger than total amount.').css('border-color', 'red');
+		}
+	}
 
 
 

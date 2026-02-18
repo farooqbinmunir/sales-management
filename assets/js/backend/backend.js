@@ -509,15 +509,13 @@ jQuery(document).ready($ => {
 		}
 	});
 
-	document.querySelectorAll("#fbm_ui input[type='number']").forEach(input => {
-	  input.addEventListener("input", () => {
-	    if (input.value < 0) {
-	      input.value = "";        // clear the field
-	      alert("Negative numbers are not allowed.");
-	      return false;
-	    }
-	  });
+	$(document).on("input", "#fbm_ui input[type='number']", function () {
+		if (parseFloat($(this).val()) < 0) {
+			$(this).val(0);
+			return false;
+		}
 	});
+
 
 
 

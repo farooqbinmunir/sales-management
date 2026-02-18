@@ -4,7 +4,10 @@
 
         <button id="addNewPurchase" class="add-new">Add New Purchase</button>
 
-		<?php include_component('search-field', ['search_column' => 'purchase_invoice']); ?>
+		<?php include_component('search-filter', [
+			'purchase_invoice' => 'Invoice',
+			'purchase_vendor' => 'Vendor',
+		]); ?>
 
     </div>
 
@@ -94,6 +97,14 @@
 										</tr>
 										<tr>
 											<td>
+												<div class="anpFieldWrap purchase_product_vendor">
+													<label>Vendor</label>
+													<input type="text" name="vendor" class="vendor">
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
 												<div class="anpFieldWrap">
 													<label for="description">Description</label>
 													<textarea id="description" name="description" class="description" rows="3" placeholder="Save description like transaction id (TID) or Check No..."></textarea>
@@ -138,15 +149,6 @@
 														<div class="anpFieldWrap purchase_product_manufacturer">
 															<label>Manufacturer</label>
 															<input type="text" name="manufacturer" class="manufacturer" readonly>
-														</div>
-													</td>
-												</tr>
-
-												<tr>
-													<td>
-														<div class="anpFieldWrap purchase_product_vendor">
-															<label>Vendor</label>
-															<input type="text" name="vendor" class="vendor" readonly>
 														</div>
 													</td>
 												</tr>
@@ -229,15 +231,6 @@
 														<div class="anpFieldWrap purchase_product_manufacturer">
 															<label>Manufacturer</label>
 															<input type="text" name="manufacturer" class="manufacturer" readonly>
-														</div>
-													</td>
-												</tr>
-
-												<tr>
-													<td>
-														<div class="anpFieldWrap purchase_product_vendor">
-															<label>Vendor</label>
-															<input type="text" name="vendor" class="vendor" readonly>
 														</div>
 													</td>
 												</tr>
@@ -333,6 +326,7 @@
 					<th class="sr-Number">#</th>
 
 					<th class="purchase_product_invoice">Purchase Invoice</th>
+					<th class="purchase_product_vendor">Vendor</th>
 
 					<th class="purchase_product_payment">Payment</th>
 
@@ -367,13 +361,7 @@
 
 						$purchase_id = $purchase->purchase_id;
 
-						$product_id = $purchase->product_id;
-
 						$vendor = $purchase->vendor;
-
-						$quantity = $purchase->quantity;
-
-						$rate = $purchase->rate;
 
 						$total_payment = $purchase->total_payment;
 
@@ -393,6 +381,7 @@
 							<td><?php echo $j++; ?></td>
 
 							<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
+							<td class="purchase_vendor"><?php echo $vendor; ?></td>
 
 							<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
 

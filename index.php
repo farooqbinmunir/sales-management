@@ -88,6 +88,7 @@ function fbm_activate() {
         payment_method varchar(50) NOT NULL,
         description TEXT,
         purchase_invoice VARCHAR(50) NULL,
+        vendor VARCHAR(50) NULL,
         date varchar(20) NOT NULL,
         PRIMARY KEY (purchase_id)
     ) $charset_collate;";

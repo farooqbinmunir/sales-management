@@ -454,6 +454,7 @@
 		$payment_status = ucwords(str_replace(['-', '_'], ' ', sanitize_text_field($purchase_info->paymentStatus)));
 		$payment_method = $purchase_info->paymentStatus === 'unpaid' ? '' : ucwords(str_replace(['-', '_'], ' ', sanitize_text_field($purchase_info->paymentMethod)));
 		$description = ucfirst(sanitize_text_field($purchase_info->description));
+		$vendor = ucfirst(sanitize_text_field($purchase_info->vendor));
 
 		$purchase_paid_amount = (int) $purchase_info->paymentPaid;
 		$purchase_remaining_amount = (int) $purchase_info->paymentRemaining;
@@ -470,7 +471,7 @@
 		$errors = [];
 
 		// Add entry in Purchase Table
-		$purchase_sql = "INSERT INTO $table_purchase (total_payment, paid, due, payment_status, payment_method, description, purchase_invoice, date) VALUES ($total_payment, $purchase_paid_amount, $purchase_remaining_amount, '$payment_status', '$payment_method', '$description', '$purchase_invoice', '$date');";
+		$purchase_sql = "INSERT INTO $table_purchase (total_payment, paid, due, payment_status, payment_method, description, vendor, purchase_invoice, date) VALUES ($total_payment, $purchase_paid_amount, $purchase_remaining_amount, '$payment_status', '$payment_method', '$description', '$vendor', '$purchase_invoice', '$date');";
 		// wp_send_json_success($purchase_sql);
 		$rows_inserted = $wpdb->query($purchase_sql);
 
@@ -504,7 +505,6 @@
 			// Get the product details
 			$product_id = intval(sanitize_text_field($product->product_id));
 			$manufacturer_id = intval(sanitize_text_field($product->manufacturer_id));
-			$vendor = sanitize_text_field($product->vendor);
 			$quantity = intval(sanitize_text_field($product->quantity));
 			$purchase_rate = intval(sanitize_text_field($product->rate));
 			$total_payment = intval(sanitize_text_field($product->payment));
@@ -513,7 +513,6 @@
 			$purchased_single_product = [
 				'product_id'	=>	$product_id,
 				'manufacturer_id'	=>	$manufacturer_id,
-				'vendor'	=>	$vendor,
 				'quantity'	=>	$quantity,
 				'purchase_rate'	=>	$purchase_rate,
 				'total_payment'	=>	$total_payment,

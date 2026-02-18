@@ -63,7 +63,6 @@ jQuery(document).ready(function ($) {
 		let purchase_id = $this.data('id');
 		let currentPurchaseForm = $this.closest('form');
 		let product_id = currentPurchaseForm.find('#product_id'),
-			vendor = currentPurchaseForm.find('#purchase_product_vendor'),
 			rate = currentPurchaseForm.find('#purchase_rate'),
 			quantity = currentPurchaseForm.find('#purchase_quantity'),
 			payment = currentPurchaseForm.find('#purchase_payment'),
@@ -72,7 +71,6 @@ jQuery(document).ready(function ($) {
 			description = currentPurchaseForm.find('#purchase_description');
 
 		let product_id_val = Number(product_id.val()),
-			vendor_val = vendor.val(),
 			rate_val = Number(rate.val()),
 			quantity_val = Number(quantity.val()),
 			payment_val = Number(payment.val()),
@@ -86,7 +84,6 @@ jQuery(document).ready(function ($) {
 			});
 			const payload = {
 				product_id: product_id_val,
-				vendor: vendor_val,
 				rate: rate_val,
 				quantity: quantity_val,
 				payment: payment_val,
@@ -275,7 +272,9 @@ jQuery(document).ready(function ($) {
 			quantity = currentForm.find('[name="quantity"]'),
 			payment = + currentForm.find('[name="payment"]').val(),
 			needValidationSelectors = currentForm.find('.needValidation'),
-			addStockBtn = formWrapper.find('input#add_stock');
+			addStockBtn = formWrapper.find('input#add_stock'),
+			vendor = formWrapper.find('#vendor').val();
+
 		button.html(buttonDefaultText);
 		addStockBtn.prop('disabled', false);
 		
@@ -329,32 +328,6 @@ jQuery(document).ready(function ($) {
 					border: 'inherit',
 				});
 			}
-		}
-	});
-	// %%%%%%%%%%%%%%%%%%%%
-
-	function formatNumber(x) {
-	    x = x.toString();
-	    let lastThree = x.substring(x.length - 3);
-	    let otherNumbers = x.substring(0, x.length - 3);
-	    if (otherNumbers !== '') {
-	        lastThree = ',' + lastThree;
-	    }
-	    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
-	}
-
-
-	// %%%%%%%%%%%%%%%%%%%%
-	// Delete last added purchase row
-	// %%%%%%%%%%%%%%%%%%%%
-	$(document).on('click', '#removeLastPurchaseFormRow', function () {
-		let button = $(this),
-			formWrapper = button.closest('form#add_stock_form'),
-			formFieldsContainer = formWrapper.find('#purchase_form_fields_container'),
-			allFormRows = formFieldsContainer.children('.purchase_form_fields_group'),
-			lastAddedFormRow = allFormRows.length > 1 ? allFormRows.last() : null;
-		if(lastAddedFormRow){
-			lastAddedFormRow.remove();
 		}
 	});
 	// %%%%%%%%%%%%%%%%%%%%
@@ -420,7 +393,6 @@ jQuery(document).ready(function ($) {
 					product = JSON.parse(data.product),
 					purchase_rate = Number(product.product_purchase_price),
 					sale_rate = Number(product.product_sale_price),
-					vendor = product.product_vendor,
 					payment = quantity * purchase_rate,
 					manufacturerId = data.manufacturer.id;
 					manufacturerName = data.manufacturer.name;
@@ -441,7 +413,6 @@ jQuery(document).ready(function ($) {
 					'value': payment,
 					'data-product_id': product_id,
 				});
-				inputVendor.val(vendor).attr('value', vendor);
 				inputManufacturer.val(manufacturerName).attr({
 					'value': manufacturerName,
 					'data-manufacturer_id': manufacturerId,
@@ -459,21 +430,7 @@ jQuery(document).ready(function ($) {
 	});
 	// %%%%%%%%%%%%%%%%%%%%
 
-	// Function to calculate the purchase
-	function calculatePurchase(){
-		let form = $('#addPurchaseForm'),
-			totalCartAmountInput = form.find('#anpTotalCartAmount'),
-			activeFieldsGroup = form.find('.active.purchase_form_fields_group'),
-			itemsInCart = form.find('ol.purchase-sidebar-list').children(),
-			currentProductPayment = activeFieldsGroup.find('input[name="payment"]').val() || 0,
-			totalCartAmount = + currentProductPayment,
-			cartItemsTotalAmount = 0;
-			itemsInCart.each((i, li) => {
-				totalCartAmount += + $(li).find('.cartItemPayment').data('item-payment');
-			});
-			totalCartAmountInput.val(totalCartAmount).attr('value', totalCartAmount).trigger('input');
 
-	}
 
 	// %%%%%%%%%%%%%%%%%%%%
 	// Calculate payment as per selected product on quantity change on add purchase/stock form

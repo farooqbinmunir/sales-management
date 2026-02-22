@@ -44,10 +44,18 @@ jQuery(document).ready($ => {
 		let $this = $(this),
 			parentTable = $this.closest('table'),
 			totalPayment = parentTable.find('input#anpTotalCartAmount').val(),
-			remainingAmountInput = parentTable.find('input#anpRemaining'),
-			paidAmount = $this.val(),
-			remainingAmount = +totalPayment - +paidAmount;
+			// remainingAmountInput = parentTable.find('input#anpRemaining'),
+			paidAmount = $this.val();
+			// remainingAmount = +totalPayment - +paidAmount;
+
+		preventOverpayment($this, paidAmount, totalPayment);
+		let remainingAmountInput = parentTable.find('input#anpRemaining');
+		paidAmount = $this.val();
+		
+		let remainingAmount = totalPayment - paidAmount;
 		remainingAmountInput.val(remainingAmount).attr('value', remainingAmount);
+
+		
 	});
 
 	$(document).on('input', 'input#anpTotalCartAmount', function(){

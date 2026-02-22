@@ -665,9 +665,8 @@ jQuery(document).ready($ => {
     }
 
     window.preventOverpayment = function($input, entered, max) {
-        if(entered > max){
-            entered = max;
-            $input.val(max.toFixed(2));
+        if(parseFloat(entered) > parseFloat(max)){
+            $input.val(parseFloat(max).toFixed(2)).trigger('input');
         }
     }
 

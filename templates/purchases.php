@@ -111,6 +111,14 @@
 												</div>
 											</td>
 										</tr>
+										<tr>
+											<td>
+												<div class="anpFieldWrap">
+													<button id="addNewPurchaseFormRow" class="sms_btn sms_btn_info" type="button" data-default-btn-text="<span>+</span> Add More"><span>+</span> Add More</button>
+												</div>
+											</td>
+										</tr>
+
 									</tbody>
 								</table>
 							</td>
@@ -296,6 +304,13 @@
 												</div>
 											</td>
 										</tr>
+										<tr>
+											<td>
+												<div class="anpFieldWrap">
+													<input type="submit" id="add_stock" value="Add Stock" class="save-btn sms_btn sms_btn_success">
+												</div>
+											</td>
+										</tr>
 									</tbody>
 								</table>
 							</td>
@@ -304,12 +319,10 @@
 				</table>
 			</div>
 
-			<div class="purchase_form_footer submit-wrap">
+			<!-- <div class="purchase_form_footer submit-wrap">
 				<div class="purchase_form_footer_btns">
-					<button id="addNewPurchaseFormRow" class="sms_btn sms_btn_info" type="button" data-default-btn-text="<span>+</span> Add More"><span>+</span> Add More</button>
-					<input type="submit" id="add_stock" value="Add Stock" class="save-btn sms_btn sms_btn_success">
 				</div>
-			</div>
+			</div> -->
 
 		</form>
 

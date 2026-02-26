@@ -154,9 +154,6 @@
 		<div class="salesCalculatorWrapper">
 			<div><span class="btnKbdCloser"><kbd>Esc</kbd> key to close</span><span type="button" id="salesCalculatorCloser">&times;</span></div>
 			<h4 class="product-table-heading">Sales Calculator</h4>
-			<div class="sc_btns">
-				<button class="viewTodaysSaleBtn sms_btn sms_btn_info" type="button" onclick="window.location.reload()">View Todays Sale</button>
-			</div>
 			<h5 style="margin-top: 10px; font-weight: 600;">Filter Sales</h5>
 			<label for="">From Date 
 				<input type="date" name="" id="from_date">

@@ -1347,3 +1347,11 @@ function fbm_verify_user(){
 
     wp_send_json_error('Incorrect password.');
 }
+
+function get_purchase_invoice($invoice_no){
+	global $wpdb;
+	$table_invoices = $wpdb->prefix . 'sms_purchase_invoices';
+	$invoice_query = "SELECT * FROM $table_invoices WHERE purchase_invoice = $invoice_no";
+	$invoice = $wpdb->get_row($invoice_query);
+	return $invoice;
+}

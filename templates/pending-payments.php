@@ -7,7 +7,7 @@ $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 $dues = fbm_dues_get_all($status, $search, '');
 $nonce_action = 'fbm_receive_due_payment';
 ?>
-<div class="wrap">
+<div id="page-pending_payments" class="wrap">
   <p>Manage customers who have remaining balances from previous sales.</p>
   <?php
     include_component('search-filter', [
@@ -19,7 +19,7 @@ $nonce_action = 'fbm_receive_due_payment';
     ]);
    ?>
   <br>
-  <div class="table-top">
+  <div class="table-top d-flex justify-content-between">
     <ul class="subsubsub">
       <li><a href="<?php echo admin_url('admin.php?page=pending-payments&status=open'); ?>" class="<?php echo $status==='open'?'current':''; ?>">Open</a> | </li>
       <li><a href="<?php echo admin_url('admin.php?page=pending-payments&status=closed'); ?>" class="<?php echo $status==='closed'?'current':''; ?>">Closed</a> | </li>

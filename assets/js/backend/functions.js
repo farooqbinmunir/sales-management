@@ -892,17 +892,6 @@ jQuery(document).ready($ => {
 		$(this).next().slideToggle();
 	}
 
-    window.scrollTo = function(selector, offset = 0) {
-        const element = document.querySelector(selector);
-        if (element) {
-            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-            window.scrollTo({
-                top: elementPosition - offset,
-                behavior: 'smooth'
-            });
-        }
-    }
-
     // Function to calculate the purchase
 	window.calculatePurchase = function(){
 		let form = $('#addPurchaseForm'),
@@ -1032,7 +1021,7 @@ jQuery(document).ready($ => {
 						wrapper.slideUp();
 						$(noticeHtml).insertBefore('.fbm_ui_body');
 						scrollTo('#fbm_notice', 100);
-						setTimeout(() => location.reload(), 10 * 1000); // 10 seconds
+						setTimeout(() => location.reload(), 5 * 1000); // 5 seconds
 					}
 				});
 			}else{

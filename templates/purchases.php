@@ -374,7 +374,7 @@
 
 						$purchase_id = $purchase->purchase_id;
 
-						$vendor = $purchase->vendor;
+						$vendor = $purchase->vendor ? $purchase->vendor : 'N/A';
 
 						$total_payment = $purchase->total_payment;
 

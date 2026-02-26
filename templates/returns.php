@@ -77,7 +77,7 @@
             <?php
                 global $wpdb;
                 $table_returns = "{$wpdb->prefix}sms_sales_returns";
-                $query_returns = "SELECT * FROM {$table_returns}";
+                $query_returns = "SELECT * FROM {$table_returns} ORDER BY return_id DESC";
                 $all_returns = $wpdb->get_results($query_returns);
                 $i = 1;
                 foreach ($all_returns as $returned_item) {

@@ -925,7 +925,7 @@ input#add_stock:disabled {
     opacity: .2 !important;
 }
 ol.purchase-sidebar-list {
-    max-height: 350px !important;
+    max-height: 450px !important;
     overflow-y: auto !important;
 }
 table.addNewPurchaseFormTable select,

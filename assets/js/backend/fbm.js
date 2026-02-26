@@ -545,15 +545,6 @@ jQuery(document).ready(function ($) {
 	});
 	// %%%%%%%%%%%%%%%%%%%%
 
-	// Fading effect on sales page in the section `Sales Calculator`
-	setInterval(() => {
-		let opacity = $(`.salesCalculatorBanner`).css('opacity');
-		if(opacity == 1){
-			$(`.salesCalculatorBanner`).css('opacity', 0.2);
-		}else{
-			$(`.salesCalculatorBanner`).css('opacity', 1);
-		}
-	}, 1 * 1000);
 
 
 	// Customer form

@@ -238,19 +238,12 @@ jQuery(document).ready($ => {
 			input.addEventListener('input', () => {
 				let fromVal = fromDate.value,
 					toVal = toDate.value;
-					todayDate = new Date().toISOString().split(`T`)[0],
-					salesBanner = $(`.salesCalculatorBanner`);
 
 				// If both are cleared
 				if (!fromVal && !toVal) {
 					updateTotalsAndHighlight(); // No filter — show all
 				} else {
 					updateTotalsAndHighlight(fromVal, toVal || null); // Range-based
-				}
-				if(!fromVal && (toVal == todayDate)){
-					salesBanner.show();
-				}else{
-					salesBanner.hide();
 				}
 			});
 		});

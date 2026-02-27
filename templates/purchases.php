@@ -111,14 +111,6 @@
 												</div>
 											</td>
 										</tr>
-										<tr>
-											<td>
-												<div class="anpFieldWrap">
-													<button id="addNewPurchaseFormRow" class="sms_btn sms_btn_info" type="button" data-default-btn-text="<span>+</span> Add More"><span>+</span> Add More</button>
-												</div>
-											</td>
-										</tr>
-
 									</tbody>
 								</table>
 							</td>
@@ -286,6 +278,9 @@
 											</tbody>
 										</table>
 									</div>
+								</div>
+								<div class="anpFieldWrap">
+									<button id="addNewPurchaseFormRow" class="sms_btn sms_btn_info" type="button" data-default-btn-text="<span>+</span> Add More"><span>+</span> Add More</button>
 								</div>
 
 							</td>

@@ -8,6 +8,7 @@
 	$total_sales = count($sales) ? count($sales) : 0; 
 	$total_sale_amount = 0;
 	$profit = $wpdb->get_var("SELECT SUM(profit) FROM {$table} WHERE date = '{$date}'") ?? 0;
+	$total_sale = $wpdb->get_var("SELECT SUM(net_total) FROM {$table} WHERE date = '{$date}'") ?? 0;
 	echo "Date: " . $date;
 ?>
 <div class="sales-page">
@@ -17,7 +18,7 @@
 			<option value="Cash Sale">Cash Sales</option>
 			<option value="Credit Sale">Credit Sales</option>
 			<option value="Partially Paid">Partially Paid</option>
-			<option value="Due Payment">Due Payment Sales</option>
+			<!-- <option value="Due Payment">Due Payment Sales</option> -->
 		</select>
 		<label>Shifts
 			<select id="shiftsDropdown" name="shiftsDropdown">
@@ -38,9 +39,18 @@
 			?>
 			<!-- End search filter -->
 	    </div>
-		<div class="sales_total_profit_display">
-			<h2 class="sales_total_profit_text"><strong>Today's Profit:</strong> <span><?php echo $profit; ?></span></h2>
-		</div>
+		<table class="sales_total_profit_display">
+			<tr>
+				<th>Today's Sale</th>
+				<td class="sales_total_sale_text"><span><?php echo $total_sale; ?></span></td>
+			</tr>
+			<tr>
+				<th>Today's Profit</th>
+				<td class="sales_total_profit_text"><span><?php echo $profit; ?></span></td>
+			</tr>
+			<!-- <h2 class="sales_total_profit_text"><strong>:</strong> </h2>
+			<h2 class="sales_total_sale_text"><strong>Today's Sale:</strong> <span><?php echo $total_sale; ?></span></h2> -->
+		</table>
 	</div>
 	<div class="table-wrap scrollelement">
 		<table class="sale_table">
@@ -49,7 +59,7 @@
 					<th class="sr-Number">#</th>
 					<th class="customer_name">Customer Name</th>
 					<th class="invoice_no">Invoice</th>
-					<th class="sales_quantity">Quantity</th>
+					<th class="sales_quantity">Bill Items</th>
 					<th class="amount">Amount</th>
 					<th class="due_amount">Due Amount</th>
 					<th class="sales_profit">Profit</th>
@@ -144,10 +154,6 @@
 		<div class="salesCalculatorWrapper">
 			<div><span class="btnKbdCloser"><kbd>Esc</kbd> key to close</span><span type="button" id="salesCalculatorCloser">&times;</span></div>
 			<h4 class="product-table-heading">Sales Calculator</h4>
-			<div class="salesCalculatorBanner">Today's Sale</div>
-			<div class="sc_btns">
-				<button class="viewTodaysSaleBtn sms_btn sms_btn_info" type="button" onclick="window.location.reload()">View Todays Sale</button>
-			</div>
 			<h5 style="margin-top: 10px; font-weight: 600;">Filter Sales</h5>
 			<label for="">From Date 
 				<input type="date" name="" id="from_date">

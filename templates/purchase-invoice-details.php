@@ -16,25 +16,24 @@
                 <div class="invoice_details_body" style="margin-top: 50px;">
                     <div class="invoice_details_body_wrap" style="padding: 20px; box-shadow: 0 0 10px -5px black;">
                         <h2 id="store_name" style="text-align: center;"><strong>Shahzad Store</strong></h2>
-                        <?php 
-
-                        global $wpdb;
-                        $table_invoices = $wpdb->prefix . 'sms_purchase_invoices';
-                        $invoice_query = "SELECT * FROM $table_invoices WHERE purchase_invoice = $invoice_no";
-                        $invoice = $wpdb->get_row($invoice_query);
+                        <?php
+                        $invoice = get_purchase_invoice($invoice_no);
                         if($invoice){
 
                             $purchase_invoice_id = $invoice->purchase_invoice_id;
                             $invoice_data = maybe_unserialize($invoice->invoice_data);
                             $date = $invoice->date;
                             // $saleman = get_saleman_by_invoice_no($invoice_no)->name;
+
+                            $purchase = get_purchase_by_invoice_no($invoice_no);
+                            $vendor = $purchase->vendor;
                             ?>
 
                             <table>
                                 <tbody>
                                     <!-- <tr>
                                         <th style="padding: 0 20px 0 0;">Sale Man</th>
-                                        <td id="inv_saleman" style="padding: 0 20px 0 0;"><?php echo $saleman; ?><td>
+                                        <td id="inv_saleman" style="padding: 0 20px 0 0;"><?php // echo $saleman; ?><td>
                                     </tr> -->
                                     <tr>
                                         <th style="padding: 0 20px 0 0;">Invoice No</th>
@@ -67,7 +66,6 @@
 
                                         $product_name = get_product($product_item['product_id'])->product_name;
                                         $manufacturer_name = get_manufacturer_name($product_item['manufacturer_id']);
-                                        $vendor = $product_item['vendor'];
                                         $quantity = + $product_item['quantity'];
                                         $purchase_rate = + $product_item['purchase_rate'];
                                         $total_payment = + $product_item['total_payment'];

@@ -29,19 +29,19 @@ jQuery(document).ready($ => {
 	// Custom function for scrolling to specific element, first offset param is required, second is optional with default value of 0
 
 
-	const scrollTo = (offsetSelector, offsetToMinus = 0) => {
+	// const scrollTo = (offsetSelector, offsetToMinus = 0) => {
 
 
-		$('html, body').animate({
+	// 	$('html, body').animate({
 
 
-			scrollTop: Math.floor($(offsetSelector).offset().top - offsetToMinus)
+	// 		scrollTop: Math.floor($(offsetSelector).offset().top - offsetToMinus)
 
 
-		}, 'slow', 'linear');
+	// 	}, 'slow', 'linear');
 
 
-	};
+	// };
 
 	// Akram js
 
@@ -238,19 +238,12 @@ jQuery(document).ready($ => {
 			input.addEventListener('input', () => {
 				let fromVal = fromDate.value,
 					toVal = toDate.value;
-					todayDate = new Date().toISOString().split(`T`)[0],
-					salesBanner = $(`.salesCalculatorBanner`);
 
 				// If both are cleared
 				if (!fromVal && !toVal) {
 					updateTotalsAndHighlight(); // No filter — show all
 				} else {
 					updateTotalsAndHighlight(fromVal, toVal || null); // Range-based
-				}
-				if(!fromVal && (toVal == todayDate)){
-					salesBanner.show();
-				}else{
-					salesBanner.hide();
 				}
 			});
 		});
@@ -509,15 +502,13 @@ jQuery(document).ready($ => {
 		}
 	});
 
-	document.querySelectorAll("#fbm_ui input[type='number']").forEach(input => {
-	  input.addEventListener("input", () => {
-	    if (input.value < 0) {
-	      input.value = "";        // clear the field
-	      alert("Negative numbers are not allowed.");
-	      return false;
-	    }
-	  });
+	$(document).on("input", "#fbm_ui input[type='number']", function () {
+		if (parseFloat($(this).val()) < 0) {
+			$(this).val(0);
+			return false;
+		}
 	});
+
 
 
 

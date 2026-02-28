@@ -7,7 +7,7 @@ $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 $dues = fbm_dues_get_all($status, $search, '');
 $nonce_action = 'fbm_receive_due_payment';
 ?>
-<div class="wrap">
+<div id="page-pending_payments" class="wrap">
   <p>Manage customers who have remaining balances from previous sales.</p>
   <?php
     include_component('search-filter', [
@@ -19,7 +19,7 @@ $nonce_action = 'fbm_receive_due_payment';
     ]);
    ?>
   <br>
-  <div class="table-top">
+  <div class="table-top d-flex justify-content-between">
     <ul class="subsubsub">
       <li><a href="<?php echo admin_url('admin.php?page=pending-payments&status=open'); ?>" class="<?php echo $status==='open'?'current':''; ?>">Open</a> | </li>
       <li><a href="<?php echo admin_url('admin.php?page=pending-payments&status=closed'); ?>" class="<?php echo $status==='closed'?'current':''; ?>">Closed</a> | </li>
@@ -55,7 +55,7 @@ $nonce_action = 'fbm_receive_due_payment';
         <tr>
           <th>#</th>
           <!-- <th>Customer/Sales Man</th> -->
-          <th>Customer</th>
+          <th>Customer/Vendor</th>
           <th>Phone</th>
           <th>Total</th>
           <th>Paid</th>
@@ -86,12 +86,14 @@ $nonce_action = 'fbm_receive_due_payment';
           
           // $customer_saler_name = $due_type === 'sale' ? get_customer($customer_saler_id)->name : get_saleman($customer_saler_id)->name;
           // $customer_saler_name = get_customer($customer_saler_id)->name;
-          $customer_saler_name = '--WALKING-CUSTOMER';
+          $customer_saler_name = get_customer($customer_saler_id)->name;
+          $customer_saler_phone = get_customer($customer_saler_id)->phone;
+          // $customer_saler_name = '--WALKING-CUSTOMER';
         ?>
         <tr>
           <td><?php echo $i++; ?></td>
           <td class="customer_name"><?php echo $customer_saler_name; ?></td>
-          <td class="phone"><?php echo $phone; ?></td>
+          <td class="phone"><?php echo $customer_saler_phone; ?></td>
           <td><?php echo $total; ?></td>
           <td><?php echo $paid_amount; ?></td>
           <td><strong><?php echo $remaining_amount; ?></strong></td>
@@ -101,7 +103,7 @@ $nonce_action = 'fbm_receive_due_payment';
 
           <td>
             <?php if ($status === 'Open'): ?>
-            <button class="button button-primary" type="button" onclick="fbmOpenReceiveModal(<?php echo $id; ?>, <?php echo esc_js((float)$d->remaining_amount); ?>, '<?php echo $due_type; ?>')">Receive Payment</button>
+            <button class="button button-primary" type="button" onclick="fbmOpenReceiveModal(<?php echo $id; ?>, <?php echo esc_js((float)$d->remaining_amount); ?>, '<?php echo $due_type; ?>')"><?php echo $due_type === 'purchase' ? "Pay" : "Receive"; ?> Payment</button>
             <?php else: ?>
             <em>Closed</em>
             <?php endif; ?>

@@ -5,7 +5,7 @@
     $limit_low_stock_alerts = -1; // -1 means all
     $limit_recent_sales = 5; // last 5
  ?>
-<div class="wrap">
+<div id="page-analytics" class="wrap">
     
     <div class="fbm-analytics-grid">
         <!-- Top Selling Products -->

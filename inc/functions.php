@@ -3,6 +3,21 @@
 	// Including utility functions to be available in this file
 	require_once(FBM_PLUGIN_DIR . 'inc/utilities.php');
 
+	function fbm_require_authenticated_ajax(){
+		if (!wp_doing_ajax()) {
+			return;
+		}
+
+		if (!is_user_logged_in()) {
+			wp_send_json_error('Unauthorized request.', 401);
+		}
+
+		// Backward-compatible nonce validation: if provided by frontend, enforce it.
+		if (isset($_POST['nonce']) && !wp_verify_nonce($_POST['nonce'], FBM_PLUGIN_NONCE)) {
+			wp_send_json_error('Security check failed.', 403);
+		}
+	}
+
 	// Enqueue scripts & styles for backend use
 	function fbm_backend_enqueues(){
 		// Enqueue Styles
@@ -115,7 +130,7 @@
 	    wp_enqueue_script('fbm-select2-js', FBM_PLUGIN_URL . '/assets/js/backend/select2.js', ['chart-js'], '4.1.0');
 
 		// Tailwind CSS
-	    wp_enqueue_script('tailwind-css', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', [''], '4.1.0');
+	    wp_enqueue_script('tailwind-css', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], '4.1.0');
 
 		// Including Fixes js
 		wp_enqueue_script('fbm-fixes-js', FBM_PLUGIN_URL . '/assets/js/backend/fixes.js', ['jquery'], time(), true);
@@ -204,6 +219,22 @@
 				'sales',
 
 				'sales_callback',
+
+			);
+
+			add_submenu_page(
+
+				sanitize_title_with_dashes(FBM_PLUGIN_MENU_NAME),
+
+				'Customers',
+
+				'Customers',
+
+				'manage_options',
+
+				'customers',
+
+				'customers_callback',
 
 			);
 
@@ -313,6 +344,11 @@
 		require_once(FBM_PLUGIN_DIR . 'templates/sales-listing-panel.php');
 	}
 
+	// Submenu page for Customers listing
+	function customers_callback(){
+		require_once(FBM_PLUGIN_DIR . 'templates/customers-panel.php');
+	}
+
 	// Submenu page for Purchases
 	function purchases_callback(){
 		require_once(FBM_PLUGIN_DIR . 'templates/purchases-panel.php');
@@ -361,7 +397,7 @@
 
 
 	function handle_product() {
-
+		fbm_require_authenticated_ajax();
 
 
 		$payload = json_decode(stripcslashes($_POST['payload']));
@@ -388,9 +424,24 @@
 
 		if($action == 'update'){
 			$product_id = intval(sanitize_text_field($_POST['id']));
-			$update_product_query = "UPDATE {$table} SET product_name = '{$product_name}', product_purchase_price = {$product_purchase_price}, product_sale_price = {$product_sale_price}, product_vendor = '{$product_vendor}', product_manufacturer = $product_manufacturer, product_location = '{$product_location}', product_min_quantity = {$product_min_quantity} WHERE product_id = {$product_id}";	
-			$result = $wpdb->query($update_product_query);
-			if($result){
+			$result = $wpdb->update(
+				$table,
+				[
+					'product_name' => $product_name,
+					'product_purchase_price' => $product_purchase_price,
+					'product_sale_price' => $product_sale_price,
+					'product_vendor' => $product_vendor,
+					'product_manufacturer' => $product_manufacturer,
+					'product_location' => $product_location,
+					'product_min_quantity' => $product_min_quantity,
+				],
+				[
+					'product_id' => $product_id,
+				],
+				['%s', '%f', '%f', '%s', '%d', '%s', '%d'],
+				['%d']
+			);
+			if($result !== false){
 
 				wp_send_json_success();
 	
@@ -401,8 +452,22 @@
 			}
 
 		}elseif( $action == 'add'){
-			$query = $wpdb->prepare("INSERT INTO {$table} (product_name, product_purchase_price, product_sale_price, product_vendor, product_manufacturer, product_location, product_min_quantity) VALUES (%s, %d, %d, %s, %d, %s, %d)", $product_name, $product_purchase_price, $product_sale_price, $product_vendor, $product_manufacturer, $product_location, $product_min_quantity);
-			$result = $wpdb->query($query);
+			$insert_result = $wpdb->insert(
+				$table,
+				[
+					'product_name' => $product_name,
+					'product_purchase_price' => $product_purchase_price,
+					'product_sale_price' => $product_sale_price,
+					'product_vendor' => $product_vendor,
+					'product_manufacturer' => $product_manufacturer,
+					'product_location' => $product_location,
+					'product_min_quantity' => $product_min_quantity,
+				],
+				['%s', '%f', '%f', '%s', '%d', '%s', '%d']
+			);
+			if($insert_result === false){
+				wp_send_json_error();
+			}
 			$inserted_product_id = $wpdb->insert_id;
 			// Insert initial stock quantity into the stock table
 	
@@ -447,41 +512,76 @@
 
 
 	function handle_purchase(){
+		fbm_require_authenticated_ajax();
 		global $wpdb;
 
-		$payload = json_decode(stripcslashes($_POST['payload']));
-		$purchase_info = json_decode(stripcslashes($_POST['purchase_info']));
-		$purchase_invoice = intval($purchase_info->invoice);
-		
-		$total_payment = $purchase_info->totalPayment;
-		$payment_status = ucwords(str_replace(['-', '_'], ' ', sanitize_text_field($purchase_info->paymentStatus)));
-		$payment_method = $purchase_info->paymentStatus === 'unpaid' ? '' : ucwords(str_replace(['-', '_'], ' ', sanitize_text_field($purchase_info->paymentMethod)));
-		$description = ucfirst(sanitize_text_field($purchase_info->description));
-		$vendor = ucfirst(sanitize_text_field($purchase_info->vendor));
+		if (empty($_POST['payload']) || empty($_POST['purchase_info'])) {
+			wp_send_json_error(['Invalid purchase payload.']);
+		}
 
-		$purchase_paid_amount = (int) $purchase_info->paymentPaid;
-		$purchase_remaining_amount = (int) $purchase_info->paymentRemaining;
+		$payload = json_decode(wp_unslash($_POST['payload']));
+		$purchase_info = json_decode(wp_unslash($_POST['purchase_info']));
+		if (!is_array($payload) || empty($payload) || !is_object($purchase_info)) {
+			wp_send_json_error(['Invalid purchase data.']);
+		}
+
+		$purchase_invoice = isset($purchase_info->invoice) ? intval($purchase_info->invoice) : 0;
+		if ($purchase_invoice <= 0) {
+			wp_send_json_error(['Invalid purchase invoice number.']);
+		}
+		
+		$total_payment = isset($purchase_info->totalPayment) ? (float) $purchase_info->totalPayment : 0;
+		$payment_status_raw = isset($purchase_info->paymentStatus) ? sanitize_text_field((string) $purchase_info->paymentStatus) : '';
+		$payment_status = ucwords(str_replace(['-', '_'], ' ', strtolower($payment_status_raw)));
+		$payment_method_raw = isset($purchase_info->paymentMethod) ? sanitize_text_field((string) $purchase_info->paymentMethod) : '';
+		$payment_method = strtolower($payment_status_raw) === 'unpaid' ? '' : ucwords(str_replace(['-', '_'], ' ', strtolower($payment_method_raw)));
+		$description = isset($purchase_info->description) ? ucfirst(sanitize_text_field((string) $purchase_info->description)) : '';
+		$vendor = isset($purchase_info->vendor) ? ucfirst(sanitize_text_field((string) $purchase_info->vendor)) : '';
+
+		$purchase_paid_amount = isset($purchase_info->paymentPaid) ? (float) $purchase_info->paymentPaid : 0;
+		$purchase_remaining_amount = isset($purchase_info->paymentRemaining) ? (float) $purchase_info->paymentRemaining : 0;
+		$purchase_paid_amount = max(0, $purchase_paid_amount);
+		$purchase_remaining_amount = max(0, $purchase_remaining_amount);
+		$total_payment = max(0, $total_payment);
+
+		if ($purchase_paid_amount > $total_payment) {
+			wp_send_json_error(['Paid amount cannot exceed total payment.']);
+		}
+		if (abs(($purchase_paid_amount + $purchase_remaining_amount) - $total_payment) > 0.01) {
+			$purchase_remaining_amount = max(0, $total_payment - $purchase_paid_amount);
+		}
 
 		// Prepare DB tables and date for saving/updating database
 		$date = date('Y-m-d');
 		$table_purchase = $wpdb->prefix . 'sms_purchases';
 		$table_purchase_invoices = $wpdb->prefix . 'sms_purchase_invoices';
 		$table_stock = $wpdb->prefix . 'sms_stock';
-		$table_products = $wpdb->prefix . 'sms_products';
 
 		// To store query results success/failure
 		$response = [];
 		$errors = [];
 
 		// Add entry in Purchase Table
-		$purchase_sql = "INSERT INTO $table_purchase (total_payment, paid, due, payment_status, payment_method, description, vendor, purchase_invoice, date) VALUES ($total_payment, $purchase_paid_amount, $purchase_remaining_amount, '$payment_status', '$payment_method', '$description', '$vendor', '$purchase_invoice', '$date');";
-		// wp_send_json_success($purchase_sql);
-		$rows_inserted = $wpdb->query($purchase_sql);
+		$rows_inserted = $wpdb->insert(
+			$table_purchase,
+			[
+				'total_payment' => $total_payment,
+				'paid' => $purchase_paid_amount,
+				'due' => $purchase_remaining_amount,
+				'payment_status' => $payment_status,
+				'payment_method' => $payment_method,
+				'description' => $description,
+				'vendor' => $vendor,
+				'purchase_invoice' => $purchase_invoice,
+				'date' => $date,
+			],
+			['%f', '%f', '%f', '%s', '%s', '%s', '%s', '%d', '%s']
+		);
 
 		$purchase_id = $wpdb->insert_id;
 
 		if($rows_inserted){
-			$response[] = "✅ Purchase added successfully!";
+			$response[] = 'Purchase added successfully.';
 			if ($purchase_remaining_amount > 0) {
 				$due_type = 'purchase';
 				$saleman_id = 1; // Default saleman ID (--SALE-MAN--)
@@ -489,86 +589,106 @@
 				// Create due record
 				$due_added = fbm_dues_create_from_sale($purchase_id, $saleman_id, $total_payment, $purchase_paid_amount, $due_type);
 				if($due_added){
-					$response[] = "✅ Due payment initiated successfully!";
+					$response[] = 'Due payment initiated successfully.';
 				}else{
-					$errors[] = "❌ Failed to initiate due payment!";
+					$errors[] = 'Failed to initiate due payment.';
 				}
 			}
 		}else{
-			$errors[] = "❌ Failed to save purchase data!";
+			$errors[] = 'Failed to save purchase data.';
+			wp_send_json_error($errors);
+			return;
 		}
 
 		
-		// Group the prodcuts purchased to make single entry
+		// Group the products purchased to make single entry
 		$purchase_invoice_data = [];
 		$stockUpdated = [];
-		$producstUpdated = [];
 		foreach($payload as $product){
 
-			// Get the product details
-			$product_id = intval(sanitize_text_field($product->product_id));
-			$manufacturer_id = intval(sanitize_text_field($product->manufacturer_id));
-			$quantity = intval(sanitize_text_field($product->quantity));
-			$purchase_rate = intval(sanitize_text_field($product->rate));
-			$total_payment = intval(sanitize_text_field($product->payment));
+			$product_id = isset($product->product_id) ? intval(sanitize_text_field($product->product_id)) : 0;
+			$manufacturer_id = isset($product->manufacturer_id) ? intval(sanitize_text_field($product->manufacturer_id)) : 0;
+			$quantity = isset($product->quantity) ? intval(sanitize_text_field($product->quantity)) : 0;
+			$purchase_rate = isset($product->rate) ? intval(sanitize_text_field($product->rate)) : 0;
+			$item_total_payment = isset($product->payment) ? intval(sanitize_text_field($product->payment)) : 0;
+			if ($product_id <= 0 || $quantity <= 0) {
+				$errors[] = 'Invalid product or quantity in purchase payload.';
+				continue;
+			}
 			
-			// Prepare single product data
-			$purchased_single_product = [
-				'product_id'	=>	$product_id,
-				'manufacturer_id'	=>	$manufacturer_id,
-				'quantity'	=>	$quantity,
-				'purchase_rate'	=>	$purchase_rate,
-				'total_payment'	=>	$total_payment,
+			$purchase_invoice_data[] = [
+				'product_id' => $product_id,
+				'manufacturer_id' => $manufacturer_id,
+				'quantity' => $quantity,
+				'purchase_rate' => $purchase_rate,
+				'total_payment' => $item_total_payment,
 			];
-			array_push($purchase_invoice_data, $purchased_single_product);
 
-			// Update the stocks table
-			$available_stock = intval($wpdb->get_var("SELECT stock_quantity FROM $table_stock WHERE product_id = $product_id"));
-			$stock_new_quantity = $quantity > 0 ? $available_stock + $quantity : $available_stock;
-			$stockSQL = "UPDATE $table_stock SET stock_quantity = $stock_new_quantity WHERE product_id = $product_id";
-			$stockQueryResult = $wpdb->query($stockSQL);
+			$available_stock = intval($wpdb->get_var($wpdb->prepare("SELECT stock_quantity FROM $table_stock WHERE product_id = %d", $product_id)));
+			$stock_new_quantity = $available_stock + $quantity;
+			$stockQueryResult = $wpdb->update(
+				$table_stock,
+				['stock_quantity' => $stock_new_quantity],
+				['product_id' => $product_id],
+				['%d'],
+				['%d']
+			);
 			
-			if(!$stockQueryResult){ // If update failed, means record not exists, so need to insert new record
-				$product = get_product($product_id);
-				$stock_location = $product->product_location;
-				$low_stock_alert = $product->product_min_quantity;
+			if($stockQueryResult === false || $stockQueryResult === 0){ // record might not exist
+				$product_info = get_product($product_id);
+				$stock_location = $product_info ? $product_info->product_location : '';
+				$low_stock_alert = $product_info ? intval($product_info->product_min_quantity) : 0;
 				
-				$stockSQL = $wpdb->prepare("INSERT INTO $table_stock (product_id, stock_quantity, stock_location, restock_date, low_stock_alert) VALUES(%d, %d, %s, %s, %d)", $product_id, $stock_new_quantity, $stock_location, $date, $low_stock_alert);
-
-				$stockQueryResult = $wpdb->query($stockSQL);
+				$stockQueryResult = $wpdb->insert(
+					$table_stock,
+					[
+						'product_id' => $product_id,
+						'stock_quantity' => $stock_new_quantity,
+						'stock_location' => $stock_location,
+						'restock_date' => $date,
+						'low_stock_alert' => $low_stock_alert,
+					],
+					['%d', '%d', '%s', '%s', '%d']
+				);
 			}
-			if($stockQueryResult){
-				$stockUpdated[] = true;
-			}else{
-				$stockUpdated[] = false;
-			}
 
-			
+			$stockUpdated[] = ($stockQueryResult !== false);
 		}
 
-		if(in_array(false, $stockUpdated)){
-			$errors[] = "❌ Failed to update stock!";
+		if(in_array(false, $stockUpdated, true)){
+			$errors[] = 'Failed to update stock.';
 		}else{
-			$response[] = "✅ Stock updated successfully!";
+			$response[] = 'Stock updated successfully.';
 		}
 
 		// Serialize the purchased products to make it string as it'll be stored in a TEXT column in DB
+		if (empty($purchase_invoice_data)) {
+			$errors[] = 'No valid products found in purchase payload.';
+		}
 		$purchase_invoice_data_serialized = maybe_serialize($purchase_invoice_data);
 
 		// Add entry in Purchase Invoces table referencing with purchase_invoice
-		$purchase_invoice_sql = "INSERT INTO $table_purchase_invoices (purchase_invoice, invoice_data, date) VALUES ($purchase_invoice, '$purchase_invoice_data_serialized', '$date');";
-		$pinvoice_rows_inserted = $wpdb->query($purchase_invoice_sql);
+		$pinvoice_rows_inserted = $wpdb->insert(
+			$table_purchase_invoices,
+			[
+				'purchase_invoice' => $purchase_invoice,
+				'invoice_data' => $purchase_invoice_data_serialized,
+				'date' => $date,
+			],
+			['%d', '%s', '%s']
+		);
 		
 		if($pinvoice_rows_inserted){
-			$response[] = "✅ Purchase Invoice saved successfully!";
+			$response[] = 'Purchase invoice saved successfully.';
 		}else{
-			$errors[] = "❌ Failed to save Purchase Invoice!";
+			$errors[] = 'Failed to save purchase invoice.';
 		}
 
 		if(empty($errors)){
 			wp_send_json_success($response);
 		}else{
 			wp_send_json_error($errors);
+			return;
 		}
 		
 
@@ -589,7 +709,7 @@
 		$table = $wpdb->prefix . 'sms_products';
 		$sanitized_product_id = intval(sanitize_text_field( $product_id ));
 		if($sanitized_product_id){
-			$sql = "SELECT * FROM $table WHERE product_id = $sanitized_product_id";
+			$sql = $wpdb->prepare("SELECT * FROM $table WHERE product_id = %d", $sanitized_product_id);
 			$products = $wpdb->get_results($sql);
 			if(count($products) > 0){
 
@@ -619,8 +739,8 @@
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'sms_stock';
-
-		$sql = "SELECT * FROM $table WHERE product_id = $product_id";
+		$product_id = intval($product_id);
+		$sql = $wpdb->prepare("SELECT * FROM $table WHERE product_id = %d", $product_id);
 
 		$stock = $wpdb->get_results($sql);
 
@@ -641,8 +761,8 @@
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'sms_customers';
-
-		$sql = "SELECT * FROM $table WHERE customer_id = $customer_id";
+		$customer_id = intval($customer_id);
+		$sql = $wpdb->prepare("SELECT * FROM $table WHERE customer_id = %d", $customer_id);
 
 		$customers = $wpdb->get_results($sql);
 
@@ -658,13 +778,47 @@
 
 	}
 
+	function fbm_normalize_phone($phone){
+		$phone = sanitize_text_field((string) $phone);
+		return preg_replace('/\D+/', '', $phone);
+	}
+
+	function fbm_find_customer_by_phone($phone){
+		global $wpdb;
+		$table_customers = $wpdb->prefix . 'sms_customers';
+		$normalized_phone = fbm_normalize_phone($phone);
+
+		if(empty($normalized_phone)){
+			return null;
+		}
+
+		// Fast path for already-normalized values.
+		$exact_match = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM $table_customers WHERE phone = %s ORDER BY customer_id DESC LIMIT 1",
+			$normalized_phone
+		));
+		if($exact_match){
+			return $exact_match;
+		}
+
+		// Backward compatibility for older formatted phone values in DB.
+		$all_customers = $wpdb->get_results("SELECT * FROM $table_customers ORDER BY customer_id DESC");
+		foreach($all_customers as $customer){
+			if(fbm_normalize_phone($customer->phone) === $normalized_phone){
+				return $customer;
+			}
+		}
+
+		return null;
+	}
+
 	function get_saleman($saleman_id){
 
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'sms_salemans';
-
-		$sql = "SELECT * FROM $table WHERE id = $saleman_id";
+		$saleman_id = intval($saleman_id);
+		$sql = $wpdb->prepare("SELECT * FROM $table WHERE id = %d", $saleman_id);
 
 		$saleman = $wpdb->get_row($sql);
 
@@ -674,87 +828,166 @@
 
 	
 	function save_sale(){
+		fbm_require_authenticated_ajax();
 		global $wpdb;
 		$date = date('Y-m-d');
+		$save_errors = [];
 
+		if (empty($_POST['payload']) || !is_array($_POST['payload'])) {
+			wp_send_json_error('Invalid sale payload.');
+		}
 		$payload = $_POST['payload'];
 
 		// Get invoice data
-		$invoice_data = $payload['invoice_data'];
-		$invoice_no = $invoice_data['invoice_no'];
-		$invoice_data_arr = json_decode(stripcslashes($invoice_data['data']), true);
+		$invoice_data = isset($payload['invoice_data']) && is_array($payload['invoice_data']) ? $payload['invoice_data'] : [];
+		$invoice_no = isset($invoice_data['invoice_no']) ? intval($invoice_data['invoice_no']) : 0;
+		$invoice_data_arr = isset($invoice_data['data']) ? json_decode(stripcslashes($invoice_data['data']), true) : [];
+		if ($invoice_no <= 0 || !is_array($invoice_data_arr) || empty($invoice_data_arr)) {
+			wp_send_json_error('Invalid invoice payload.');
+		}
 		$invoice_data = maybe_serialize($invoice_data_arr);
 
 		// Get Customer data
 		$customer_id = 1; // Defualt customer  --WALKING-CUSTOMER-- database id
-		$customer_data = $payload['customer_data'];
-		$cname = sanitize_text_field($customer_data['cname']);
-		$cphone = sanitize_text_field($customer_data['cphone']);
-		$cemail = sanitize_text_field($customer_data['cemail']);
-		$caddress = sanitize_text_field($customer_data['caddress']);
+		$customer_data = isset($payload['customer_data']) && is_array($payload['customer_data']) ? $payload['customer_data'] : [];
+		$cname = isset($customer_data['cname']) ? sanitize_text_field($customer_data['cname']) : '';
+		$cphone = isset($customer_data['cphone']) ? sanitize_text_field($customer_data['cphone']) : '';
+		$cemail = isset($customer_data['cemail']) ? sanitize_text_field($customer_data['cemail']) : '';
+		$caddress = isset($customer_data['caddress']) ? sanitize_text_field($customer_data['caddress']) : '';
+		$cphone = fbm_normalize_phone($cphone);
 
 		// Save customer data
 		$table_customers = $wpdb->prefix . 'sms_customers';
 		$table_products = $wpdb->prefix . 'sms_products';
 		if($cname && $cphone):
-			$sql_customers = $wpdb->prepare("INSERT INTO $table_customers (name, phone, email, address, date) 
-			VALUES (%s, %s, %s, %s, %s)", $cname, $cphone, $cemail, $caddress, $date);
-			$wpdb->query($sql_customers);
+			$existing_customer = fbm_find_customer_by_phone($cphone);
+			if($existing_customer){
+				$customer_id = intval($existing_customer->customer_id);
+			}else{
+				$wpdb->insert(
+					$table_customers,
+					[
+						'name' => $cname,
+						'phone' => $cphone,
+						'email' => $cemail,
+						'address' => $caddress,
+						'date' => $date,
+					],
+					['%s', '%s', '%s', '%s', '%s']
+				);
 
-			// Get the customer id, just added
-			$customer_id = $wpdb->insert_id;
+				// Get the customer id, just added
+				$customer_id = $wpdb->insert_id;
+			}
 		endif;
 
 		// Update Stock
 		foreach ($invoice_data_arr as $index => $product ) {
-			$product_id = intval($product['prod_id']);
-			$product_quantity = intval($product['prod_quantity']);
+			$product_id = isset($product['prod_id']) ? intval($product['prod_id']) : 0;
+			$product_quantity = isset($product['prod_quantity']) ? intval($product['prod_quantity']) : 0;
+			if ($product_id <= 0 || $product_quantity <= 0) {
+				$save_errors[] = 'Invalid product item in invoice.';
+				continue;
+			}
 			// Store invoice data
 			$table_stock = $wpdb->prefix . 'sms_stock';
-			$stock_old_quantity = intval($wpdb->get_var("SELECT stock_quantity FROM $table_stock WHERE product_id = $product_id"));
+			$stock_old_quantity = intval($wpdb->get_var($wpdb->prepare("SELECT stock_quantity FROM $table_stock WHERE product_id = %d", $product_id)));
+			if($stock_old_quantity < $product_quantity){
+				$save_errors[] = "Insufficient stock for product ID {$product_id}.";
+				continue;
+			}
 			$new_stock_quantity = $stock_old_quantity - $product_quantity;
-			$sql_stock = "UPDATE $table_stock SET stock_quantity = $new_stock_quantity, restock_date = '$date' WHERE product_id = $product_id";
-			$wpdb->query($sql_stock);
+			$stock_updated = $wpdb->update(
+				$table_stock,
+				[
+					'stock_quantity' => $new_stock_quantity,
+					'restock_date' => $date,
+				],
+				['product_id' => $product_id],
+				['%d', '%s'],
+				['%d']
+			);
+			if($stock_updated === false){
+				$save_errors[] = "Failed to update stock for product ID {$product_id}.";
+			}
 
 			// Update sold quantity in products table
-			$sql_products = "UPDATE $table_products SET sold = sold + $product_quantity WHERE product_id = $product_id";
-			$wpdb->query($sql_products);
+			$sql_products = $wpdb->prepare("UPDATE $table_products SET sold = sold + %d WHERE product_id = %d", $product_quantity, $product_id);
+			$product_updated = $wpdb->query($sql_products);
+			if($product_updated === false){
+				$save_errors[] = "Failed to update sold quantity for product ID {$product_id}.";
+			}
 
 
+		}
+		if(!empty($save_errors)){
+			wp_send_json_error(implode(' | ', $save_errors));
 		}
 
 		// Store invoice data
 		$table_invoices = $wpdb->prefix . 'sms_invoices';
-		$sql_invoices = "INSERT INTO $table_invoices (invoice_no, invoice_data, date) 
-		VALUES ($invoice_no, '$invoice_data', '$date')";
-		$wpdb->query($sql_invoices);
+		$invoice_saved = $wpdb->insert(
+			$table_invoices,
+			[
+				'invoice_no' => $invoice_no,
+				'invoice_data' => $invoice_data,
+				'date' => $date,
+			],
+			['%d', '%s', '%s']
+		);
+		if($invoice_saved === false){
+			wp_send_json_error('Failed to store invoice data.');
+		}
 
 		// Get the invoice id, just added
 		$invoice_id = $wpdb->insert_id;
 		
 		
 		// Get sale data
-		$sale_data = $payload['sale_data'];
-		$quantity = $sale_data['quantity'];
-		$gross_total = $sale_data['gross_total'];
-		$discount = $sale_data['discount'];
-		$net_total = $sale_data['net_total'];
-		$sale_type = $sale_data['sale_type'];
-		$payment_method = $sale_data['payment_method'];
-		$payment_status = $sale_data['payment_status'];
+		$sale_data = isset($payload['sale_data']) && is_array($payload['sale_data']) ? $payload['sale_data'] : [];
+		$quantity = isset($sale_data['quantity']) ? intval($sale_data['quantity']) : 0;
+		$gross_total = isset($sale_data['gross_total']) ? (float) $sale_data['gross_total'] : 0;
+		$discount = isset($sale_data['discount']) ? (float) $sale_data['discount'] : 0;
+		$net_total = isset($sale_data['net_total']) ? (float) $sale_data['net_total'] : 0;
+		$sale_type = isset($sale_data['sale_type']) ? sanitize_text_field((string) $sale_data['sale_type']) : 'Cash Sale';
+		$payment_method = isset($sale_data['payment_method']) ? sanitize_text_field((string) $sale_data['payment_method']) : '';
 
-		$profit = $sale_data['profit'];
-		$sales_person = intval($sale_data['sales_person']);
+		$profit = isset($sale_data['profit']) ? (float) $sale_data['profit'] : 0;
+		$sales_person = isset($sale_data['sales_person']) ? intval($sale_data['sales_person']) : 0;
 
-		$paid_amount  = intval($sale_data['paid_amount']);
-		$due_amount  = intval($sale_data['due_amount']);
+		$paid_amount  = isset($sale_data['paid_amount']) ? (float) $sale_data['paid_amount'] : 0;
+		$due_amount  = isset($sale_data['due_amount']) ? (float) $sale_data['due_amount'] : 0;
+		if($paid_amount > $net_total){
+			wp_send_json_error('Paid amount cannot exceed net total.');
+		}
+		if($due_amount > 0 && $paid_amount <= 0){
+			$payment_status = 'Unpaid';
+		}elseif($due_amount > 0){
+			$payment_status = 'Partially Paid';
+		}else{
+			$payment_status = 'Paid';
+		}
 		$due_type = 'sale';
 
 		$table_sales = $wpdb->prefix . 'sms_sales';
-		$sql_sales = "INSERT INTO $table_sales (invoice_id, customer_id, quantity, gross_total, discount, net_total, profit, sales_man, sale_type, payment_method, payment_status, date) 
-		VALUES ($invoice_id, $customer_id, $quantity, $gross_total, $discount, $net_total, $profit, $sales_person, '$sale_type', '$payment_method', '$payment_status', '$date')";
-
-		$insertedSalesRows = $wpdb->query($sql_sales);
+		$insertedSalesRows = $wpdb->insert(
+			$table_sales,
+			[
+				'invoice_id' => $invoice_id,
+				'customer_id' => $customer_id,
+				'quantity' => $quantity,
+				'gross_total' => $gross_total,
+				'discount' => $discount,
+				'net_total' => $net_total,
+				'profit' => $profit,
+				'sales_man' => $sales_person,
+				'sale_type' => $sale_type,
+				'payment_method' => $payment_method,
+				'payment_status' => $payment_status,
+				'date' => $date,
+			],
+			['%d', '%d', '%d', '%f', '%f', '%f', '%f', '%d', '%s', '%s', '%s', '%s']
+		);
 		$sale_id = $wpdb->insert_id;
 
 		if($insertedSalesRows){
@@ -762,12 +995,11 @@
 			if ($due_amount > 0) {
 				// Create due record
 				$due_added = fbm_dues_create_from_sale($sale_id, $customer_id, $net_total, $paid_amount, $due_type);
-				if($due_added){
-					wp_send_json_success($due_added);
+				if(!$due_added){
+					wp_send_json_error('Sale saved but due record creation failed.');
 				}
-				wp_send_json_success();
 			}
-			wp_send_json_success();
+			wp_send_json_success(['sale_id' => $sale_id]);
 		}else{
 			wp_send_json_error('Failed to add sale entry.');
 		}
@@ -778,10 +1010,17 @@
 
 	// Ajax Request to get product data
 	function get_product_details(){
+		fbm_require_authenticated_ajax();
 		$product_id = intval(sanitize_text_field($_POST['product_id']));
 		$product = get_product($product_id);
+		if(!$product){
+			wp_send_json_error('Product not found.');
+		}
 		$manufacturer_id = $product->product_manufacturer;
 		$manufacturer_name = get_manufacturer_name($manufacturer_id);
+		if(!$manufacturer_name){
+			$manufacturer_name = 'N/A';
+		}
 		$response = [
 			'product' => json_encode($product),
 			'manufacturer' => [
@@ -795,12 +1034,18 @@
 	add_action('wp_ajax_nopriv_get_product_details', 'get_product_details');
 
 	function get_purchase(){
+		fbm_require_authenticated_ajax();
 		$purchase_id = intval(sanitize_text_field($_POST['purchase_id']));
+		if($purchase_id <= 0){
+			wp_send_json_error('Invalid purchase ID.');
+		}
 		global $wpdb;
 		$table = $wpdb->prefix . 'sms_purchases';
-		$sql = "SELECT * FROM $table WHERE purchase_id = $purchase_id";
-		$purchase = $wpdb->get_results($sql);
-		wp_send_json_success(json_encode($purchase[0]));
+		$purchase = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE purchase_id = %d", $purchase_id));
+		if(!$purchase){
+			wp_send_json_error('Purchase not found.');
+		}
+		wp_send_json_success(json_encode($purchase));
 	}
 	add_action('wp_ajax_get_purchase', 'get_purchase');
 	add_action('wp_ajax_nopriv_get_purchase', 'get_purchase');
@@ -815,12 +1060,16 @@
 	}
 
 	function sms_delete(){
+		fbm_require_authenticated_ajax();
 		$id = intval(sanitize_text_field(stripcslashes($_POST['id'])));
 		$table_name = sanitize_text_field( $_POST['table_name'] );
 		$id_col_name = sanitize_text_field( $_POST['id_col_name'] );
+		if(!preg_match('/^[A-Za-z0-9_]+$/', $table_name) || !preg_match('/^[A-Za-z0-9_]+$/', $id_col_name)){
+			wp_send_json_error('Invalid delete target.');
+		}
 		global $wpdb;
 		$table = $wpdb->prefix . $table_name;
-		$sql = "DELETE FROM $table WHERE $id_col_name = $id";
+		$sql = $wpdb->prepare("DELETE FROM $table WHERE $id_col_name = %d", $id);
 		$is_product_deleted = $wpdb->query($sql);
 		if($is_product_deleted){
 			wp_send_json_success();
@@ -833,6 +1082,7 @@
 
 	// Processing Returns
 	function sm_handle_product_return() {
+	    fbm_require_authenticated_ajax();
 	    global $wpdb;
 	    $product_id = intval($_POST['product_id']);
 	    $quantity = intval($_POST['quantity']);
@@ -877,7 +1127,7 @@
 
 		$table = $wpdb->prefix . 'sms_sales';
 
-		$sql = "SELECT * FROM $table WHERE invoice_id = $invoice_id";
+		$sql = $wpdb->prepare("SELECT * FROM $table WHERE invoice_id = %d", intval($invoice_id));
 
 		$sales = $wpdb->get_results($sql);
 
@@ -894,6 +1144,7 @@
 	}
 
 	function get_invoiced_products() {
+	    fbm_require_authenticated_ajax();
 	    
 	    $invoice_no = intval($_POST['invoice_no']);
 	    if($invoice_no){
@@ -917,7 +1168,7 @@
 
 		$table = $wpdb->prefix . 'sms_invoices';
 
-		$sql = "SELECT invoice_data FROM $table WHERE invoice_no = $invoice_no";
+		$sql = $wpdb->prepare("SELECT invoice_data FROM $table WHERE invoice_no = %d", intval($invoice_no));
 
 		$invoice_data = $wpdb->get_results($sql);
 
@@ -1017,7 +1268,7 @@ function fbm_display_low_stock_products($limit = 5) {
         }
         echo '</ul>';
     } else {
-        echo '<p>All products are well-stocked. ✅</p>';
+        echo '<p>All products are well-stocked.</p>';
     }
 }
 
@@ -1100,6 +1351,7 @@ function fbm_get_product_performance_data() {
 }
 
 function update_product_rate(){
+	fbm_require_authenticated_ajax();
 	global $wpdb;
 	if(!isset($_POST['product_id']) || !isset($_POST['purchase_new_rate']) || !isset($_POST['sale_new_rate'])) {
 	    wp_send_json_error('Missing required fields.');
@@ -1130,7 +1382,7 @@ add_action('wp_ajax_nopriv_update_product_rate', 'update_product_rate');
 function get_manufacturer_name($manufacturer_id){
 	global $wpdb;
 	$table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-	$manufacturer_name = $wpdb->get_var("SELECT manufacturer_name FROM {$table_manufacturers} WHERE manufacturer_id = {$manufacturer_id}");
+	$manufacturer_name = $wpdb->get_var($wpdb->prepare("SELECT manufacturer_name FROM {$table_manufacturers} WHERE manufacturer_id = %d", intval($manufacturer_id)));
 	if($manufacturer_name){
 		return $manufacturer_name;
 	}else{
@@ -1161,7 +1413,7 @@ function delete_entries_older_than_two_years_once_per_day(){
     add_action('admin_notices', function() {
         ?>
         <div class="notice notice-success is-dismissible">
-            <p>✅ Old sales and returns older than 2 years were cleaned up today.</p>
+            <p>Old sales and returns older than 2 years were cleaned up today.</p>
         </div>
         <?php
     });
@@ -1174,6 +1426,7 @@ function delete_entries_older_than_two_years_once_per_day(){
 
 // Ajax for payment history for credit customer on pending payments page
 function fbm_get_due_payments() {
+    fbm_require_authenticated_ajax();
     if (!current_user_can('manage_options')) {
         wp_send_json_error('Permission denied');
     }
@@ -1201,9 +1454,14 @@ function fbm_get_due_payments() {
     );
 
     $total_paid = 0;
+    $due_type = strtolower((string) $due->due_type);
     foreach ($payments as $p) {
         $total_paid += (float)$p->payment_amount;
     }
+
+    $total_label = $due_type === 'purchase' ? 'Total Purchase:' : 'Total Sale:';
+    $paid_label = $due_type === 'purchase' ? 'Total Paid:' : 'Total Received:';
+    $remaining_label = $due_type === 'purchase' ? 'Remaining To Pay:' : 'Remaining:';
 
     ob_start();
     ?>
@@ -1234,15 +1492,15 @@ function fbm_get_due_payments() {
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="3" style="text-align:right"><strong>Total Sale:</strong></th>
+                <th colspan="3" style="text-align:right"><strong><?php echo esc_html($total_label); ?></strong></th>
                 <th><?php echo number_format((float)$due->total_amount, 2); ?></th>
             </tr>
             <tr>
-                <th colspan="3" style="text-align:right"><strong>Total Paid:</strong></th>
+                <th colspan="3" style="text-align:right"><strong><?php echo esc_html($paid_label); ?></strong></th>
                 <th><?php echo number_format($total_paid, 2); ?></th>
             </tr>
             <tr>
-                <th colspan="3" style="text-align:right"><strong>Remaining:</strong></th>
+                <th colspan="3" style="text-align:right"><strong><?php echo esc_html($remaining_label); ?></strong></th>
                 <th><?php echo number_format((float)$due->remaining_amount, 2); ?></th>
             </tr>
         </tfoot>
@@ -1269,7 +1527,7 @@ function getNextInvoice($invoice_container_table){
 	$today_date = date('Y-m-d');
     global $wpdb;
     $table_purchase_invoices = $wpdb->prefix . $invoice_container_table;
-    $sql = "SELECT count(*) FROM $table_purchase_invoices WHERE date = '$today_date'";
+    $sql = $wpdb->prepare("SELECT count(*) FROM $table_purchase_invoices WHERE date = %s", $today_date);
     $todaysNextInvoiceCount = $wpdb->get_var($sql) + 1;
     $invoiceDate = date('Ymd');
     $invoiceNo = $invoiceDate . str_pad($todaysNextInvoiceCount,2,0, STR_PAD_LEFT);
@@ -1283,7 +1541,7 @@ function get_purchase_by_invoice_no($invoice_no){
 
 	$table = $wpdb->prefix . 'sms_purchases';
 
-	$sql = "SELECT * FROM $table WHERE purchase_invoice = '$invoice_no'";
+	$sql = $wpdb->prepare("SELECT * FROM $table WHERE purchase_invoice = %s", sanitize_text_field((string) $invoice_no));
 
 	$purchase = $wpdb->get_row($sql);
 	return $purchase;
@@ -1291,7 +1549,11 @@ function get_purchase_by_invoice_no($invoice_no){
 }
 
 function get_saleman_by_invoice_no($invoice_no){
-	return get_saleman(get_purchase_by_invoice_no($invoice_no)->saleman_id);
+	$purchase = get_purchase_by_invoice_no($invoice_no);
+	if(!$purchase){
+		return false;
+	}
+	return get_saleman($purchase->saleman_id);
 }
 
 
@@ -1330,6 +1592,108 @@ function include_component($component_name, $data = []) {
 	}
 }
 
+add_action('show_user_profile', 'fbm_render_auth_pincode_field');
+add_action('edit_user_profile', 'fbm_render_auth_pincode_field');
+function fbm_render_auth_pincode_field($user){
+	if (!current_user_can('edit_user', $user->ID)) {
+		return;
+	}
+
+	$pincode_hash = get_user_meta($user->ID, 'fbm_auth_pincode_hash', true);
+	$pincode_status = !empty($pincode_hash) ? 'Set' : 'Not set';
+	$pincode_updated_at = get_user_meta($user->ID, 'fbm_auth_pincode_updated_at', true);
+	$pincode_updated_label = '';
+	if (!empty($pincode_updated_at)) {
+		$timestamp = strtotime($pincode_updated_at);
+		if ($timestamp) {
+			$pincode_updated_label = wp_date('M j, Y g:i A', $timestamp);
+		}
+	}
+	?>
+	<h2>Sales Management Authentication</h2>
+	<table class="form-table" role="presentation">
+		<tr>
+			<th><label for="fbm_auth_pincode">Sales Pincode</label></th>
+			<td>
+				<input
+					type="password"
+					name="fbm_auth_pincode"
+					id="fbm_auth_pincode"
+					class="regular-text"
+					autocomplete="new-password"
+					inputmode="numeric"
+						pattern="[0-9]*"
+					/>
+					<p class="description">Enter 4 to 10 digits. This field stays blank after save for security.</p>
+					<p class="description">Leave blank to keep existing pincode. If forgotten, set a new one and save.</p>
+					<p class="description"><strong>Status:</strong> <?php echo esc_html($pincode_status); ?></p>
+					<?php if (!empty($pincode_updated_label)): ?>
+						<p class="description"><strong>Last updated:</strong> <?php echo esc_html($pincode_updated_label); ?></p>
+					<?php endif; ?>
+					<label for="fbm_clear_auth_pincode">
+						<input type="checkbox" name="fbm_clear_auth_pincode" id="fbm_clear_auth_pincode" value="1" />
+						Clear current pincode (disables sales authentication for this user until a new pincode is set)
+					</label>
+				</td>
+			</tr>
+		</table>
+	<?php
+}
+
+add_action('user_profile_update_errors', 'fbm_validate_auth_pincode_field', 10, 3);
+function fbm_validate_auth_pincode_field($errors, $update, $user){
+	if (!isset($_POST['fbm_auth_pincode']) && !isset($_POST['fbm_clear_auth_pincode'])) {
+		return;
+	}
+
+	if (!current_user_can('edit_user', $user->ID)) {
+		return;
+	}
+
+	$should_clear = !empty($_POST['fbm_clear_auth_pincode']);
+	$pincode_raw = isset($_POST['fbm_auth_pincode']) ? trim((string) wp_unslash($_POST['fbm_auth_pincode'])) : '';
+
+	if ($should_clear || $pincode_raw === '') {
+		return;
+	}
+
+	if (!preg_match('/^\d{4,10}$/', $pincode_raw)) {
+		$errors->add('fbm_auth_pincode', __('Sales pincode must be 4 to 10 digits.', 'sales-management'));
+	}
+}
+
+add_action('personal_options_update', 'fbm_save_auth_pincode_field');
+add_action('edit_user_profile_update', 'fbm_save_auth_pincode_field');
+function fbm_save_auth_pincode_field($user_id){
+	if (!current_user_can('edit_user', $user_id)) {
+		return false;
+	}
+
+	$should_clear = !empty($_POST['fbm_clear_auth_pincode']);
+	if ($should_clear) {
+		delete_user_meta($user_id, 'fbm_auth_pincode_hash');
+		delete_user_meta($user_id, 'fbm_auth_pincode_updated_at');
+		return true;
+	}
+
+	if (!isset($_POST['fbm_auth_pincode'])) {
+		return true;
+	}
+
+	$pincode_raw = trim((string) wp_unslash($_POST['fbm_auth_pincode']));
+	if ($pincode_raw === '') {
+		return true;
+	}
+
+	if (!preg_match('/^\d{4,10}$/', $pincode_raw)) {
+		return false;
+	}
+
+	update_user_meta($user_id, 'fbm_auth_pincode_hash', wp_hash_password($pincode_raw));
+	update_user_meta($user_id, 'fbm_auth_pincode_updated_at', current_time('mysql'));
+	return true;
+}
+
 function fbm_verify_user(){
 
     if(!wp_verify_nonce($_POST['nonce'], FBM_PLUGIN_NONCE)){
@@ -1340,21 +1704,46 @@ function fbm_verify_user(){
         wp_send_json_error('User not logged in');
     }
 
-    $current_user = wp_get_current_user();
-    $password = $_POST['password'];
-
-    // Verify password against current logged-in user
-    if(wp_check_password($password, $current_user->user_pass, $current_user->ID)){
-        wp_send_json_success('Password matched.');
+    if(!current_user_can('manage_options')){
+        wp_send_json_error('Permission denied');
     }
 
-    wp_send_json_error('Incorrect password.');
+    $pincode = '';
+    if (isset($_POST['pincode'])) {
+        $pincode = trim((string) wp_unslash($_POST['pincode']));
+    } elseif (isset($_POST['password'])) {
+        // Backward compatibility for older frontend payload
+        $pincode = trim((string) wp_unslash($_POST['password']));
+    }
+
+    if($pincode === ''){
+        wp_send_json_error('Pincode is required');
+    }
+
+    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : get_current_user_id();
+    $user = get_user_by('id', $user_id);
+    if(!$user){
+        wp_send_json_error('Invalid user');
+    }
+
+    $pincode_hash = get_user_meta($user->ID, 'fbm_auth_pincode_hash', true);
+    if(empty($pincode_hash)){
+        wp_send_json_error('Selected salesman pincode is not set. Please set it from user profile.');
+    }
+
+    // Verify pincode against dedicated pincode hash
+    if(wp_check_password($pincode, $pincode_hash, $user->ID)){
+        wp_send_json_success('Pincode matched.');
+    }
+
+    wp_send_json_error('Incorrect pincode.');
 }
 
 function get_purchase_invoice($invoice_no){
 	global $wpdb;
 	$table_invoices = $wpdb->prefix . 'sms_purchase_invoices';
-	$invoice_query = "SELECT * FROM $table_invoices WHERE purchase_invoice = $invoice_no";
+	$invoice_query = $wpdb->prepare("SELECT * FROM $table_invoices WHERE purchase_invoice = %s", sanitize_text_field((string) $invoice_no));
 	$invoice = $wpdb->get_row($invoice_query);
 	return $invoice;
 }
+

@@ -3,54 +3,138 @@
 	$date = date('Y-m-d');
 	global $wpdb;
 	$table = $wpdb->prefix . 'sms_sales';
+	$table_purchases = $wpdb->prefix . 'sms_purchases';
 	$sql = "SELECT * FROM $table ORDER BY sale_id DESC";
 	$sales = $wpdb->get_results($sql);
 	$total_sales = count($sales) ? count($sales) : 0; 
 	$total_sale_amount = 0;
-	$profit = $wpdb->get_var("SELECT SUM(profit) FROM {$table} WHERE date = '{$date}'") ?? 0;
-	$total_sale = $wpdb->get_var("SELECT SUM(net_total) FROM {$table} WHERE date = '{$date}'") ?? 0;
-	echo "Date: " . $date;
+	$table_dues = $wpdb->prefix . 'sms_dues';
+	$table_due_payments = $wpdb->prefix . 'sms_dues_payments';
+
+	$profit = (float) ($wpdb->get_var($wpdb->prepare("SELECT SUM(profit) FROM {$table} WHERE date = %s", $date)) ?? 0);
+	$total_sale = (float) ($wpdb->get_var($wpdb->prepare("SELECT SUM(net_total) FROM {$table} WHERE date = %s", $date)) ?? 0);
+	$total_purchase = (float) ($wpdb->get_var($wpdb->prepare("SELECT SUM(total_payment) FROM {$table_purchases} WHERE date = %s", $date)) ?? 0);
+	$total_discount = (float) ($wpdb->get_var($wpdb->prepare("SELECT SUM(discount) FROM {$table} WHERE date = %s", $date)) ?? 0);
+	$today_cash_sale_received = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(net_total)
+		FROM {$table}
+		WHERE date = %s
+		AND LOWER(TRIM(sale_type)) = %s",
+		$date,
+		'cash sale'
+	)) ?? 0);
+
+	$today_recovery = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(p.payment_amount)
+		FROM {$table_due_payments} p
+		INNER JOIN {$table_dues} d ON d.id = p.due_id
+		WHERE DATE(p.payment_date) = %s
+		AND LOWER(d.due_type) = 'sale'
+		AND (p.note IS NULL OR p.note NOT LIKE %s)",
+		$date,
+		'Initial payment at the time of%'
+	)) ?? 0);
+
+	$today_sale_initial_received = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(p.payment_amount)
+		FROM {$table_due_payments} p
+		INNER JOIN {$table_dues} d ON d.id = p.due_id
+		WHERE DATE(p.payment_date) = %s
+		AND LOWER(d.due_type) = 'sale'
+		AND p.note LIKE %s",
+		$date,
+		'Initial payment at the time of%'
+	)) ?? 0);
+
+	$today_payments_paid = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(p.payment_amount)
+		FROM {$table_due_payments} p
+		INNER JOIN {$table_dues} d ON d.id = p.due_id
+		WHERE DATE(p.payment_date) = %s
+		AND LOWER(d.due_type) = 'purchase'
+		AND (p.note IS NULL OR p.note NOT LIKE %s)",
+		$date,
+		'Initial payment at the time of%'
+	)) ?? 0);
+
+	$today_purchase_initial_paid = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(paid) FROM {$table_purchases} WHERE date = %s",
+		$date
+	)) ?? 0);
+
+	$today_sale_received = $today_cash_sale_received + $today_sale_initial_received;
+	$today_total_purchase_paid = $today_purchase_initial_paid + $today_payments_paid;
+	$total_cash_in_hand = $today_sale_received + $today_recovery - $today_total_purchase_paid;
+	$cash_in_hand_class = $total_cash_in_hand >= 0 ? 'is-positive' : 'is-negative';
 ?>
 <div class="sales-page">
 	<div class="ouer-salesType">
-		<select id="salesType" name="salesType">
-			<option value="">All Sales</option>
-			<option value="Cash Sale">Cash Sales</option>
-			<option value="Credit Sale">Credit Sales</option>
-			<option value="Partially Paid">Partially Paid</option>
-			<!-- <option value="Due Payment">Due Payment Sales</option> -->
-		</select>
-		<label>Shifts
-			<select id="shiftsDropdown" name="shiftsDropdown">
-				<option value="">All Shifts</option>
-				<option value="Morning">Morning</option>
-				<option value="Evening">Evening</option>
-				<option value="Night">Night</option>
+		<div class="sales_controls_wrap">
+			<select id="salesType" name="salesType">
+				<option value="">All Sales</option>
+				<option value="Cash Sale">Cash Sales</option>
+				<option value="Credit Sale">Credit Sales</option>
+				<option value="Partially Paid">Partially Paid</option>
+				<!-- <option value="Due Payment">Due Payment Sales</option> -->
 			</select>
-		</label>
-		<button id="salesCalculatorToggler" type="button">Show All Calculations</button>
-		<div class="search-section">
-			<!-- Search filter -->
-			<?php
-				include_component('search-filter', [
-					'invoice_no' => 'Invoice No.',	
-					'customer_name' => 'Customer Name',	
-				]);
-			?>
-			<!-- End search filter -->
-	    </div>
-		<table class="sales_total_profit_display">
-			<tr>
-				<th>Today's Sale</th>
-				<td class="sales_total_sale_text"><span><?php echo $total_sale; ?></span></td>
-			</tr>
-			<tr>
-				<th>Today's Profit</th>
-				<td class="sales_total_profit_text"><span><?php echo $profit; ?></span></td>
-			</tr>
-			<!-- <h2 class="sales_total_profit_text"><strong>:</strong> </h2>
-			<h2 class="sales_total_sale_text"><strong>Today's Sale:</strong> <span><?php echo $total_sale; ?></span></h2> -->
-		</table>
+			<label>Shifts
+				<select id="shiftsDropdown" name="shiftsDropdown">
+					<option value="">All Shifts</option>
+					<option value="Morning">Morning</option>
+					<option value="Evening">Evening</option>
+					<option value="Night">Night</option>
+				</select>
+			</label>
+			<button id="salesCalculatorToggler" type="button">Show All Calculations</button>
+			<div class="search-section">
+				<!-- Search filter -->
+				<?php
+					include_component('search-filter', [
+						'invoice_no' => 'Invoice No.',
+						'customer_name' => 'Customer Name',
+					]);
+				?>
+				<!-- End search filter -->
+			</div>
+		</div>
+		<div class="sales_overview_panel">
+			<div class="sales_overview_head">
+				<strong>Today's Summary</strong>
+				<span><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($date))); ?></span>
+			</div>
+			<table class="sales_total_profit_display">
+				<tr>
+					<th>Today's Sale</th>
+					<td class="sales_total_sale_text"><span><?php echo esc_html(number_format_i18n($total_sale, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Today's Purchase</th>
+					<td class="sales_total_purchase_text"><span><?php echo esc_html(number_format_i18n($total_purchase, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Today's Profit</th>
+					<td class="sales_total_profit_text"><span><?php echo esc_html(number_format_i18n($profit, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Today's Discount</th>
+					<td class="sales_total_discount_text"><span><?php echo esc_html(number_format_i18n($total_discount, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Today's Recovery</th>
+					<td class="sales_total_recovery_text"><span><?php echo esc_html(number_format_i18n($today_recovery, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Today's Payments (Paid)</th>
+					<td class="sales_total_payments_paid_text"><span><?php echo esc_html(number_format_i18n($today_payments_paid, 2)); ?></span></td>
+				</tr>
+				<tr>
+					<th>Total Cash In Hand</th>
+					<td class="sales_total_cash_in_hand_text <?php echo esc_attr($cash_in_hand_class); ?>"><span><?php echo esc_html(number_format_i18n($total_cash_in_hand, 2)); ?></span></td>
+				</tr>
+			</table>
+			<p class="sales_overview_formula">Cash In Hand = (Cash Sale + Initial Received + Recovery) - (Initial Purchase Paid + Payments Paid)</p>
+			<p class="sales_overview_meta">Today Sale Received: <?php echo esc_html(number_format_i18n($today_sale_received, 2)); ?> | Today Purchase Paid: <?php echo esc_html(number_format_i18n($today_total_purchase_paid, 2)); ?></p>
+		</div>
 	</div>
 	<div class="table-wrap scrollelement">
 		<table class="sale_table">
@@ -106,7 +190,7 @@
 							}
 
 							// Get the due record by sale id
-							$due = fbm_get_due_by_referer_id($sale_id);
+							$due = fbm_get_due_by_referer_id($sale_id, 'sale');
 
 							// Determine shift based on sale time
 							$shift_time = explode(':', (explode(' ', $sale_time)[1]))[0];

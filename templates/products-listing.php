@@ -58,9 +58,11 @@
                     $product_manufacturer_name = sanitize_text_field( $_POST['product_new_manufacturer']);
                     global $wpdb;
                     $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-                    $manufacturer_exists = $wpdb->get_results("SELECT * FROM {$table_manufacturers} WHERE manufacturer_name = '{$product_manufacturer_name}'");
+                    $manufacturer_exists = $wpdb->get_results(
+                        $wpdb->prepare("SELECT * FROM {$table_manufacturers} WHERE manufacturer_name = %s", $product_manufacturer_name)
+                    );
                     if(empty($manufacturer_exists)){
-                        $sql = $wpdb->prepare("INSERT INTO {$table_manufacturers} (manufacturer_name) VALUES (%s)", ["{$product_manufacturer_name}"]);
+                        $sql = $wpdb->prepare("INSERT INTO {$table_manufacturers} (manufacturer_name) VALUES (%s)", $product_manufacturer_name);
                         $wpdb->query($sql);
                         $insert_id = $wpdb->insert_id;
                         if($insert_id){

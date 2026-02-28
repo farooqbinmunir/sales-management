@@ -11,5 +11,9 @@ $row_to_skip = $data['row_to_skip'] ?? '';
         }
         ?>
     </select>
-    <?php include_component('search-field', ['search_column' => key($options) ?? 'pname', 'row_to_skip' => $row_to_skip]); ?>
+    <?php include_component('search-field', [
+        'search_column' => key($options) ?? 'pname', 
+        'row_to_skip' => $row_to_skip
+    ]); 
+    ?>
 </div>

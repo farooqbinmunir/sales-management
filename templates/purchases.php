@@ -334,12 +334,14 @@
 					<th class="sr-Number">#</th>
 
 					<th class="purchase_product_invoice">Purchase Invoice</th>
-					<th class="purchase_product_vendor">Vendor</th>
+						<th class="purchase_product_vendor">Vendor</th>
 
-					<th class="purchase_product_payment">Payment</th>
+						<th class="purchase_product_payment">Payment</th>
+						<th class="purchase_product_paid">Paid</th>
+						<th class="purchase_product_remaining">Remaining</th>
 
-					<th class="purchase_product_payment_status">Payment Status</th>
-					<th class="purchase_product_description">Description</th>
+						<th class="purchase_product_payment_status">Payment Status</th>
+						<th class="purchase_product_description">Description</th>
 
 					<th class="purchase_product_date">Date</th>
 
@@ -371,9 +373,11 @@
 
 						$vendor = $purchase->vendor ? $purchase->vendor : 'N/A';
 
-						$total_payment = $purchase->total_payment;
+							$total_payment = $purchase->total_payment;
+							$paid_payment = $purchase->paid;
+							$remaining_payment = $purchase->due;
 
-						$payment_status = $purchase->payment_status;  
+							$payment_status = $purchase->payment_status;  
 
 						$payment_method = $purchase->payment_method;
 
@@ -388,12 +392,14 @@
 
 							<td><?php echo $j++; ?></td>
 
-							<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
-							<td class="purchase_vendor"><?php echo $vendor; ?></td>
+								<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
+								<td class="purchase_vendor"><?php echo $vendor; ?></td>
 
-							<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
+								<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
+								<td><span>Rs. </span><span data-paid="<?php echo $paid_payment; ?>"><?php echo number_format($paid_payment); ?></span></td>
+								<td><span>Rs. </span><span data-remaining="<?php echo $remaining_payment; ?>"><?php echo number_format($remaining_payment); ?></span></td>
 
-							<td><?php echo $payment_status; ?></td>
+								<td><?php echo $payment_status; ?></td>
 
 							<td><?php echo $description; ?></td>
 
@@ -411,7 +417,7 @@
 
 					<tr>
 
-						<td colspan="7">No purchases/stocks found.</td>
+							<td colspan="10">No purchases/stocks found.</td>
 
 					</tr>                                
 

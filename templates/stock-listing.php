@@ -95,6 +95,9 @@
                             
 
                                 $product = get_product($product_id);
+                                if(!$product){
+                                    continue;
+                                }
                                 $product_name = ucwords(str_replace(['-', '_'], ' ', $product->product_name));
 
                                 $product_purchase_rate = intval($product->product_purchase_price);

@@ -130,7 +130,7 @@
 	    wp_enqueue_script('fbm-select2-js', FBM_PLUGIN_URL . '/assets/js/backend/select2.js', ['chart-js'], '4.1.0');
 
 		// Tailwind CSS
-	    wp_enqueue_script('tailwind-css', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', [''], '4.1.0');
+	    wp_enqueue_script('tailwind-css', 'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', ['jquery'], '4.1.0');
 
 		// Including Fixes js
 		wp_enqueue_script('fbm-fixes-js', FBM_PLUGIN_URL . '/assets/js/backend/fixes.js', ['jquery'], time(), true);

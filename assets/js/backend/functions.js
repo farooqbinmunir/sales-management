@@ -98,7 +98,7 @@ jQuery(document).ready($ => {
             netPrice = totalTbody.find('.net-total').text().trim(),
             salesType = totalTbody.find('#salesType').val().trim(),
             paymentMethod = $('#paymentMethod').val().trim(),
-            salesPerson = $('#printIvoiceBtn').data('user_name'),
+            salesPerson = window.authSalesmanName || $('#printIvoiceBtn').data('user_name'),
 
             paidAmountInput = $(`input#paidAmount`),
             paidAmount = + paidAmountInput.val() ?? 0,
@@ -254,13 +254,12 @@ jQuery(document).ready($ => {
             invoiceData += `<tr>
                                 <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Discount</strong></th>
                                 <td style="padding: 0 20px 0 0; font-weight: 600;">${discount}<td>
-                            </tr>
-                            <tr>
-                                <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Net Price:</strong></th>
-                                <td style="padding: 0 20px 0 0; font-weight: 600;">${netPrice}<td>
-                            </tr>
-                            `;
+                            </tr>`;
         }
+        invoiceData += `<tr>
+                            <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Net Price:</strong></th>
+                            <td style="padding: 0 20px 0 0; font-weight: 600;">${netPrice}<td>
+                        </tr>`;
         invoiceData += `<tr>
                             <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Sale Type</strong></th>
                             <td style="padding: 0 20px 0 0; font-weight: 600;">${salesType}<td>
@@ -273,6 +272,10 @@ jQuery(document).ready($ => {
                             <tr>
                                 <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Due Amount</strong></th>
                                 <td style="padding: 0 20px 0 0; font-weight: 600;">${dueAmount}<td>
+                            </tr>
+                            <tr>
+                                <th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Account Status</strong></th>
+                                <td style="padding: 0 20px 0 0; font-weight: 600;">${dueAmount > 0 ? 'Open' : 'Closed'}<td>
                             </tr>`; 
         }
         
@@ -692,11 +695,118 @@ jQuery(document).ready($ => {
         });
     };
 
+    window.clearFieldValidation = function($field) {
+        if(!$field || !$field.length) return;
+        $field.css('border-color', 'inherit');
+        const $wrapper = $field.closest('.cform_field, .paid-amount');
+        $wrapper.find('.fbm-field-error').remove();
+    };
+
+    window.setFieldValidationError = function($field, message) {
+        if(!$field || !$field.length) return;
+        const msg = message || 'This field is required.';
+        $field.css('border-color', 'red');
+        const $wrapper = $field.closest('.cform_field, .paid-amount');
+        $wrapper.find('.fbm-field-error').remove();
+        $wrapper.append(`<small class="fbm-field-error" style="color:#d63638;display:block;margin-top:4px;">${msg}</small>`);
+    };
+
+    window.preValidateSaleBeforeAuth = function(actionId = 'printIvoiceBtn') {
+        const saleType = $('#grossTotalTable #salesType').val().trim();
+        const isCreditFlow = saleType === 'Credit Sale' || saleType === 'Partially Paid';
+        const $customerPopup = $('#customer_register_area #salesCalculator');
+        let isValid = true;
+        let $firstInvalid = null;
+
+        // Validate selected products and quantities
+        const allQntField = $('tbody.selected_items_container .quantity input');
+        if(!allQntField.length){
+            alert('Please add at least one product before printing.');
+            return false;
+        }
+        allQntField.each(function(){
+            const $field = $(this);
+            if(!$field.val().trim()){
+                isValid = false;
+                $field.addClass('empty_field');
+                if(!$firstInvalid) $firstInvalid = $field;
+            }else{
+                $field.removeClass('empty_field');
+            }
+        });
+
+        // For credit/partial sales, validate required fields
+        if(isCreditFlow){
+            const $cNameInput = $('#customer-name-credit');
+            const $cPhoneInput = $('#customer-phone');
+
+            window.clearFieldValidation($cNameInput);
+            window.clearFieldValidation($cPhoneInput);
+
+            if(!$cNameInput.val().trim()){
+                window.setFieldValidationError($cNameInput, 'Customer name is required.');
+                isValid = false;
+                if(!$firstInvalid) $firstInvalid = $cNameInput;
+            }else{
+                $cNameInput.css('border-color', 'green');
+            }
+
+            if(!$cPhoneInput.val().trim()){
+                window.setFieldValidationError($cPhoneInput, 'Customer phone is required.');
+                isValid = false;
+                if(!$firstInvalid) $firstInvalid = $cPhoneInput;
+            }else{
+                $cPhoneInput.css('border-color', 'green');
+            }
+        }
+
+        // For partial sales validate paid amount
+        const $paidAmount = $('#paidAmount');
+        window.clearFieldValidation($paidAmount);
+        if(saleType === 'Partially Paid'){
+            const paid = parseFloat($paidAmount.val()) || 0;
+            const netTotal = parseFloat($('.net-total').text()) || 0;
+            if(paid <= 0){
+                window.setFieldValidationError($paidAmount, 'Paid amount must be greater than 0.');
+                isValid = false;
+                if(!$firstInvalid) $firstInvalid = $paidAmount;
+            }else if(paid > netTotal){
+                window.setFieldValidationError($paidAmount, 'Paid amount cannot exceed net total.');
+                isValid = false;
+                if(!$firstInvalid) $firstInvalid = $paidAmount;
+            }else{
+                $paidAmount.css('border-color', 'green');
+            }
+        }
+
+        // Print Bill also needs customer data validation for credit/partial flow
+        if(actionId === 'printBillBtn' && isCreditFlow && !isValid){
+            // Keep popup open with field errors
+        }
+
+        if(isCreditFlow && !isValid && !$customerPopup.is(':visible')){
+            window.fbmOpenCustomerPopup();
+        }
+
+        if(!isValid){
+            if($firstInvalid && $firstInvalid.length){
+                $firstInvalid.trigger('focus');
+            }
+            return false;
+        }
+
+        return true;
+    };
+
 
     window.doSaveSaleAndPrintBill = function () {	
-		const allQntField = document.querySelectorAll('tbody.selected_items_container .quantity input');
-		let allFilled = true;
-		allQntField.forEach((v, i, a) => {
+            if(typeof window.preValidateSaleBeforeAuth === 'function' && !window.preValidateSaleBeforeAuth('printIvoiceBtn')){
+                return;
+            }
+
+			const allQntField = document.querySelectorAll('tbody.selected_items_container .quantity input');
+			let allFilled = true;
+			allQntField.forEach((v, i, a) => {
 			if (!v.value.trim()) {
 				allFilled = false;
 				v.classList.add('empty_field');
@@ -757,21 +867,20 @@ jQuery(document).ready($ => {
 			// console.log('Customer Data:', customerData);
 			// return;
 
-			let grossTable = $('#grossTotalTable'),
-				salesPerson = currentUser;
-			
-			// Get all required values
-			let invoice_no = Number($('#sale_invoice').val()),
-				grossTotalVal = Number(grossTable.find('.gross-total').text().trim()),
-				discount = Number(grossTable.find('#discount').val()),
-				grossNetTotalVal = Number(grossTable.find('.net-total').text().trim()),
-				paymentMethod = grossTable.find('#paymentMethod').val(),
-				quantity = 0,
-				salesManId = $(this).data('user_id'),
-				salesManName = $(this).data('user_name'),
-				profit = 0,
+				let grossTable = $('#grossTotalTable');
+				
+				// Get all required values
+				let invoice_no = Number($('#sale_invoice').val()),
+					grossTotalVal = Number(grossTable.find('.gross-total').text().trim()),
+					discount = Number(grossTable.find('#discount').val()),
+					grossNetTotalVal = Number(grossTable.find('.net-total').text().trim()),
+					paymentMethod = grossTable.find('#paymentMethod').val(),
+					quantity = 0,
+					salesManId = Number(window.authSalesmanId) || Number($('#printIvoiceBtn').data('user_id')) || 0,
+					salesManName = window.authSalesmanName || $('#printIvoiceBtn').data('user_name') || currentUser,
+					profit = 0,
 
-				paidAmount = 0,
+					paidAmount = 0,
 				dueAmount = 0;
 
 			if(saleType == 'Cash Sale'){
@@ -855,14 +964,14 @@ jQuery(document).ready($ => {
 					// Sale has been saved successfully in the database, now Print the Invoice
 					// window.isPrintAuthenticated = true;
 
-					// $('#printAuthPopup').fadeOut(function(){
-					// 	printBill();
-					// });
-					if(!window.isPrintAuthenticated){
-						$('#printAuthPopup').fadeIn();
-						return;
-					}else{
-						printBill();
+						// $('#printAuthPopup').fadeOut(function(){
+						// 	printBill();
+						// });
+						if(!window.isPrintAuthenticated){
+							$('#printAuthOverlay').fadeIn();
+							return;
+						}else{
+							printBill();
 					}
 
 				} else {

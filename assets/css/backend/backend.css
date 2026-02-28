@@ -870,10 +870,175 @@ button.view-detail-btn {
 	white-space: nowrap;
 }
 .ouer-salesType {
+	--sales-panel-border: #d0ddea;
+	--sales-panel-bg: #f5f9ff;
 	margin-bottom: 17px;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+	gap: 16px;
+	align-items: start;
+}
+.sales_controls_wrap {
+	background: linear-gradient(135deg, var(--sales-panel-bg) 0%, #edf4fb 100%);
+	border: 1px solid var(--sales-panel-border);
+	border-radius: 10px;
+	padding: 14px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(140px, 1fr));
+	gap: 10px 12px;
+}
+.sales_controls_wrap label {
+	color: #1d2327;
+	font-weight: 600;
+}
+.sales_controls_wrap select,
+.sales_controls_wrap button {
+	width: 100%;
+}
+.sales_controls_wrap button#salesCalculatorToggler {
+	background: #1d2327;
+	color: #fff;
+	border: 1px solid #1d2327;
+	border-radius: 6px;
+	padding: 6px 10px;
+	cursor: pointer;
+}
+.sales_controls_wrap .search-section {
+	grid-column: 1 / -1;
+}
+.sales_overview_panel {
+	background: linear-gradient(160deg, #ffffff 0%, #f7fbff 100%);
+	border: 1px solid var(--sales-panel-border);
+	border-radius: 10px;
+	padding: 12px;
+	box-shadow: 0 6px 18px -16px rgba(0, 0, 0, 0.6);
+}
+.sales_overview_head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	gap: 12px;
+	padding: 0 2px 8px;
+	margin-bottom: 4px;
+	border-bottom: 1px dashed #d0ddea;
+	color: #1d2327;
+}
+.sales_overview_head strong {
+	font-size: 14px;
+}
+.sales_overview_head span {
+	font-size: 12px;
+	color: #3c434a;
+	background: #eef4fb;
+	border: 1px solid #d0ddea;
+	border-radius: 999px;
+	padding: 2px 8px;
+}
+.sales_total_profit_display {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 8px;
+}
+.sales_total_profit_display tr {
+	background: #ffffff;
+}
+.sales_total_profit_display th,
+.sales_total_profit_display td {
+	padding: 8px 10px;
+	border: 1px solid #e3ebf3 !important;
+	background: #fff;
+}
+.sales_total_profit_display th {
+	border-top-left-radius: 8px;
+	border-bottom-left-radius: 8px;
+	text-align: left;
+	font-size: 12px;
+	font-weight: 600;
+	color: #3c434a;
+}
+.sales_total_profit_display td {
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	text-align: right;
+}
+.sales_total_profit_display td span {
+	display: inline-block;
+	min-width: 110px;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.2;
+	padding: 4px 10px;
+	border-radius: 999px;
+}
+.sales_total_sale_text span {
+	background: #e8f7ef;
+	color: #0f5132;
+}
+.sales_total_purchase_text span {
+	background: #e8f2ff;
+	color: #0b4f9c;
+}
+.sales_total_profit_text span {
+	background: #e7f8f2;
+	color: #116149;
+}
+.sales_total_discount_text span {
+	background: #fff4e5;
+	color: #b45309;
+}
+.sales_total_recovery_text span {
+	background: #e6f7ff;
+	color: #075985;
+}
+.sales_total_payments_paid_text span {
+	background: #ffecec;
+	color: #9f1239;
+}
+.sales_total_cash_in_hand_text span {
+	background: #e9fce8;
+	color: #166534;
+}
+.sales_total_cash_in_hand_text.is-negative span {
+	background: #ffe5e5;
+	color: #991b1b;
+}
+.sales_overview_formula {
+	margin: 4px 2px 0;
+	font-size: 11px;
+	line-height: 1.4;
+	color: #3c434a;
+}
+.sales_overview_meta {
+	margin: 2px 2px 0;
+	font-size: 11px;
+	line-height: 1.4;
+	color: #5a6570;
+}
+@media (max-width: 1200px) {
+	.ouer-salesType {
+		grid-template-columns: 1fr;
+	}
+}
+@media (max-width: 782px) {
+	.sales_controls_wrap {
+		grid-template-columns: repeat(2, minmax(130px, 1fr));
+	}
+}
+@media (max-width: 580px) {
+	.sales_controls_wrap {
+		grid-template-columns: 1fr;
+	}
+	.sales_overview_head {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	.sales_total_profit_display th,
+	.sales_total_profit_display td {
+		padding: 7px 8px;
+	}
+	.sales_total_profit_display td span {
+		min-width: auto;
+	}
 }
 .amount-cell {
 	background: #f7f7f7;
@@ -935,6 +1100,21 @@ table.addNewPurchaseFormTable textarea,
 }
 table.purchases_listing th, table.purchases_listing td {
     padding: 15px !important;
+}
+.customers_heading {
+	align-items: flex-end;
+}
+table.customers_listing th,
+table.customers_listing td {
+	padding: 12px 10px !important;
+}
+table.customers_listing td.invoice_no a {
+	display: inline-block;
+	min-width: 48px;
+	text-align: center;
+	color: #0b4f9c !important;
+	text-decoration: none;
+	font-weight: 600;
 }
 
 a.purchae_view_detail_btn {

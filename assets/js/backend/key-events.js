@@ -83,7 +83,7 @@ jQuery(document).ready(function($) {
         }
     });
 
-    $(document).on('keydown', '#auth_password', function(e){
+    $(document).on('keydown', '#auth_pincode', function(e){
         if(e.key === 'Enter'){
             e.preventDefault();
             e.stopPropagation();

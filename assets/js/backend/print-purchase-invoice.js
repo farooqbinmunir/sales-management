@@ -3,16 +3,31 @@ jQuery(document).ready($ => {
 	// Print the invoice on invoice details page
 	$(document).on('click', '#purchaseInvoicePrintBtn', function (e) {
 		e.preventDefault();
+		const parseMoney = (value) => {
+			const normalized = String(value || '').replace(/,/g, '').trim();
+			const amount = parseFloat(normalized);
+			return Number.isFinite(amount) ? amount : 0;
+		};
 		// Store old body markup/html to restore later as per need
 		let oldBody = $('body').html();
 
 		
-		let invoiceNo = $('#inv_invoice_no').text();
+		let invoiceNo = $('#inv_invoice_no').text().trim();
+		let vendorName = $('#inv_vendor_name').text().trim();
 		let totalPayment = $('#inv_total_payment').text();
-		let duePayment = +$('#inv_due_payment').text();
-		let paymentStatus = $('#inv_payment_status').text();
+		let duePayment = parseMoney($('#inv_due_payment').text());
+		let paidAmount = parseMoney($('#inv_paid_amount').text());
+		let paymentStatus = $('#inv_payment_status').text().trim();
 		let paymentMethod = $('#inv_payment_method').text();
-		let saleman = $('#inv_saleman').text();
+		let accountStatus = $('#inv_account_status').text().trim();
+		let saleman = $('#inv_saleman').text().trim();
+
+		if(!accountStatus){
+			accountStatus = duePayment > 0 ? 'Open' : 'Closed';
+		}
+		if(!paymentStatus){
+			paymentStatus = duePayment > 0 ? 'Partially Paid' : 'Paid';
+		}
 
 
 		const invoiceTable = $('#inv_products'),
@@ -21,14 +36,13 @@ jQuery(document).ready($ => {
 			purchaseInvoiceRowsValues = [];
 
 
-		invoiceTableRows.each((i, row) => {
-			const invoiceItem = {
-				product: $(row).find('.inv_product_name').text().trim(),
-				manufacturer: $(row).find('.inv_product_manufacturer').text().trim(),
-				vendor: $(row).find('.inv_product_vendor').text().trim(),
-				rate: $(row).find('.inv_product_unit_price').text().trim(),
-				quantity: $(row).find('.inv_product_quantity').text().trim(),
-				amount: $(row).find('.inv_product_amount').text().trim()
+			invoiceTableRows.each((i, row) => {
+				const invoiceItem = {
+					product: $(row).find('.inv_product_name').text().trim(),
+					manufacturer: $(row).find('.inv_product_manufacturer').text().trim(),
+					rate: $(row).find('.inv_product_unit_price').text().trim(),
+					quantity: $(row).find('.inv_product_quantity').text().trim(),
+					amount: $(row).find('.inv_product_amount').text().trim()
 			};
 			purchaseInvoiceRowsValues.push(invoiceItem);
 		});
@@ -74,13 +88,17 @@ jQuery(document).ready($ => {
 									<th style="padding: 0 20px 0 0; font-weight: 900;"><strong>Invoice No</strong></th>
 									<td style="padding: 0 20px 0 0; font-weight: 600; margin: 0;">${invoiceNo}<td>
 								</tr>
-								<tr>
-									<th style="padding: 0 20px 0 0; font-weight: 900;"><strong>Sale Man</strong></th>
-									<td style="padding: 0 20px 0 0; font-weight: 600; margin: 0;">${saleman}<td>
-								</tr>
-								<tr>
-									<th style="padding: 0 20px 0 0; font-weight: 900; margin: 0;"><strong>Invoice Type</strong></th>
-									<td style="padding: 0 20px 0 0; font-weight: 600;">Purchase Invoice<td>
+									<tr>
+										<th style="padding: 0 20px 0 0; font-weight: 900;"><strong>Sale Man</strong></th>
+										<td style="padding: 0 20px 0 0; font-weight: 600; margin: 0;">${saleman}<td>
+									</tr>
+									<tr>
+										<th style="padding: 0 20px 0 0; font-weight: 900;"><strong>Vendor</strong></th>
+										<td style="padding: 0 20px 0 0; font-weight: 600; margin: 0;">${vendorName || 'N/A'}<td>
+									</tr>
+									<tr>
+										<th style="padding: 0 20px 0 0; font-weight: 900; margin: 0;"><strong>Invoice Type</strong></th>
+										<td style="padding: 0 20px 0 0; font-weight: 600;">Purchase Invoice<td>
 								</tr>
 							</tbody>
 						</table>
@@ -88,24 +106,22 @@ jQuery(document).ready($ => {
 					<div style="padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid black;">
 						<table style="table-layout: fixed;">
 							<thead>
-								<tr>
-									<th style="padding: 0 20px 5px 0;font-weight: 900; margin: 0; width:100px;"><strong>Items</strong></th>
-									<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Manufacturer</strong></th>
-									<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Vendor</strong></th>
-									<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Rate</strong></th>
-									<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Qty</strong></th>
-									<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Amount</strong></th>
+									<tr>
+										<th style="padding: 0 20px 5px 0;font-weight: 900; margin: 0; width:100px;"><strong>Items</strong></th>
+										<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Manufacturer</strong></th>
+										<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Rate</strong></th>
+										<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Qty</strong></th>
+										<th style="padding: 0 20px 5px 0;font-weight: 900;"><strong>Amount</strong></th>
 								</tr>
 							</thead>
 							<tbody>`;
-		$.each(purchaseInvoiceRowsValues, (i, item) => {
-			purchaseInvoiceData += `<tr>
-								<td style="font-weight: 600; min-width:120px;">${item.product}</td>
-								<td style="font-weight: 600;">${item.manufacturer}</td>
-								<td style="font-weight: 600;">${item.vendor}</td>
-								<td style="font-weight: 600;">${item.rate}</td>
-								<td style="font-weight: 600;">${item.quantity}</td>
-								<td style="font-weight: 600;">${item.amount}</td>
+			$.each(purchaseInvoiceRowsValues, (i, item) => {
+				purchaseInvoiceData += `<tr>
+									<td style="font-weight: 600; min-width:120px;">${item.product}</td>
+									<td style="font-weight: 600;">${item.manufacturer}</td>
+									<td style="font-weight: 600;">${item.rate}</td>
+									<td style="font-weight: 600;">${item.quantity}</td>
+									<td style="font-weight: 600;">${item.amount}</td>
 							</tr>`;
 		});
 		purchaseInvoiceData += `</tbody>
@@ -121,6 +137,10 @@ jQuery(document).ready($ => {
 								<tr>
 									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Total Payment</strong></th>
 									<td style="padding: 0 20px 0 0; font-weight: 600;">${totalPayment}<td>
+								</tr>
+								<tr>
+									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Paid Amount</strong></th>
+									<td style="padding: 0 20px 0 0; font-weight: 600;">${paidAmount.toFixed(2)}<td>
 								</tr>`;
 			if(paidPayments.length){
 				purchaseInvoiceData += `<tr>
@@ -138,22 +158,28 @@ jQuery(document).ready($ => {
 	                        purchaseInvoiceData += `</tbody>
 	                                    </table>`;
 					purchaseInvoiceData += `<td>
-								</tr>
-								<tr>
-									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Remaining Amount</strong></th>
-									<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment}<td>
-								</tr>
-								<tr>
-									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Account Status</strong></th>
-									<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment == 0 ? 'Closed' : 'Open'}<td>
+								</tr>`;
+			}
+			if(!paidPayments.length){
+				purchaseInvoiceData += `<tr>
+									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Paid Payments:</strong></th>
+									<td style="padding: 0 20px 0 0; font-weight: 600;">0<td>
 								</tr>`;
 			}
 
 		purchaseInvoiceData += `<tr>
+									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Remaining Amount</strong></th>
+									<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment.toFixed(2)}<td>
+								</tr>
+								<tr>
+									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Account Status</strong></th>
+									<td style="padding: 0 20px 0 0; font-weight: 600;">${accountStatus}<td>
+								</tr>
+								<tr>
 									<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Payment Status</strong></th>
-									<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment == 0 ? "Paid" : paymentStatus}<td>
+									<td style="padding: 0 20px 0 0; font-weight: 600;">${paymentStatus}<td>
 								</tr>`;
-		if(paymentStatus.toLowerCase() != 'unpaid'){
+		if(paymentStatus.toLowerCase() != 'unpaid' && paymentMethod.trim()){
 			purchaseInvoiceData += `<tr>
 										<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Payment Method</strong></th>
 										<td style="padding: 0 20px 0 0; font-weight: 600; margin: 0;">${paymentMethod}<td>

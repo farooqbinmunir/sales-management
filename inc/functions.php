@@ -33,6 +33,10 @@
 		FBM_PLUGIN_URL . '/components/popup-auth/popup-auth.css', 
 		'', time());
 
+		wp_enqueue_style('software-ui-css', 
+		FBM_PLUGIN_URL . '/assets/css/backend/software-ui.css', 
+		'', time());
+
 			
 		wp_enqueue_style('bootstrap-css', 
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', 

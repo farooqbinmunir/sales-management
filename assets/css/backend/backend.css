@@ -389,7 +389,7 @@ button.save-btn {
 	padding: 0 50px 30px;
 	margin-bottom: 50px;
 }
-#add_user,
+/* #add_user,
 #add_stock,
 #add_new_product,
 #addNewPurchaseFormRow,
@@ -397,7 +397,7 @@ button.save-btn {
     background: #fff;
     color: #000;
     border-radius: 5px !important;
-}
+} */
 .closeUserForm,
 .close_quick_edit_popup {
     border: 2px solid;

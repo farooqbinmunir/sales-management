@@ -4,6 +4,7 @@
 	global $wpdb;
 	$table = $wpdb->prefix . 'sms_sales';
 	$table_purchases = $wpdb->prefix . 'sms_purchases';
+	$table_returns = $wpdb->prefix . 'sms_sales_returns';
 	$sql = "SELECT * FROM $table ORDER BY sale_id DESC";
 	$sales = $wpdb->get_results($sql);
 	$total_sales = count($sales) ? count($sales) : 0; 
@@ -62,9 +63,14 @@
 		$date
 	)) ?? 0);
 
+	$today_returns = (float) ($wpdb->get_var($wpdb->prepare(
+		"SELECT SUM(amount) FROM {$table_returns} WHERE DATE(return_date) = %s",
+		$date
+	)) ?? 0);
+
 	$today_sale_received = $today_cash_sale_received + $today_sale_initial_received;
 	$today_total_purchase_paid = $today_purchase_initial_paid + $today_payments_paid;
-	$total_cash_in_hand = $today_sale_received + $today_recovery - $today_total_purchase_paid;
+	$total_cash_in_hand = $today_sale_received + $today_recovery - $today_total_purchase_paid - $today_returns;
 	$cash_in_hand_class = $total_cash_in_hand >= 0 ? 'is-positive' : 'is-negative';
 ?>
 <div class="sales-page">
@@ -128,12 +134,16 @@
 					<td class="sales_total_payments_paid_text"><span><?php echo esc_html(number_format_i18n($today_payments_paid, 2)); ?></span></td>
 				</tr>
 				<tr>
+					<th>Today's Returns</th>
+					<td class="sales_total_returns_text"><span><?php echo esc_html(number_format_i18n($today_returns, 2)); ?></span></td>
+				</tr>
+				<tr>
 					<th>Total Cash In Hand</th>
 					<td class="sales_total_cash_in_hand_text <?php echo esc_attr($cash_in_hand_class); ?>"><span><?php echo esc_html(number_format_i18n($total_cash_in_hand, 2)); ?></span></td>
 				</tr>
 			</table>
-			<p class="sales_overview_formula">Cash In Hand = (Cash Sale + Initial Received + Recovery) - (Initial Purchase Paid + Payments Paid)</p>
-			<p class="sales_overview_meta">Today Sale Received: <?php echo esc_html(number_format_i18n($today_sale_received, 2)); ?> | Today Purchase Paid: <?php echo esc_html(number_format_i18n($today_total_purchase_paid, 2)); ?></p>
+			<p class="sales_overview_formula">Cash In Hand = (Cash Sale + Initial Received + Recovery) - (Initial Purchase Paid + Payments Paid + Returns)</p>
+			<p class="sales_overview_meta">Today Sale Received: <?php echo esc_html(number_format_i18n($today_sale_received, 2)); ?> | Today Purchase Paid: <?php echo esc_html(number_format_i18n($today_total_purchase_paid, 2)); ?> | Today Returns: <?php echo esc_html(number_format_i18n($today_returns, 2)); ?></p>
 		</div>
 	</div>
 	<div class="table-wrap scrollelement">

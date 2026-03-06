@@ -994,6 +994,10 @@ button.view-detail-btn {
 	background: #ffecec;
 	color: #9f1239;
 }
+.sales_total_returns_text span {
+	background: #fff1f2;
+	color: #b42318;
+}
 .sales_total_cash_in_hand_text span {
 	background: #e9fce8;
 	color: #166534;

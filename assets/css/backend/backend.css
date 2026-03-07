@@ -22,7 +22,9 @@
 .selected-total-table {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: end;
+    margin-bottom: 10px;
+
 }
 
 .date-section,
@@ -42,15 +44,17 @@
     margin: 0;
 }
 
-.sale-invoice-wrap,
+
 .check-item-wrap {
     display: flex;
     gap: 10px;
 }
 
 .sale-invoice-wrap h5 {
-    margin: 6px 0 0;
+    margin: 0 0 6px;
     line-height: 100%;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .heading-search {
@@ -126,10 +130,6 @@ button#purchases_reset_btn {
     width: 150px !important;
 }
 
-#grossTotalTable input{
-    width: 149px !important;
-}
-
 .table-wrap thead tr:nth-child(odd) {
     background-color: #f7f7f7;
 }
@@ -160,19 +160,21 @@ td.edit {
     padding: 0;
 }
 
-td.edit button{
-    width: 100%;
-    text-align: left;
-    line-height: 28px;
-    border-width: 0px;
+td.edit button {
+	width: 100%;
+	text-align: left;
+	line-height: 28px;
+	border-width: 0px;
+	display: flex;
+	justify-content: space-evenly;
 }
 
 td.edit button sapn {
     font-size: 25px !important;
-    line-height: 40%;
+    /* line-height: 40%;
     position: relative;
     top: 4px;
-    left: 53px;
+    left: 53px; */
 }
 
 .edit span {
@@ -225,6 +227,7 @@ th.item-type,
     display: none;
     position: absolute;
     inset: 0;
+    overflow-y: scroll;
 }
 
 .selected-total-table-inner {
@@ -256,8 +259,28 @@ tbody:not(.purchase-tbody) .focused:hover *{
 .table-wrap table tbody tr:hover{
     background-color: black !important;
 }
-.table-wrap table tbody tr:hover *:not(input, select, option){
+.table-wrap table tbody tr:hover *:not(input, select, option, button, th, span){
     color: white !important;
+}
+
+#fbm_ui #products_table_listing_rows .focused:hover td span{
+    color: white !important;
+}
+
+html #fbm_ui .edit_product_btn {
+	background: transparent !important;
+	color: #000 !important;
+	border: 0 !important;
+}
+
+#fbm_ui .zero_stock_alert.focused span {
+	background: transparent !important;
+}   
+
+.product_manufacturers {
+	border-top: 1px solid;
+	margin: 10px 0;
+	padding-top: 10px;
 }
 
 .edit_product_btn,
@@ -419,7 +442,17 @@ button.save-btn {
 }
 .add-new {
     border-radius: 4px;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+}
+#salesCalculatorToggler {
+	font-size: 14px;
+	line-height: inherit;
+}
+.sales_controls_wrap * {
+	height: fit-content;
+}
+#addNewPurchaseFormRow {
+	margin-top: 10px;
 }
 #sale_invoice {
     text-align: center;
@@ -436,7 +469,7 @@ button.save-btn {
     font-size: 14px;
     display: none;
     line-height: 100%;
-    padding: 5px 10px 7px;
+    padding: 13px;
     background: #000;
     color: #fff;
 }
@@ -542,15 +575,33 @@ button.view-detail-btn {
     display: table-row;
 }
 /* Returns page */
-#returnForm .return_form_field_group {
+/* #returnForm .return_form_field_group {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     margin-bottom: 20px;
-}
+} */
 #returnForm .return_form_field_group * {
     width: 100% !important;
     display: block;
     max-width: 100% !important;
+}
+.inventory-system_page_stock .heading-search {
+	margin-bottom: 10px;
+}
+#page-pending_payments {
+	overflow: hidden;
+}
+#pendingPaymentsFilterArea {
+	margin-bottom: 10px;
+}
+#page-pending_payments #searchFilter {
+	width: 100%;
+}
+.button.button-primary {
+	width: 100%;
+}
+#returnForm .return_form_field_group label {
+	margin-bottom: 10px;
 }
 .close-selected-table{
     display: none !important;
@@ -878,6 +929,9 @@ button.view-detail-btn {
 	gap: 16px;
 	align-items: start;
 }
+#fbm_ui .wp-list-table.widefat.fixed.striped.table-view-list.posts {
+	position: static;
+}
 .sales_controls_wrap {
 	background: linear-gradient(135deg, var(--sales-panel-bg) 0%, #edf4fb 100%);
 	border: 1px solid var(--sales-panel-border);
@@ -886,6 +940,16 @@ button.view-detail-btn {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(140px, 1fr));
 	gap: 10px 12px;
+    align-items: end;
+}
+#searchFilter div {
+	white-space: nowrap;
+}
+#returns_listing {
+	padding: 5px 15px 15px;
+}
+#returns_listing #searchFilter {
+	width: 100%;
 }
 .sales_controls_wrap label {
 	color: #1d2327;
@@ -1208,14 +1272,67 @@ form#creditCustomerForm textarea {
     width: 100%;
 }
 
+/* new css */
 
+input,
+.wp-core-ui select {
+	line-height: inherit !important;
+}
+#fbm_ui #searchFilter {
+	margin: 12px 0;
+}
+#fbm_ui .table-wrap table tbody tr.focused td {
+	background: #111f3a !important;
+}
+.product-table-heading {
+	margin-bottom: 10px !important;
+}
+.selected_items_container input,
+.selected_items_container select,
+#grossTotalTable input,
+#grossTotalTable select{
+	width: 100%;
+	border-radius: 0 !important;
+}
+#fbm_ui .low_stock_warning span {
+	background: transparent !important;
+}
+.wp-list-table.widefat.fixed.striped.table-view-list.users {
+	position: static;
+}
+.sales_controls_wrap #searchFilter {
+	width: 100%;
+}
+.table-wrap table {
+	position: relative;
+}
+.table-wrap thead {
+	position: sticky;
+	top: 0;
+}
+.rate_modifying label {
+	color: #fff !important;
+}
+#fbm_ui .btnUpdateRate {
+	background: green !important;
+	width: 100%;
+	margin: 10px 0;
+}
+#fbm_ui .btnCancelUpdateRate,
+#addNewPurchaseFormRow {
+	width: 100%;
+}
+#fbm_ui .table-wrap table tbody tr.focused:hover span {
+	color: #ffffff !important;
+}
 
-
-
-
-
-
-
+/* #adminmenu > li:not(.toplevel_page_inventory-system, .menu-icon-users, .toplevel_page_ai1wm_export, #collapse-menu),
+#wpfooter{
+    display: none;
+}
+body:has(#fbm_ui){
+    overflow: hidden;
+} */
 
 
 

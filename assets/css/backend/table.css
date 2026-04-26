@@ -1,0 +1,12 @@
+.table-wrap {
+    thead {
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid #dee2e6;
+        }
+    }
+}

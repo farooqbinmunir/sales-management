@@ -44,20 +44,26 @@
                         <?php
                         if(isset($_POST['submitCreditCustomerForm'])){
                             $customer_name = sanitize_text_field($_POST['customer-name']);
-                            $customer_phone = sanitize_text_field($_POST['customer-phone']);
+                            $customer_phone = fbm_normalize_phone(sanitize_text_field($_POST['customer-phone']));
                             $customer_email = sanitize_text_field($_POST['customer-email']);
                             $customer_address = sanitize_text_field($_POST['customer-address']);
                             
                             global $wpdb;
                             $table_customers = $wpdb->prefix . 'sms_customers';
-                            $customer_sql = $wpdb->prepare("INSERT INTO {$table_customers} (name, phone, email, address) VALUES(%s, %s, %s, %s)", $customer_name, $customer_phone, $customer_email, $customer_address);
-                            $customer_registered = $wpdb->query($customer_sql);
-                            if($customer_registered): ?>
-                                <p class="notice notice-success">Customer registered successfully.</p>
+                            $existing_customer = fbm_find_customer_by_phone($customer_phone);
+                            if($existing_customer): ?>
+                                <p class="notice notice-info">Customer already exists. Existing record was reused.</p>
                             <?php
-                            else: ?>
-                                <p class="notice notice-error">Failed to register customer, please reoload and try again.</p>
-                            <?php
+                            else:
+                                $customer_sql = $wpdb->prepare("INSERT INTO {$table_customers} (name, phone, email, address) VALUES(%s, %s, %s, %s)", $customer_name, $customer_phone, $customer_email, $customer_address);
+                                $customer_registered = $wpdb->query($customer_sql);
+                                if($customer_registered): ?>
+                                    <p class="notice notice-success">Customer registered successfully.</p>
+                                <?php
+                                else: ?>
+                                    <p class="notice notice-error">Failed to register customer, please reoload and try again.</p>
+                                <?php
+                                endif;
                             endif;
                         }
                         ?>

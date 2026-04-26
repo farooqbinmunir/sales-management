@@ -4,17 +4,33 @@ jQuery(document).ready($ => {
 	$(document).on('click', '#invoicePrintBtn', printSaleInvoice);
 	function printSaleInvoice(e) {
 		e.preventDefault();
+		const parseMoney = (value) => {
+			const normalized = String(value || '').replace(/,/g, '').trim();
+			const amount = parseFloat(normalized);
+			return Number.isFinite(amount) ? amount : 0;
+		};
 		let oldBody = $('body').html();
 		let customerName = $('#inv_customer_name').text().toUpperCase();
-		let invoiceNo = $('#inv_invoice_no').text();
+		let invoiceNo = $('#inv_invoice_no').text().trim();
 		let grossPrice = $('#inv_gross_total').text();
-		let discount = $('#inv_discount').text();
+		let discountText = $('#inv_discount').text();
+		let discount = parseMoney(discountText);
 		let netPrice = $('#inv_net_total').text();
-		let salesType = $('#inv_sale_type').text();
+		let salesType = $('#inv_sale_type').text().trim();
 		let paymentMethod = $('#inv_payment_method').text();
+		let paymentStatus = $('#inv_payment_status').text().trim();
+		let accountStatus = $('#inv_account_status').text().trim();
+		let salesPerson = $('#inv_sales_person').text().trim();
 
-		let paidAmount = +$(`#inv_paid_amount`).text().trim(),
-			duePayment = +$(`#inv_due_payment`).text().trim();
+		let paidAmount = parseMoney($(`#inv_paid_amount`).text()),
+			duePayment = parseMoney($(`#inv_due_payment`).text());
+
+		if(!accountStatus){
+			accountStatus = duePayment > 0 ? 'Open' : 'Closed';
+		}
+		if(!paymentStatus){
+			paymentStatus = duePayment > 0 ? 'Partially Paid' : 'Paid';
+		}
 
 
 
@@ -83,6 +99,7 @@ jQuery(document).ready($ => {
 						<h1 style="font-size: 20px; text-transform: uppercase;"><strong>Shahzad shopping Center</strong></h1>
 						<h3 style="font-size: 16px;"><strong>Address: </strong><em>Nadirabad, Bedian road, Lahore</em></h3>
 						<h3 style="font-size: 16px; margin-bottom: 0;"><strong>Phone: </strong><em style="font-weight: 600;">+92 305 4144952</em></h3>
+						<h3 style="font-size: 16px; margin-bottom: 0;"><strong>Sales Person: </strong><em style="font-weight: 600;">${salesPerson || 'N/A'}</em></h3>
 					</div>
 					<div style="padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid black;">
 						<table style="table-layout: fixed;">
@@ -135,14 +152,17 @@ jQuery(document).ready($ => {
 								if (discount > 0) {
 									invoiceData += `<tr>
 														<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Discount</strong></th>
-														<td style="padding: 0 20px 0 0; font-weight: 600;">${discount}<td>
+														<td style="padding: 0 20px 0 0; font-weight: 600;">${discount.toFixed(2)}<td>
 													</tr>`;
 								}
 								invoiceData += `<tr>
 													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Net Price:</strong></th>
 													<td style="padding: 0 20px 0 0; font-weight: 600;">${netPrice}<td>
 												</tr>
-												<tr>`;
+												<tr>
+													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Paid Amount:</strong></th>
+													<td style="padding: 0 20px 0 0; font-weight: 600;">${paidAmount.toFixed(2)}<td>
+												</tr>`;
 								if(paidPayments.length){
 									invoiceData += `<tr>
 														<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Paid Payments:</strong></th>
@@ -159,16 +179,26 @@ jQuery(document).ready($ => {
 			                                    invoiceData += `</tbody>
 			                                                </table>`;
 										invoiceData += `<td>
-													</tr>
-													<tr>
-														<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Remaining Amount</strong></th>
-														<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment}<td>
-													</tr>
-													<tr>
-														<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Account Status</strong></th>
-														<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment == 0 ? 'Closed' : 'Open'}<td>
 													</tr>`;
 								}
+								if(!paidPayments.length){
+									invoiceData += `<tr>
+														<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Paid Payments:</strong></th>
+														<td style="padding: 0 20px 0 0; font-weight: 600;">0<td>
+													</tr>`;
+								}
+								invoiceData += `<tr>
+													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Remaining Amount</strong></th>
+													<td style="padding: 0 20px 0 0; font-weight: 600;">${duePayment.toFixed(2)}<td>
+												</tr>
+												<tr>
+													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Account Status</strong></th>
+													<td style="padding: 0 20px 0 0; font-weight: 600;">${accountStatus}<td>
+												</tr>
+												<tr>
+													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Payment Status</strong></th>
+													<td style="padding: 0 20px 0 0; font-weight: 600;">${paymentStatus}<td>
+												</tr>`;
 
 								invoiceData += `<tr>
 													<th style="padding: 0 110px 0 0; font-weight: 900;"><strong>Sales Type:</strong></th>

@@ -17,19 +17,18 @@ jQuery(document).ready(function($) {
     // Bind ONLY to partial payment input
     $(document).on('input', '.partial_payment_row input', handlePaidInput);
 
-    // If close button clicked
-    $(document).on('click', '#customer_register_area #salesCalculatorCloser', function(){
-        resetToCashSale();
+    // Close customer popup without forcing sale type reset
+    $(document).on('click', '#customer_register_area #salesCalculatorCloser', function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        fbmCloseCustomerPopup();
     });
-
 
     // If customer popup closed by clicking outside or pressing ESC
     $(document).on('fbm:customerPopupClosed', function(){
-        const currentType = $('#salesType').val();
-        if(currentType === 'Credit Sale' || currentType === 'Partially Paid') {
-            // Reset to cash only if popup closed manually
-            resetToCashSale();
-        }
+        // Keep print actions visible even after popup closes
+        $('#print-actions').appendTo('.sales-main-actions');
     });
 
 }); // close .ready()

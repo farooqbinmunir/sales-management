@@ -145,6 +145,9 @@ function fbm_dues_get_all($status = 'open', $search = '', $due_type = '') {
     $table_dues      = $wpdb->prefix . "sms_dues";
     $table_customer  = $wpdb->prefix . "sms_customers";
     $table_salemans  = $wpdb->prefix . "sms_salemans";
+    $table_purchases = $wpdb->prefix . "sms_purchases";
+    $table_sales     = $wpdb->prefix . "sms_sales";
+    $table_invoices  = $wpdb->prefix . "sms_invoices";
 
     $where  = "1=1";
     $params = [];
@@ -155,23 +158,25 @@ function fbm_dues_get_all($status = 'open', $search = '', $due_type = '') {
         $params[] = $status;
     }
 
-    // Search only customer name and salesman name
+    // Search customer, salesman, and vendor fields
     if (!empty($search)) {
         $like = '%' . $wpdb->esc_like($search) . '%';
 
         $where .= " AND (
             c.name LIKE %s
             OR s.name LIKE %s
+            OR p.vendor LIKE %s
         )";
 
         $params[] = $like; // customer name
         $params[] = $like; // salesman name
+        $params[] = $like; // vendor name
     }
 
     // Due type
     if ($due_type !== '') {
-        $where .= " AND d.due_type = %s";
-        $params[] = $due_type;
+        $where .= " AND LOWER(d.due_type) = %s";
+        $params[] = strtolower($due_type);
     }
 
     // Final query
@@ -181,10 +186,17 @@ function fbm_dues_get_all($status = 'open', $search = '', $due_type = '') {
             c.name AS customer_name,
             c.phone AS customer_phone,
             s.name AS salesman_name,
-            s.phone AS salesman_phone
+            s.phone AS salesman_phone,
+            p.vendor AS purchase_vendor,
+            p.purchase_invoice AS purchase_invoice_no,
+            inv.invoice_no AS sale_invoice_no,
+            sale.customer_id AS sale_customer_id
         FROM $table_dues d
-        LEFT JOIN $table_customer c ON d.customer_saler_id = c.customer_id
-        LEFT JOIN $table_salemans s ON d.customer_saler_id = s.id
+        LEFT JOIN $table_customer c ON d.customer_saler_id = c.customer_id AND LOWER(d.due_type) = 'sale'
+        LEFT JOIN $table_salemans s ON d.customer_saler_id = s.id AND LOWER(d.due_type) = 'purchase'
+        LEFT JOIN $table_purchases p ON d.referer_id = p.purchase_id AND LOWER(d.due_type) = 'purchase'
+        LEFT JOIN $table_sales sale ON d.referer_id = sale.sale_id AND LOWER(d.due_type) = 'sale'
+        LEFT JOIN $table_invoices inv ON sale.invoice_id = inv.invoice_id
         WHERE $where
         ORDER BY d.id DESC
     ";
@@ -202,9 +214,23 @@ function fbm_dues_get($due_id){
     return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $due_id));
 }
 // Get the due by sale_id
-function fbm_get_due_by_referer_id($sale_id){
-    global $wpdb; $table = $wpdb->prefix . 'sms_dues';
-    return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE referer_id = %d", $sale_id));
+function fbm_get_due_by_referer_id($referer_id, $due_type = ''){
+    global $wpdb;
+    $table = $wpdb->prefix . 'sms_dues';
+
+    if (!empty($due_type)) {
+        return $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM $table WHERE referer_id = %d AND LOWER(due_type) = %s ORDER BY id DESC LIMIT 1",
+                (int)$referer_id,
+                strtolower($due_type)
+            )
+        );
+    }
+
+    return $wpdb->get_row(
+        $wpdb->prepare("SELECT * FROM $table WHERE referer_id = %d ORDER BY id DESC LIMIT 1", (int)$referer_id)
+    );
 }
 
 /** Record a payment against a due */
@@ -212,13 +238,16 @@ function fbm_dues_add_payment($due_id, $amount, $note = '', $due_type = 'sale'){
     global $wpdb;
     $due_table = $wpdb->prefix . 'sms_dues';
     $pay_table = $wpdb->prefix . 'sms_dues_payments';
+    $table_sales = $wpdb->prefix . 'sms_sales';
     $table_purchases = $wpdb->prefix . 'sms_purchases';
 
     $due = fbm_dues_get($due_id);
     if (!$due){ return new WP_Error('not_found', 'Due not found'); }
 
+    $due_type = strtolower(trim((string)$due->due_type ?: (string)$due_type));
     $amount = (float)$amount;
     if ($amount <= 0){ return new WP_Error('invalid_amount', 'Payment must be greater than 0'); }
+    if ($amount > (float)$due->remaining_amount){ return new WP_Error('invalid_amount', 'Payment exceeds remaining amount'); }
 
     // Insert payment row
     $ok = $wpdb->insert($pay_table, [
@@ -248,18 +277,17 @@ function fbm_dues_add_payment($due_id, $amount, $note = '', $due_type = 'sale'){
         ["%d"]
     );
 
-    // Update purchase table when received payment is Purchase's due payment
+    // Keep purchase master record in sync when paying vendor due
     if($due_type === 'purchase'):
         $purchase_id = $due->referer_id;
         $purchase = get_purchase_by_id($purchase_id);
         if (!$purchase){ return new WP_Error('not_found', 'Purchase not found'); }
 
-        $new_paid = (int)$purchase->paid + $amount;
-        $new_remaining = max(0, (int)$purchase->total_payment - $new_paid);
-        $old_status = $purchase->payment_status;
-        $new_status = $new_remaining <= 0 ? 'Paid' : $old_status;
+        $new_paid = (float)$purchase->paid + $amount;
+        $new_remaining = max(0, (float)$purchase->total_payment - $new_paid);
+        $new_status = $new_remaining <= 0 ? 'Paid' : ($new_paid > 0 ? 'Partially Paid' : 'Unpaid');
 
-        $wpdb->update($table_purchases, [
+        $purchase_updated = $wpdb->update($table_purchases, [
                 'paid'      => $new_paid,
                 'due' => $new_remaining,
                 'payment_status'           => $new_status,
@@ -267,10 +295,29 @@ function fbm_dues_add_payment($due_id, $amount, $note = '', $due_type = 'sale'){
             [
                 'purchase_id' => (int)$purchase_id
             ], 
-            ["%d","%d","%s","%s"], 
+            ["%f","%f","%s"], 
             ["%d"]
         );
+        if ($purchase_updated === false){ return new WP_Error('db', 'Could not update purchase'); }
     endif;
+
+    // Keep sale master record in sync when recovering customer due
+    if($due_type === 'sale'):
+        $sale_id = (int)$due->referer_id;
+        $sale_exists = $wpdb->get_var($wpdb->prepare("SELECT sale_id FROM $table_sales WHERE sale_id = %d", $sale_id));
+        if (!$sale_exists){ return new WP_Error('not_found', 'Sale not found'); }
+
+        $sale_status = $new_remaining <= 0 ? 'Paid' : 'Partially Paid';
+        $sale_updated = $wpdb->update(
+            $table_sales,
+            ['payment_status' => $sale_status],
+            ['sale_id' => $sale_id],
+            ['%s'],
+            ['%d']
+        );
+        if ($sale_updated === false){ return new WP_Error('db', 'Could not update sale'); }
+    endif;
+
     return true;
 }
 

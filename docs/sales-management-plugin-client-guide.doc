@@ -1,0 +1,545 @@
+﻿{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Calibri;}}\\fs22
+# Sales Management Plugin\\par
+## Client User Guide + Complete Test Plan\\par
+\\par
+Document Version: 1.0  \\par
+Prepared On: February 28, 2026  \\par
+Audience: Store Owners, Cashiers/Salesmen, Administrators, QA/Client Review Team\\par
+\\par
+---\\par
+\\par
+## 1. Purpose of This Document\\par
+This document is designed for two goals:\\par
+1. Help your client use the plugin correctly in daily operations.\\par
+2. Provide a full step-by-step testing guide to verify each feature before go-live.\\par
+\\par
+---\\par
+\\par
+## 2. Plugin Features Covered\\par
+This guide covers all major plugin pages and flows:\\par
+1. Sales Entry\\par
+2. Sales Listing and Today Summary\\par
+3. Products and Manufacturers\\par
+4. Purchases\\par
+5. Pending Payments (Sale Recoveries + Purchase Payments)\\par
+6. Customers\\par
+7. Returns\\par
+8. Stock\\par
+9. Invoice Details (Sale and Purchase)\\par
+10. Analytics\\par
+11. Salesman Authentication (User + Pincode)\\par
+12. Receipt/Print output validation\\par
+\\par
+---\\par
+\\par
+## 3. Roles and Access\\par
+Recommended operational roles:\\par
+1. Administrator\\par
+- Configure plugin and users.\\par
+- Set sales pincode for each salesman.\\par
+- Manage all pages.\\par
+\\par
+2. Salesman/Cashier\\par
+- Create sales entries.\\par
+- Authenticate in popup with selected user + pincode.\\par
+- Print and save bills.\\par
+\\par
+3. Accountant/Manager\\par
+- Review sales, purchases, pending payments, customers, and analytics.\\par
+\\par
+Important:\\par
+- Sales authentication uses a dedicated pincode field in WordPress User Profile.\\par
+- It is separate from WordPress login password.\\par
+\\par
+---\\par
+\\par
+## 4. Pre-Setup Checklist (Before Testing or Go-Live)\\par
+Complete this once:\\par
+1. Activate plugin in WordPress.\\par
+2. Confirm plugin menu is visible in admin.\\par
+3. Go to `Users > Edit User` for each salesperson.\\par
+4. Set `Sales Pincode` (4 to 10 digits), then save.\\par
+5. Add at least 3 manufacturers.\\par
+6. Add at least 5 products (different vendors/manufacturers).\\par
+7. Add opening stock via Purchase page (paid and unpaid examples).\\par
+8. Confirm Pending Payments page shows dues for unpaid/partial purchases.\\par
+\\par
+---\\par
+\\par
+## 5. Daily Operational Flow (Recommended)\\par
+Use this exact order daily:\\par
+1. Record Purchases to update stock.\\par
+2. Perform Sales (Cash, Credit, Partially Paid) through Sales Entry.\\par
+3. Receive/pay due amounts from Pending Payments.\\par
+4. Process Returns if needed.\\par
+5. Review Sales page Today Summary and Cash In Hand.\\par
+6. Verify physical cash against `Total Cash In Hand`.\\par
+\\par
+---\\par
+\\par
+## 6. Feature Usage Guide\\par
+\\par
+### 6.1 Products Page\\par
+Use for product and manufacturer master data.\\par
+\\par
+Steps:\\par
+1. Open `Products` page.\\par
+2. Add manufacturer from Manufacturers panel.\\par
+3. Add product with:\\par
+- Name\\par
+- Purchase Price\\par
+- Sale Price\\par
+- Min Quantity\\par
+- Vendor\\par
+- Manufacturer\\par
+- Location\\par
+4. Use quick edit to update product details.\\par
+\\par
+Expected behavior:\\par
+1. Product appears in listing.\\par
+2. Manufacturer mapping is visible.\\par
+3. Stock starts from 0 until purchased.\\par
+\\par
+---\\par
+\\par
+### 6.2 Purchase Page\\par
+Use for stock entry and vendor payment tracking.\\par
+\\par
+Steps:\\par
+1. Open `Purchase` page.\\par
+2. Click `Add New Purchase`.\\par
+3. Add one or more products.\\par
+4. Set payment status:\\par
+- Paid\\par
+- Unpaid\\par
+- Partially Paid\\par
+5. Enter vendor and optional description.\\par
+6. Save purchase.\\par
+\\par
+Expected behavior:\\par
+1. Purchase row appears with `Payment`, `Paid`, and `Remaining` columns.\\par
+2. Stock increases.\\par
+3. For unpaid/partial purchases, due is created in Pending Payments.\\par
+4. Purchase invoice details are printable and linked from Pending Payments.\\par
+\\par
+---\\par
+\\par
+### 6.3 Sales Entry Page\\par
+Use to generate and save sales with receipt printing.\\par
+\\par
+Steps:\\par
+1. Open `Sales Management` main page.\\par
+2. Add products to selected list.\\par
+3. Enter quantity and optional discount.\\par
+4. Select Sales Type:\\par
+- Cash Sale\\par
+- Credit Sale\\par
+- Partially Paid\\par
+5. For Credit/Partial:\\par
+- Fill customer name and phone in popup.\\par
+6. Click `Print and Save`.\\par
+7. In auth popup:\\par
+- Select salesman from dropdown.\\par
+- Enter pincode.\\par
+- Confirm.\\par
+\\par
+Expected behavior:\\par
+1. Customer form validates required fields before auth popup.\\par
+2. Customer popup closes before auth popup opens.\\par
+3. Wrong pincode shows inline error (not browser alert).\\par
+4. Sale is saved only after successful auth.\\par
+5. Receipt includes correct financial and account status details.\\par
+6. Credit/partial sale creates due entry and appears in Pending Payments.\\par
+\\par
+---\\par
+\\par
+### 6.4 Sales Listing + Today Summary\\par
+Open `Sales` page.\\par
+\\par
+Today Summary includes:\\par
+1. Today's Sale\\par
+2. Today's Purchase\\par
+3. Today's Profit\\par
+4. Today's Discount\\par
+5. Today's Recovery\\par
+6. Today's Payments (Paid)\\par
+7. Total Cash In Hand\\par
+\\par
+Formula:\\par
+`Cash In Hand = (Cash Sale + Initial Received + Recovery) - (Initial Purchase Paid + Payments Paid)`\\par
+\\par
+Use this value to match physical cash.\\par
+\\par
+---\\par
+\\par
+### 6.5 Pending Payments Page\\par
+Central page for dues.\\par
+\\par
+Capabilities:\\par
+1. Filter by status: Open / Closed / All\\par
+2. Filter by due type: Sale / Purchase\\par
+3. Separate `Customer` and `Vendor` columns\\par
+4. Invoice column links directly to affected Sale/Purchase invoice details\\par
+5. Action button changes by due type:\\par
+- Sale due: `Receive Payment`\\par
+- Purchase due: `Pay Payment`\\par
+\\par
+Expected behavior:\\par
+1. Payment history updates.\\par
+2. Remaining amount decreases.\\par
+3. Status closes at zero remaining.\\par
+4. Related sale/purchase master record is updated.\\par
+\\par
+---\\par
+\\par
+### 6.6 Customers Page\\par
+Open `Customers` page.\\par
+\\par
+Shows:\\par
+1. Customer profile fields\\par
+2. Total sales count\\par
+3. Total sales amount\\par
+4. Open due amount\\par
+5. Last invoice (linked)\\par
+\\par
+Important logic:\\par
+- Credit/partial sale customer matching is based on phone number.\\par
+- Existing customer is reused if phone already exists.\\par
+\\par
+---\\par
+\\par
+### 6.7 Returns Page\\par
+Use for product return against invoice.\\par
+\\par
+Steps:\\par
+1. Enter invoice number.\\par
+2. Select invoiced product.\\par
+3. Enter return quantity/reason.\\par
+4. Submit return.\\par
+\\par
+Expected behavior:\\par
+1. Return appears in returns listing.\\par
+2. Stock is adjusted back.\\par
+3. Return amount and date are recorded.\\par
+\\par
+---\\par
+\\par
+### 6.8 Stock Page\\par
+Shows current stock valuation.\\par
+\\par
+Outputs include:\\par
+1. Quantity\\par
+2. Purchase/Sale rates\\par
+3. Purchase amount\\par
+4. Sale amount\\par
+5. Profit per product\\par
+6. Totals in footer\\par
+\\par
+Expected behavior:\\par
+- Low stock and zero stock rows are visibly highlighted.\\par
+\\par
+---\\par
+\\par
+### 6.9 Invoice Detail Pages (Sale and Purchase)\\par
+Use linked invoice pages for audit and print.\\par
+\\par
+Expected sale invoice fields:\\par
+1. Customer Name\\par
+2. Invoice No\\par
+3. Item table\\par
+4. Total items, gross, discount, net\\par
+5. Sales person\\par
+6. Paid amount\\par
+7. Payment history\\par
+8. Remaining amount\\par
+9. Account status\\par
+10. Payment status\\par
+11. Sale type\\par
+12. Payment method (when applicable)\\par
+\\par
+Expected purchase invoice fields:\\par
+1. Salesman\\par
+2. Invoice No\\par
+3. Invoice type\\par
+4. Vendor\\par
+5. Item table\\par
+6. Total payment\\par
+7. Paid amount\\par
+8. Payment history\\par
+9. Remaining amount\\par
+10. Account status\\par
+11. Payment status\\par
+12. Payment method (when applicable)\\par
+\\par
+---\\par
+\\par
+### 6.10 Analytics Page\\par
+Use for management reporting:\\par
+1. Top selling products\\par
+2. Most profitable products\\par
+3. Low stock alerts\\par
+4. Recent sales\\par
+5. Monthly sales chart\\par
+6. Product performance chart\\par
+\\par
+---\\par
+\\par
+## 7. Full End-to-End Testing Guide\\par
+Run this in a fresh test cycle and capture screenshots.\\par
+\\par
+### 7.1 Access and Security Tests\\par
+\\par
+Test A01: Admin access\\par
+1. Login as admin.\\par
+2. Open each plugin submenu page.\\par
+Expected: All pages load without permission errors.\\par
+\\par
+Test A02: Sales pincode field\\par
+1. Open `Users > Edit User`.\\par
+2. Set pincode and save.\\par
+3. Reload page.\\par
+Expected:\\par
+1. Pincode input stays blank (security).\\par
+2. Status shows `Set`.\\par
+3. Last updated timestamp is visible.\\par
+\\par
+Test A03: Clear pincode\\par
+1. Tick `Clear current pincode` and save.\\par
+Expected: Status becomes `Not set`.\\par
+\\par
+---\\par
+\\par
+### 7.2 Products and Manufacturer Tests\\par
+\\par
+Test P01: Add manufacturer\\par
+1. Add new manufacturer.\\par
+Expected: New manufacturer appears in list.\\par
+\\par
+Test P02: Duplicate manufacturer\\par
+1. Add same name again.\\par
+Expected: Duplicate prevention message appears.\\par
+\\par
+Test P03: Add product\\par
+1. Add product with valid values.\\par
+Expected: Product appears in products table.\\par
+\\par
+Test P04: Edit product\\par
+1. Quick edit product name/rates/location.\\par
+Expected: Updated values save and display.\\par
+\\par
+---\\par
+\\par
+### 7.3 Purchase Tests\\par
+\\par
+Test PU01: Paid purchase\\par
+1. Create purchase with `Paid` status.\\par
+Expected:\\par
+1. Purchase listing shows paid amount = total, remaining = 0.\\par
+2. No open due in Pending Payments.\\par
+\\par
+Test PU02: Unpaid purchase\\par
+1. Create purchase with `Unpaid` status.\\par
+Expected:\\par
+1. Due appears in Pending Payments as Purchase type.\\par
+2. Vendor column is populated.\\par
+3. Invoice link opens purchase invoice details page.\\par
+\\par
+Test PU03: Partial purchase\\par
+1. Create purchase with partial paid amount.\\par
+Expected:\\par
+1. Remaining > 0 in purchase listing.\\par
+2. Due is open in Pending Payments.\\par
+\\par
+---\\par
+\\par
+### 7.4 Sales Entry Tests\\par
+\\par
+Test S01: Cash sale\\par
+1. Add products and quantities.\\par
+2. Sales Type = Cash Sale.\\par
+3. Print and Save with auth success.\\par
+Expected:\\par
+1. Sale saved.\\par
+2. No pending due created.\\par
+3. Receipt shows paid as full and remaining 0.\\par
+\\par
+Test S02: Credit sale validation\\par
+1. Sales Type = Credit Sale.\\par
+2. Click Print and Save without customer name/phone.\\par
+Expected:\\par
+1. Inline validation errors on required customer fields.\\par
+2. Auth popup does not open.\\par
+\\par
+Test S03: Credit sale save flow\\par
+1. Fill customer name + phone.\\par
+2. Print and Save.\\par
+3. In auth popup select user + correct pincode.\\par
+Expected:\\par
+1. Customer popup closes before auth popup.\\par
+2. Sale saves successfully.\\par
+3. Due entry appears in Pending Payments.\\par
+\\par
+Test S04: Partially paid sale\\par
+1. Sales Type = Partially Paid.\\par
+2. Enter paid amount less than net total.\\par
+3. Complete auth.\\par
+Expected:\\par
+1. Due amount calculated correctly.\\par
+2. Pending Payments entry is created.\\par
+\\par
+Test S05: Invalid paid amount\\par
+1. Enter paid amount > net total.\\par
+Expected: Validation blocks save.\\par
+\\par
+Test S06: Customer dedup by phone\\par
+1. Create credit sale for phone `03XXXXXXXXX`.\\par
+2. Create another credit sale with same phone and different name.\\par
+Expected: Existing customer record is reused by phone.\\par
+\\par
+Test S07: Wrong pincode\\par
+1. Enter wrong pincode in auth popup.\\par
+Expected: Error message appears below pincode field.\\par
+\\par
+Test S08: Salesman attribution\\par
+1. Save sales using different selected users in auth popup.\\par
+Expected: Sales listing and receipts show correct salesperson attribution.\\par
+\\par
+---\\par
+\\par
+### 7.5 Pending Payments Tests\\par
+\\par
+Test D01: Receive sale recovery\\par
+1. Open open Sale due.\\par
+2. Click Receive Payment.\\par
+3. Submit partial amount.\\par
+Expected:\\par
+1. Paid/Remaining update.\\par
+2. Payment history records date, note, amount.\\par
+3. Sale payment status updates.\\par
+\\par
+Test D02: Pay vendor payment\\par
+1. Open open Purchase due.\\par
+2. Click Pay Payment.\\par
+3. Submit amount.\\par
+Expected:\\par
+1. Paid/Remaining update.\\par
+2. Purchase table paid/remaining/status update.\\par
+\\par
+Test D03: Full settlement\\par
+1. Pay/receive exact remaining amount.\\par
+Expected: Status becomes Closed and action button is disabled.\\par
+\\par
+Test D04: Invoice link integrity\\par
+1. Click invoice from sale due and purchase due rows.\\par
+Expected: Correct detail page opens for affected record.\\par
+\\par
+---\\par
+\\par
+### 7.6 Receipt and Invoice Print Tests\\par
+\\par
+Test R01: Sale invoice print data\\par
+1. Open sale invoice detail and print.\\par
+Expected printed output includes:\\par
+1. Customer name\\par
+2. Invoice number\\par
+3. Sales person\\par
+4. Items and amounts\\par
+5. Gross, discount, net\\par
+6. Paid amount\\par
+7. Remaining amount\\par
+8. Account status\\par
+9. Payment status\\par
+10. Sale type and method\\par
+\\par
+Test R02: Purchase invoice print data\\par
+1. Open purchase invoice detail and print.\\par
+Expected printed output includes:\\par
+1. Vendor\\par
+2. Salesman\\par
+3. Invoice number\\par
+4. Item table\\par
+5. Total paid/remaining\\par
+6. Account status and payment status\\par
+7. Payment method when applicable\\par
+\\par
+Test R03: Number formatting\\par
+1. Test with amounts above 1,000.\\par
+Expected: Calculations and printed due/paid values stay correct.\\par
+\\par
+---\\par
+\\par
+### 7.7 Customers, Returns, Stock, Analytics Tests\\par
+\\par
+Test C01: Customers summary\\par
+1. Open Customers page.\\par
+Expected: Sales amount/open due/last invoice are correct.\\par
+\\par
+Test RT01: Return processing\\par
+1. Process return for valid invoice item.\\par
+Expected: Return row appears and stock is increased.\\par
+\\par
+Test ST01: Stock valuation\\par
+1. Open Stock page after multiple purchases/sales/returns.\\par
+Expected: Quantities and valuation are consistent.\\par
+\\par
+Test AN01: Analytics widgets\\par
+1. Open Analytics.\\par
+Expected: Cards and charts render without JS/PHP errors.\\par
+\\par
+---\\par
+\\par
+## 8. UAT Sign-Off Template\\par
+Use this with your client:\\par
+\\par
+1. Environment\\par
+- URL:\\par
+- WordPress Version:\\par
+- Plugin Version:\\par
+- Test Date:\\par
+\\par
+2. Result Summary\\par
+- Total test cases executed:\\par
+- Passed:\\par
+- Failed:\\par
+- Blocked:\\par
+\\par
+3. Sign-Off\\par
+- Client Name:\\par
+- Client Signature:\\par
+- Date:\\par
+\\par
+---\\par
+\\par
+## 9. Troubleshooting Quick Notes\\par
+1. Auth popup rejects valid user\\par
+- Confirm pincode is set for selected user profile.\\par
+\\par
+2. Credit sale not appearing in Pending Payments\\par
+- Verify due amount > 0 and sale saved successfully.\\par
+\\par
+3. Invoice link not opening expected data\\par
+- Recheck whether due type is sale vs purchase and linked invoice number.\\par
+\\par
+4. Summary cash mismatch\\par
+- Reconcile with formula shown on Sales page and ensure all pending payments were entered on same date.\\par
+\\par
+---\\par
+\\par
+## 10. Go-Live Checklist\\par
+1. All critical tests in Section 7 passed.\\par
+2. At least one full end-to-end day simulation completed.\\par
+3. User pincodes configured for all salesmen.\\par
+4. Opening stock validated.\\par
+5. Client trained on Daily Operational Flow.\\par
+6. Backup policy confirmed.\\par
+\\par
+---\\par
+\\par
+## 11. Support Notes\\par
+For support tickets, always include:\\par
+1. Page name\\par
+2. Invoice number (if applicable)\\par
+3. Due ID (if pending payment issue)\\par
+4. Screenshot/video\\par
+5. Exact steps and expected vs actual result\\par
+}

@@ -46,6 +46,23 @@
                         echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not updated.</p>';
                     }
                 }
+
+                // Form processing for delete manufacturer
+                if (isset($_POST[$formSelector_delete])) {
+                    $manufacturer_id = intval($_POST[$formSelector_delete]);
+                    global $wpdb;
+                    $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
+
+                    $deleted = $wpdb->query(
+                        $wpdb->prepare("DELETE FROM {$table_manufacturers} WHERE manufacturer_id = %d", $manufacturer_id)
+                    );
+
+                    if ($deleted) {
+                        echo '<p class="notice notice-success" style="padding: 10px;">Success! Manufacturer deleted.</p>';
+                    } else {
+                        echo '<p class="notice notice-error" style="padding: 10px;">Failure! to delete the manufacturer.</p>';
+                    }
+                }
             }
         }
         
@@ -58,9 +75,11 @@
                     $product_manufacturer_name = sanitize_text_field( $_POST['product_new_manufacturer']);
                     global $wpdb;
                     $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-                    $manufacturer_exists = $wpdb->get_results("SELECT * FROM {$table_manufacturers} WHERE manufacturer_name = '{$product_manufacturer_name}'");
+                    $manufacturer_exists = $wpdb->get_results(
+                        $wpdb->prepare("SELECT * FROM {$table_manufacturers} WHERE manufacturer_name = %s", $product_manufacturer_name)
+                    );
                     if(empty($manufacturer_exists)){
-                        $sql = $wpdb->prepare("INSERT INTO {$table_manufacturers} (manufacturer_name) VALUES (%s)", ["{$product_manufacturer_name}"]);
+                        $sql = $wpdb->prepare("INSERT INTO {$table_manufacturers} (manufacturer_name) VALUES (%s)", $product_manufacturer_name);
                         $wpdb->query($sql);
                         $insert_id = $wpdb->insert_id;
                         if($insert_id){
@@ -109,27 +128,6 @@
                                             <input type="hidden" name="manufacturer_id" value="<?php echo $manufacturer_id; ?>" />
                                             <button type="submit" name="<?php echo $formSelector_delete; ?>" value="<?php echo $manufacturer_id; ?>" class="sms_btn_light sms_btn_danger">Delete</button>
                                         </form>
-
-                                        <!-- DELETE MANUFACTURER - PROCESSING -->
-                                        <?php 
-                                            if (isset($_POST[$formSelector_delete])) {
-                                                $manufacturer_id = intval($_POST[$formSelector_delete]);
-                                                global $wpdb;
-                                                $table_manufacturers = $wpdb->prefix . "sms_manufacturers";
-
-                                                $deleted = $wpdb->query(
-                                                    $wpdb->prepare("DELETE FROM {$table_manufacturers} WHERE manufacturer_id = %d", $manufacturer_id)
-                                                );
-
-                                                if ($deleted) {
-                                                    wp_safe_redirect($_SERVER['REQUEST_URI']);
-                                                    exit;
-                                                } else {
-                                                    echo '<p class="notice notice-error" style="padding: 10px;">Failure! Manufacturer not deleted.</p>';
-                                                }
-                                            }
-                                        ?>
-
                                     </td>
                                 </tr>
                                 <tr style="display: none;">

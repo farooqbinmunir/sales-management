@@ -86,7 +86,7 @@
                     $quantity = $returned_item->quantity;
                     $amount = $returned_item->amount ? $returned_item->amount : 0;
                     $product = get_product($returned_item->product_id);
-                    $product_name = $product->product_name;
+                    $product_name = $product ? $product->product_name : 'N/A';
                     $reason = $returned_item->return_reason ? $returned_item->return_reason : 'N/A';
                     $invoice_no = $returned_item->invoice_no ? $returned_item->invoice_no : 'N/A';
                     $date = new DateTime($returned_item->return_date);

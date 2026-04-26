@@ -17,34 +17,6 @@ jQuery(document).ready($ => {
 	const a = (...params) => alert(...params); // Shortcut for alert(), now use a() instead in this file
 
 
-
-
-
-	/* _______________________ */
-
-
-
-
-
-	// Custom function for scrolling to specific element, first offset param is required, second is optional with default value of 0
-
-
-	// const scrollTo = (offsetSelector, offsetToMinus = 0) => {
-
-
-	// 	$('html, body').animate({
-
-
-	// 		scrollTop: Math.floor($(offsetSelector).offset().top - offsetToMinus)
-
-
-	// 	}, 'slow', 'linear');
-
-
-	// };
-
-	// Akram js
-
 	let fbm_ui = document.querySelector('#fbm_ui');
 
 	if (fbm_ui) {

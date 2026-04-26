@@ -4,6 +4,22 @@ jQuery(document).ready(function($) {
         path = fbm_ajax.path;
 
     var notice = $('#fbm_notice');
+    const authErrorEl = $('#auth_error_message');
+
+    const clearAuthError = () => {
+        authErrorEl.text('').hide();
+        $('#auth_pincode').css('border-color', '#ccc');
+        $('#auth_user_id').css('border-color', '#ccc');
+    };
+
+    const showAuthError = (message, field = 'pincode') => {
+        authErrorEl.text(message).show();
+        if (field === 'user') {
+            $('#auth_user_id').css('border-color', '#d63638').focus();
+        } else {
+            $('#auth_pincode').css('border-color', '#d63638').focus();
+        }
+    };
 
     // Handle print button clicks with authentication
     let pendingPrintAction = null;    
@@ -12,25 +28,59 @@ jQuery(document).ready(function($) {
         e.stopImmediatePropagation();
         e.stopPropagation();
 
-        pendingPrintAction = $(this).attr('id');
+        const clickedAction = $(this).attr('id');
 
-        $('#printAuthOverlay').fadeIn(function(){
-            $('#auth_password').focus();
-        });
+        // Validate sale/customer data before opening auth popup
+        if (typeof window.preValidateSaleBeforeAuth === 'function') {
+            const isValidBeforeAuth = window.preValidateSaleBeforeAuth(clickedAction);
+            if (!isValidBeforeAuth) {
+                return false;
+            }
+        }
+
+        pendingPrintAction = clickedAction;
+
+        const openAuthPopup = () => {
+            clearAuthError();
+            $('#printAuthOverlay').fadeIn(function(){
+                $('#auth_pincode').focus();
+            });
+        };
+
+        const $customerPopup = $('#customer_register_area #salesCalculator');
+        if ($customerPopup.length && $customerPopup.is(':visible')) {
+            if (typeof window.fbmCloseCustomerPopup === 'function') {
+                window.fbmCloseCustomerPopup();
+                setTimeout(openAuthPopup, 250);
+            } else {
+                openAuthPopup();
+            }
+        } else {
+            openAuthPopup();
+        }
 
         return false;
     });
 
     // Handle authentication confirmation
     $(document).on('click', '#authConfirm', function(){
-        const password = $('#auth_password').val().trim();
-        if(!password){
-            alert('Please enter password');
+        const pincode = $('#auth_pincode').val().trim();
+        const userId = $('#auth_user_id').val();
+        const userName = $('#auth_user_id option:selected').text();
+
+        if(!userId){
+            showAuthError('Please select salesman.', 'user');
             return;
         }
+        if(!pincode){
+            showAuthError('Please enter pincode.', 'pincode');
+            return;
+        }
+        clearAuthError();
         const payload = {
             action: 'fbm_verify_user',
-            password: password,
+            pincode: pincode,
+            user_id: userId,
             nonce: nonce
         };
         $.ajax({
@@ -40,7 +90,13 @@ jQuery(document).ready(function($) {
             success: function(response){
                 if(response.success){
                     window.isPrintAuthenticated = true;
-                    $('#printAuthOverlay').fadeOut();
+                    window.authSalesmanId = Number(userId);
+                    window.authSalesmanName = userName;
+                    $('#printIvoiceBtn').data('user_id', userId);
+                    $('#printIvoiceBtn').data('user_name', userName);
+                    $('#printAuthOverlay').fadeOut(function(){
+                        $('#auth_pincode').val('');
+                    });
 
                     // Proceed with original action
                     if(pendingPrintAction === 'printIvoiceBtn'){
@@ -49,7 +105,8 @@ jQuery(document).ready(function($) {
                         printBill();
                     }
                 }else{
-                    alert('Invalid credentials');
+                    const errorMessage = (response && response.data) ? response.data : 'Invalid pincode';
+                    showAuthError(errorMessage, 'pincode');
                 }
             }
         });
@@ -58,16 +115,16 @@ jQuery(document).ready(function($) {
     // Toggle password visibility in the authentication popup
     $(document).on('click', '#toggleAuthPassword', function(){
 
-        const $passwordInput = $('#auth_password');
-        const currentType = $passwordInput.attr('type');
+        const $pincodeInput = $('#auth_pincode');
+        const currentType = $pincodeInput.attr('type');
 
         if(currentType === 'password'){
-            $passwordInput.attr('type', 'text');
+            $pincodeInput.attr('type', 'text');
             $(this)
                 .removeClass('fa-eye')
                 .addClass('fa-eye-slash');
         }else{
-            $passwordInput.attr('type', 'password');
+            $pincodeInput.attr('type', 'password');
             $(this)
                 .removeClass('fa-eye-slash')
                 .addClass('fa-eye');
@@ -77,14 +134,24 @@ jQuery(document).ready(function($) {
 
     // Cancel button
     $(document).on('click', '#authCancel, #closeAuthPopup', function(){
-        $('#printAuthOverlay').fadeOut();
+        $('#printAuthOverlay').fadeOut(function(){
+            $('#auth_pincode').val('');
+            clearAuthError();
+        });
     });
 
     // Click outside modal closes it
     $(document).on('click', '#printAuthOverlay', function(e){
         if($(e.target).is('#printAuthOverlay')){
-            $('#printAuthOverlay').fadeOut();
+            $('#printAuthOverlay').fadeOut(function(){
+                $('#auth_pincode').val('');
+                clearAuthError();
+            });
         }
+    });
+
+    $(document).on('input change', '#auth_pincode, #auth_user_id', function(){
+        clearAuthError();
     });
 
 });

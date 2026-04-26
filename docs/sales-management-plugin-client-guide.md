@@ -1,5 +1,4 @@
 ﻿# Sales Management Plugin
- by Farooq Bin Munir, Akram Bin Waris
 ## Client User Guide + Complete Test Plan
 
 Document Version: 1.0  

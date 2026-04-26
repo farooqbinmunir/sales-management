@@ -5,7 +5,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 10000001;
 }
 
 .fbm-modal {
@@ -48,6 +48,20 @@
     padding: 20px;
 }
 
+.auth-user-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.auth-user-wrapper select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .auth-password-wrapper {
     position: relative;
 }
@@ -57,6 +71,12 @@
     padding: 10px 40px 10px 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+.auth-error-message {
+    color: #d63638;
+    margin-top: 8px;
+    display: block;
 }
 
 #toggleAuthPassword {

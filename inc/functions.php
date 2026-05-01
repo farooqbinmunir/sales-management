@@ -615,6 +615,10 @@
 			$quantity = isset($product->quantity) ? intval(sanitize_text_field($product->quantity)) : 0;
 			$purchase_rate = isset($product->rate) ? intval(sanitize_text_field($product->rate)) : 0;
 			$item_total_payment = isset($product->payment) ? intval(sanitize_text_field($product->payment)) : 0;
+			$expiry_date = isset($product->expiry_date) ? sanitize_text_field($product->expiry_date) : '';
+			$expiry_batch = isset($product->expiry_batch) ? sanitize_text_field($product->expiry_batch) : '';
+			$gst_percentage = isset($product->gst_percentage) ? floatval($product->gst_percentage) : 0;
+			
 			if ($product_id <= 0 || $quantity <= 0) {
 				$errors[] = 'Invalid product or quantity in purchase payload.';
 				continue;
@@ -626,6 +630,9 @@
 				'quantity' => $quantity,
 				'purchase_rate' => $purchase_rate,
 				'total_payment' => $item_total_payment,
+				'expiry_date' => $expiry_date,
+				'expiry_batch' => $expiry_batch,
+				'gst_percentage' => $gst_percentage,
 			];
 
 			$available_stock = intval($wpdb->get_var($wpdb->prepare("SELECT stock_quantity FROM $table_stock WHERE product_id = %d", $product_id)));
@@ -1751,3 +1758,16 @@ function get_purchase_invoice($invoice_no){
 	return $invoice;
 }
 
+add_action('wp_ajax_get_product_rates', function(){
+    check_ajax_referer('your_nonce', 'nonce');
+    $product_id = intval($_POST['product_id']);
+    global $wpdb;
+    $product = $wpdb->get_row($wpdb->prepare(
+        "SELECT purchase_rate, sale_rate FROM {$wpdb->prefix}sms_products WHERE product_id = %d", $product_id
+    ));
+    if($product){
+        wp_send_json_success(['purchase_rate' => $product->purchase_rate, 'sale_rate' => $product->sale_rate]);
+    } else {
+        wp_send_json_error();
+    }
+});

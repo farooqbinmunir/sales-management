@@ -1077,7 +1077,10 @@ jQuery(document).ready($ => {
 							purchaseRate = $(fieldGroup).find(`[name="purchase_rate"]`),
 							saleRate = $(fieldGroup).find(`[name="sale_rate"]`),
 							quantity = $(fieldGroup).find(`[name="quantity"]`),
-							payment = $(fieldGroup).find(`[name="payment"]`);
+							payment = $(fieldGroup).find(`[name="payment"]`),
+							expiryDate = $(fieldGroup).find(`[name="expiry_date"]`),
+							expiryBatch = $(fieldGroup).find(`[name="expiry_batch"]`),
+							gstPercentage = $(fieldGroup).find(`[name="gst_percentage"]`);
 
 						// Form Values
 						let productIdVal = Number(productId.val()),
@@ -1085,7 +1088,10 @@ jQuery(document).ready($ => {
 							purchaseRateVal = Number(purchaseRate.val()),
 							saleRateVal = Number(saleRate.val()),
 							quantityVal = Number(quantity.val()),
-							paymentVal = Number(payment.val());
+							paymentVal = Number(payment.val()),
+							expiryDateVal = expiryDate.val() || '',
+							expiryBatchVal = expiryBatch.val() || '',
+							gstPercentageVal = parseFloat(gstPercentage.val()) || 0;
 
 						// Preparing purcahse data object for payload
 						if(productIdVal){
@@ -1095,6 +1101,9 @@ jQuery(document).ready($ => {
 								rate: purchaseRateVal,
 								quantity: quantityVal,
 								payment: paymentVal,
+								expiry_date: expiryDateVal,
+								expiry_batch: expiryBatchVal,
+								gst_percentage: gstPercentageVal,
 							};
 							payload.push(singlePurchaseData);
 						}

@@ -396,6 +396,11 @@ jQuery(document).ready(function ($) {
 					payment = quantity * purchase_rate,
 					manufacturerId = data.manufacturer.id;
 					manufacturerName = data.manufacturer.name;
+				
+				// Update rate display with P and S format
+				wrapper.find('.badge_p_val').text(purchase_rate);
+				wrapper.find('.badge_s_val').text(sale_rate);
+				
 				inputPurchaseRate.val(purchase_rate).attr({
 					'value': purchase_rate,
 					'data-product_id': product_id,
@@ -417,6 +422,15 @@ jQuery(document).ready(function ($) {
 					'value': manufacturerName,
 					'data-manufacturer_id': manufacturerId,
 				});
+
+				// Auto-generate Expiry Batch on product select
+				let expiryBatchInput = wrapper.find('input[name="expiry_batch"]');
+				let purchaseInvoiceNo = $('#addPurchaseForm').find('input[name="purchase_invoice"]').val();
+				let fieldGroupIndex = wrapper.closest('.purchase_form_fields_group').index();
+				if(purchaseInvoiceNo && fieldGroupIndex >= 0){
+					let batch = 'INV' + purchaseInvoiceNo + '-' + (fieldGroupIndex + 1);
+					expiryBatchInput.val(batch).attr('value', batch);
+				}
 
 				calculatePurchase();
 			} else {

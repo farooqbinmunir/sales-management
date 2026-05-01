@@ -66,6 +66,9 @@
                                         <th style="padding: 0 20px 5px 0;">Unit Price</th>
                                         <th style="padding: 0 20px 5px 0;">Qty</th>
                                         <th style="padding: 0 20px 5px 0;">Amount</th>
+                                        <th style="padding: 0 20px 5px 0;">Expiry Date</th>
+                                        <th style="padding: 0 20px 5px 0;">Expiry Batch</th>
+                                        <th style="padding: 0 20px 5px 0;">GST %</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -84,6 +87,9 @@
                                         $quantity = (float) ($product_item['quantity'] ?? 0);
                                         $total_payment = (float) ($product_item['total_payment'] ?? 0);
                                         $unit_price = $quantity > 0 ? ($total_payment / $quantity) : 0;
+                                        $expiry_date = $product_item['expiry_date'] ?? '';
+                                        $expiry_batch = $product_item['expiry_batch'] ?? '';
+                                        $gst_percentage = $product_item['gst_percentage'] ?? 0;
 
                                         ?>
 
@@ -93,6 +99,9 @@
                                             <td class="inv_product_unit_price"><?php echo esc_html(number_format((float)$unit_price, 2)); ?></td>
                                             <td class="inv_product_quantity"><?php echo esc_html(number_format((float)$quantity, 2)); ?></td>
                                             <td class="inv_product_amount"><?php echo esc_html(number_format((float)$total_payment, 2)); ?></td>
+                                            <td class="inv_product_expiry_date"><?php echo esc_html($expiry_date); ?></td>
+                                            <td class="inv_product_expiry_batch"><?php echo esc_html($expiry_batch); ?></td>
+                                            <td class="inv_product_gst"><?php echo esc_html(number_format((float)$gst_percentage, 2)); ?></td>
                                         </tr>
                                     <?php
                                      } ?>
@@ -187,6 +196,27 @@
                                             <td id="inv_payment_method" style="padding: 0 20px 0 0;"><?php echo esc_html(ucwords(str_replace('-', ' ', $payment_method))); ?></td>
                                         </tr>
                                     <?php endif; ?>
+                                    <?php 
+                                    // Calculate Invoice GST from line items
+                                    $invoice_gst_total = 0;
+                                    if(is_array($invoice_data)){
+                                        foreach($invoice_data as $item){
+                                            if(is_array($item) && isset($item['gst_percentage'])){
+                                                $gst_pct = floatval($item['gst_percentage']);
+                                                $line_total = floatval($item['total_payment'] ?? 0);
+                                                $invoice_gst_total += ($line_total * $gst_pct / 100);
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <tr>
+                                        <th style="padding: 0 20px 0 0;">Invoice GST</th>
+                                        <td id="inv_gst_total" style="padding: 0 20px 0 0;"><?php echo esc_html(number_format((float)$invoice_gst_total, 2)); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="padding: 0 20px 0 0;">Purchase Return</th>
+                                        <td id="inv_purchase_return" style="padding: 0 20px 0 0;">N/A</td>
+                                    </tr>
                                     
                                 </tbody>
                             </table>

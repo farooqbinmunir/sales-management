@@ -157,18 +157,22 @@
 													<td>
 														<div class="anpFieldWrap purchase_product_rate">
 															<div style="display: flex;justify-content: flex-start !important;gap: 10px;">
-																<label style="width: auto; display: inline-block;">Rate</label> <a href="javascript:void(0)" class="btnUpdateRateToggler">Want to update?</a>
+																<label style="width: auto; display: inline-block;">Rate</label>
+																<a href="javascript:void(0)" class="btnUpdateRateToggler">Want to update?</a>
 															</div>
 															<div>
 																<div class="purchase_rate_wrapper">
 																	<label style="display: none;" class="needToggle">Purchase Rate</label>
+																	<div class="rate_display_badges" style="display: flex; gap: 8px; margin-bottom: 5px;">
+																		<span class="badge_purchase_rate" style="font-size:12px; background:#e0f0ff; color:#0c6; padding:2px 8px; border-radius:4px;">P = <strong class="badge_p_val">—</strong></span>
+																		<span class="badge_sale_rate" style="font-size:12px; background:#fff3cd; color:#856404; padding:2px 8px; border-radius:4px;">S = <strong class="badge_s_val">—</strong></span>
+																	</div>
 																	<input type="number" name="purchase_rate" class="purchase_rate" readonly>
 																</div>
 																<div class="sale_rate_wrapper needToggle" style="display: none;">
 																	<label>Sale Rate</label>
 																	<input type="number" name="sale_rate" class="sale_rate" style="margin-top: 5px;">
 																</div>
-																
 																<button class="btnUpdateRate sms_btn sms_btn_info needToggle" type="button" style="display: none;">Update Rate</button>
 																<button class="btnCancelUpdateRate sms_btn sms_btn_danger needToggle" type="button" style="display: none;">Cancel</button>
 															</div>
@@ -188,8 +192,32 @@
 												<tr>
 													<td>
 														<div class="anpFieldWrap purchase_product_payment">
-															<label>Price</label>
+															<label>Line Total</label>
 															<input type="number" name="payment" class="payment" readonly>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_expiry_date">
+															<label>Expiry Date</label>
+															<input type="date" name="expiry_date" class="expiry_date">
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_expiry_batch">
+															<label>Expiry Batch</label>
+															<input type="text" name="expiry_batch" class="expiry_batch" readonly placeholder="Auto-generated">
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_gst">
+															<label>GST (%)</label>
+															<input type="number" name="gst_percentage" class="gst" min="0" max="100" step="0.01" value="0" placeholder="0">
 														</div>
 													</td>
 												</tr>
@@ -239,18 +267,22 @@
 													<td>
 														<div class="anpFieldWrap purchase_product_rate">
 															<div style="display: flex;justify-content: flex-start !important;gap: 10px;">
-																<label style="width: auto; display: inline-block;">Rate</label> <a href="javascript:void(0)" class="btnUpdateRateToggler">Want to update?</a>
+																<label style="width: auto; display: inline-block;">Rate</label>
+																<a href="javascript:void(0)" class="btnUpdateRateToggler">Want to update?</a>
 															</div>
 															<div>
 																<div class="purchase_rate_wrapper">
 																	<label style="display: none;" class="needToggle">Purchase Rate</label>
+																	<div class="rate_display_badges" style="display: flex; gap: 8px; margin-bottom: 5px;">
+																		<span class="badge_purchase_rate" style="font-size:12px; background:#e0f0ff; color:#0c6; padding:2px 8px; border-radius:4px;">P = <strong class="badge_p_val">—</strong></span>
+																		<span class="badge_sale_rate" style="font-size:12px; background:#fff3cd; color:#856404; padding:2px 8px; border-radius:4px;">S = <strong class="badge_s_val">—</strong></span>
+																	</div>
 																	<input type="number" name="purchase_rate" class="purchase_rate" readonly>
 																</div>
 																<div class="sale_rate_wrapper needToggle" style="display: none;">
 																	<label>Sale Rate</label>
 																	<input type="number" name="sale_rate" class="sale_rate" style="margin-top: 5px;">
 																</div>
-																
 																<button class="btnUpdateRate sms_btn sms_btn_info needToggle" type="button" style="display: none;">Update Rate</button>
 																<button class="btnCancelUpdateRate sms_btn sms_btn_danger needToggle" type="button" style="display: none;">Cancel</button>
 															</div>
@@ -270,8 +302,32 @@
 												<tr>
 													<td>
 														<div class="anpFieldWrap purchase_product_payment">
-															<label>Price</label>
+															<label>Line Total</label>
 															<input type="number" name="payment" class="payment" readonly>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_expiry_date">
+															<label>Expiry Date</label>
+															<input type="date" name="expiry_date" class="expiry_date">
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_expiry_batch">
+															<label>Expiry Batch</label>
+															<input type="text" name="expiry_batch" class="expiry_batch" readonly placeholder="Auto-generated">
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<div class="anpFieldWrap purchase_product_gst">
+															<label>GST (%)</label>
+															<input type="number" name="gst_percentage" class="gst" min="0" max="100" step="0.01" value="0" placeholder="0">
 														</div>
 													</td>
 												</tr>
@@ -328,27 +384,21 @@
 		<table class="purchases_listing">
 
 			<thead>
-
 				<tr>
-
 					<th class="sr-Number">#</th>
-
 					<th class="purchase_product_invoice">Purchase Invoice</th>
-						<th class="purchase_product_vendor">Vendor</th>
-
-						<th class="purchase_product_payment">Payment</th>
-						<th class="purchase_product_paid">Paid</th>
-						<th class="purchase_product_remaining">Remaining</th>
-
-						<th class="purchase_product_payment_status">Payment Status</th>
-						<th class="purchase_product_description">Description</th>
-
-					<th class="purchase_product_date">Date</th>
-
+					<th class="purchase_product_vendor">Vendor</th>
+					<th class="purchase_product_payment">Payment</th>
+					<th class="purchase_product_paid">Paid</th>
+					<th class="purchase_product_remaining">Remaining</th>
+					<th class="purchase_product_gst">Invoice GST</th>
+					<th class="purchase_product_payment_status">Payment Status</th>
+					<th class="purchase_product_payment_method">Payment Method</th>
+					<th class="purchase_product_description">Description</th>
+					<th class="purchase_product_purchase_return">Purchase Return</th>
+					<th class="purchase_product_date">Date and Time</th>
 					<th class="purchase_product_action">View Details</th>
-
 				</tr>
-
 			</thead>
 
 			<tbody class="purchase-tbody">
@@ -358,6 +408,7 @@
 				global $wpdb;
 
 				$table = $wpdb->prefix . 'sms_purchases';
+				$table_invoices = $wpdb->prefix . 'sms_purchase_invoices';
 
 				$sql = "SELECT * FROM $table ORDER BY purchase_id DESC";
 
@@ -386,27 +437,40 @@
 
 						$date = date('M j, Y', strtotime($purchase->date));
 
+						// Calculate Invoice GST from invoice data
+						$invoice_gst_total = 0;
+						if($purchase_invoice !== 'N/A'){
+							$invoice = $wpdb->get_row($wpdb->prepare("SELECT invoice_data FROM $table_invoices WHERE purchase_invoice = %d", intval($purchase_invoice)));
+							if($invoice){
+								$invoice_data = maybe_unserialize($invoice->invoice_data);
+								if(is_array($invoice_data)){
+									foreach($invoice_data as $item){
+										if(is_array($item) && isset($item['gst_percentage'])){
+											$gst_pct = floatval($item['gst_percentage']);
+											$line_total = floatval($item['total_payment'] ?? 0);
+											$invoice_gst_total += ($line_total * $gst_pct / 100);
+										}
+									}
+								}
+							}
+						}
+
 				?>		                        
 
 						<tr data-id="<?php echo $purchase_id; ?>">
-
 							<td><?php echo $j++; ?></td>
-
-								<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
-								<td class="purchase_vendor"><?php echo $vendor; ?></td>
-
-								<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
-								<td><span>Rs. </span><span data-paid="<?php echo $paid_payment; ?>"><?php echo number_format($paid_payment); ?></span></td>
-								<td><span>Rs. </span><span data-remaining="<?php echo $remaining_payment; ?>"><?php echo number_format($remaining_payment); ?></span></td>
-
-								<td><?php echo $payment_status; ?></td>
-
+							<td class="purchase_invoice"><?php echo $purchase_invoice; ?></td>
+							<td class="purchase_vendor"><?php echo $vendor; ?></td>
+							<td><span>Rs. </span><span data-payment="<?php echo $total_payment; ?>"><?php echo number_format($total_payment); ?></span></td>
+							<td><span>Rs. </span><span data-paid="<?php echo $paid_payment; ?>"><?php echo number_format($paid_payment); ?></span></td>
+							<td><span>Rs. </span><span data-remaining="<?php echo $remaining_payment; ?>"><?php echo number_format($remaining_payment); ?></span></td>
+							<td><?php echo $invoice_gst_total > 0 ? number_format($invoice_gst_total, 2) : 'N/A'; ?></td>
+							<td><?php echo $payment_status; ?></td>
+							<td><?php echo $payment_method ? ucwords(str_replace('_', ' ', $payment_method)) : 'N/A'; ?></td>
 							<td><?php echo $description; ?></td>
-
-							<td><?php echo $date; ?></td>
-
+							<td><?php echo isset($purchase->purchase_return) && $purchase->purchase_return ? 'Rs. ' . number_format($purchase->purchase_return) : 'N/A'; ?></td>
+							<td><?php echo date('M j, Y h:i A', strtotime($purchase->date)); ?></td>
 							<td><a href="admin.php?page=purchase_invoice_details&invoice_no=<?php echo $purchase_invoice; ?>" class="purchae_view_detail_btn">View Detail ↗</a></td>
-
 						</tr>
 
 					<?php

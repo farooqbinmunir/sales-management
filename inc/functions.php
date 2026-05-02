@@ -2,6 +2,7 @@
 	/* Sales Management - Custom Plugin functions */
 	// Including utility functions to be available in this file
 	require_once(FBM_PLUGIN_DIR . 'inc/utilities.php');
+	require_once(FBM_PLUGIN_DIR . 'inc/import-export.php');
 
 	function fbm_require_authenticated_ajax(){
 		if (!wp_doing_ajax()) {
@@ -262,25 +263,25 @@
 
 				sanitize_title_with_dashes(FBM_PLUGIN_MENU_NAME), 
 
-				'Stock',
+				'Import / Export',
 
-				'Stock',
+				'Import / Export',
 
 				'manage_options', 
 
-				'stock',
+				'import-export',
 
-				'stock_callback',
+				'import_export_callback',
 
 			);
 
 			add_submenu_page( 
 
-				null, 
+				sanitize_title_with_dashes(FBM_PLUGIN_MENU_NAME), 
 
 				'Invoice Details',
 
-				'Invoice Details',
+				'',  // Hidden submenu
 
 				'manage_options', 
 
@@ -319,10 +320,10 @@
 			// Detail page for Purchase Invoice
 			add_submenu_page( 
 
-				null, 
+				sanitize_title_with_dashes(FBM_PLUGIN_MENU_NAME), 
 
 				'Purchase Invoice Details',
-				'Purchase Invoice Details',
+				'',  // Hidden submenu
 				'manage_options', 
 				'purchase_invoice_details',
 				'purchase_invoice_details_callback',
@@ -387,6 +388,10 @@
 	// Submenu page for Purchase Invoice Details
 	function purchase_invoice_details_callback(){
 		require_once(FBM_PLUGIN_DIR . 'templates/purchase-invoice-panel.php');
+	}
+
+	function import_export_callback(){
+		require_once(FBM_PLUGIN_DIR . 'templates/import-export-panel.php');
 	}
 
 	// Perform actions on wordpress init - hook
